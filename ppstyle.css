@@ -1,0 +1,133 @@
+body { margin: 0; }
+
+/* Remove the navbar's default margin-bottom and rounded borders */ 
+.navbar { margin-bottom: 0; border-radius: 0; }
+
+/* Set height of the grid so .sidenav can be 100% (adjust as needed) */
+.row.content { height: 450px; }
+
+ul { margin-bottom: 0px; }
+
+/* Change color scheme of list-group to greenyellow */
+.nav-p.active, .nav-p.active:focus, .nav-p.active:hover {
+	background-color: greenyellow;
+	border-color: greenyellow;
+	color: black;
+	font-weight: bold;
+}
+
+/* Set black background color, white text and some padding */
+footer {
+  background-color: #343a40;
+  color: white;
+  padding: 15px;
+}
+
+h2 { text-align: center; }
+
+/* Default table styling */
+table {
+	border-collapse: collapse;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: left;
+	font-size: 1em;
+}
+table, th, td { border: 2px solid black; padding: 5px; }
+
+th {
+	background-color: black;
+	color: white;
+	text-align: center;
+}
+
+/*td {
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+	word-break: break-word;
+}*/
+
+.invis {
+	margin-left: 0px;
+	border: 0px solid white;
+}
+.invis th, .invis td { border: 0px solid white; }
+
+/* Special row/cell highlighting */
+#havenot { background-color: #d9d9d9; }
+
+.want { background-color: greenyellow; }
+
+.seen-l { background-color: #80fdff; }
+.seen-l-fam { background-color: #ccfeff; }
+
+.seen-b { background-color: gold; }
+.seen-b-genus { background-color: #fff4b3; }
+
+/* Basic color styling */
+.prim-p { background-color: greenyellow; }
+.sec-p { background-color: #ebffcc; }
+.prim-l { background-color: #66fcff; }
+.sec-l { background-color: #ccfeff; }
+.prim-b { background-color: gold; }
+.sec-b { background-color: #fff4b3; }
+.prim-o { background-color: #ffa500 }
+.sec-o { background-color: #ffdb99 }
+
+/* Species tables */
+.spp { margin-top: 1em; margin-left: 0px; width: 100%; }
+.spp th, .spp td { border: .5em solid white; color: black; vertical-align: top; }
+
+.spp-p { table-layout: fixed; }
+.spp-p td { background-color: #ebffcc; text-align: center; }
+#p-list { text-align: left; }
+.spp-p th { background-color: greenyellow; }
+
+.spp-l th { background-color: #66fcff; }
+.spp-l td { background-color: #ccfeff; }
+
+.spp-b th { background-color: gold; }
+.spp-b td { background-color: #fff4b3; }
+
+.spp-o th { background-color: #ffa500; }
+.spp-o td { background-color: #ffdb99; }
+
+
+/* Plant tags */
+.spp-tag {
+	margin: 0px 10px 0px 0px; 
+	padding: 5px;
+	display: inline-block;
+	border-radius: 5px;
+	background-color: greenyellow;
+}
+
+.tag-no { background-color: #ebffcc; font-style: italic; }
+
+
+/* Color-coded buttons */
+.btn-l { background-color: #ccfeff; border-color: #66fcff; }
+a.btn-l:hover, button.btn-l:hover { background-color: #66fcff; }
+a.btn-l { color: black; }
+
+.btn-b { background-color: #fff4b3; border-color: gold; }
+a.btn-b:hover, button.btn-b:hover { background-color: gold; }
+a.btn-b { color: black; }
+
+.btn-o { background-color: #ffdb99; border-color: #ffa500; }
+a.btn-o:hover, button.btn-o:hover { background-color: #ffa500; }
+a.btn-o { color: black; }
+
+.btn-p { background-color: #ebffcc; border-color: greenyellow; }
+a.btn-p:hover, button.btn-p:hover { background-color: greenyellow; }
+a.btn-p { color: black; }
+
+/* Button defaults */
+.btn-d { background-color: #505050; border-color: black; }
+a.btn-d:hover, button.btn-d:hover { background-color: black; }
+a.btn-d { color: white; }
+
+.btn-del { margin-bottom: 1em; left: 1em; }
+.btn-edit { margin-top: 1em; right: 1em; position: absolute; z-index: 100; }
+
+
