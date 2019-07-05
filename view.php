@@ -5,18 +5,18 @@ if (isset($_POST['spp'])) $name = $_POST['spp'];
 else $name = $_GET['spp'];
 
 // Determine what kind of species template is needed for this page (lepid, bee, or the general template)
-$stmt = $conn->prepare("SELECT order_name, overall_type, latin_name FROM Creature NATURAL JOIN Family WHERE latin_name=?");
+$stmt = $conn->prepare("SELECT type, subtype, latin_name FROM Creature NATURAL JOIN Family WHERE latin_name=?");
 $stmt->bindValue(1, $name);
 $stmt->execute();
 $type = $stmt->fetch(PDO::FETCH_ASSOC);
 $name = $type['latin_name']; // ok I don't know if this actually does anything, but it's intended to make sure that if somebody made up a value for name, the page will break without affecting the database
 
-if ($type['order_name'] == 'Lepidoptera') {
+if ($type['subtype'] == 'Butterfly' || $type['subtype'] == 'Moth') {
 	$spp_type = 'lepidop';
 	$spp_table = 'Lep_full';
 	$spp_class = 'l';
 }
-else if (stripos($type['overall_type'], 'bee') !== FALSE) {
+else if (stripos($type['subtype'], 'bee') !== FALSE && !preg_match('/[a-z]+bee[a-z]*|[a-z]*bee[a-z]+/i', $type['subtype'])) {
 	$spp_type = 'bee';
 	$spp_table = 'Bee_full';
 	$spp_class = 'b';
@@ -42,7 +42,7 @@ if (isset($_POST['latin'])) {
 	$id = $_POST['id'];
 	$notes = $_POST['notes'];
 	$img = $_POST['img'];
-	
+
 	$stmt = $conn->prepare("UPDATE Creature SET latin_name=:latin, common_name=:common, family_name=:fam, identification=:id, notes=:notes, img_url=:img WHERE latin_name=:name");
 	$stmt->bindValue(':name', $name);
 	$stmt->bindValue(':latin', $latin);
@@ -51,13 +51,13 @@ if (isset($_POST['latin'])) {
 	$stmt->bindValue(':id', $id);
 	$stmt->bindValue(':notes', $notes);
 	$stmt->bindValue(':img', $img);
-	
+
 	$changed = false;
 	if ($stmt->execute())
 	{
 		if ($stmt->rowCount() != 0) $changed = true;
 	}
-	
+
 	if ($spp_type == 'lepidop') {
 		$stmt = $conn->prepare("UPDATE Lepidopteran SET host_prefs=:gen_host, nect_prefs=:gen_nect WHERE latin_name=:name");
 		$stmt->bindValue(':name', $name);
@@ -77,7 +77,7 @@ if (isset($_POST['latin'])) {
 			if ($stmt->rowCount() != 0) $changed = true;
 		}
 	}
-	
+
 	echo '<div class="alert alert-success alert-dismissible text-center" role="alert">';
 	if ($changed) echo "Species record updated!";
 	else echo "No changes made.";
@@ -146,28 +146,28 @@ unset($plant);
 			<div style="margin-left: .5em">
 				<!-- Page header -->
 				<h1><?= $main_data['common_name']; ?>
-				
+
 				<!-- [LEP: BAMONA button] -->
 				<?php
 				if ($spp_type == 'lepidop' && explode(' ', $name)[1] != 'spp') :
 					$url = str_replace(' ', '-', $main_data['latin_name']); ?>
 					<a href="https://www.butterfliesandmoths.org/species/<?= $url ?>" class="btn btn-<?php echo $spp_class ?>" style="margin-left: 2em;"><i class="fas fa-external-link-alt"></i> BAMONA</a>
 				<?php endif ?>
-				
+
 				<!-- [BEE: Discover Life button] -->
 				<?php if ($spp_type == 'bee' && explode(' ', $name)[1] != 'spp') :
 					$url = str_replace(' ', '+', $main_data['latin_name']); ?>
 					<a href="http://www.discoverlife.org/20/q?search=<?= $url ?>" class="btn btn-<?php echo $spp_class ?>" style="margin-left: 2em;"><i class="fas fa-external-link-alt"></i> Discover Life</a>
 				<?php endif ?>
-				
+
 				<br/><small><em><?php echo $main_data['latin_name'] ?></em>
 				<br/><?php echo $main_data['family_name'] ?></small></h1>
-				
+
 				<!-- Profile -->
 				<div class="row">
 					<div class="col-sm-6">
 						<table class="spp spp-<?php echo $spp_class ?>">
-							<tr><th>Type</th><td><?= $main_data['overall_type'] ?></td></tr>
+							<tr><th>Type</th><td><?= $main_data['subtype'] ?></td></tr>
 							<?php if ($spp_type == 'bee') echo '<tr><th>Specialization</th><td>'.$main_data['specialization'].'</td></tr>' ?>
 							<tr><th colspan="2">Notes</th></tr>
 							<tr><td colspan = "2"><?php display_list($main_data['notes']); ?></td></tr>
@@ -194,7 +194,7 @@ unset($plant);
 				</div>
 				<div id="logs" class="collapse" aria-labelledby="logbookHeader">
 					<div class="card-body">
-						<?php if (count($logs) != 0) { 
+						<?php if (count($logs) != 0) {
 							echo '<table class="spp spp-'.$spp_class.'" style="width: auto">';
 							display_subtable('SELECT date, stage, notes FROM Log WHERE latin_name=? ORDER BY date DESC', $name);
 							echo '</table>';
@@ -227,17 +227,17 @@ unset($plant);
 							echo '</table>"><span class="badge badge-dark">'.count($larval_food_logs[$plant['latin_name']]).'</span></a></td>';
 						}
 						else echo '<span class="badge badge-light">0</span></td>';
-						
-						if ($plant['have'] != 0) echo '<td style="text-align: center">&#x2713;</td>'; 
+
+						if ($plant['have'] != 0) echo '<td style="text-align: center">&#x2713;</td>';
 						else echo '<td style="text-align: center">&mdash;</td>';
-						
+
 						echo '<td>'.$plant['common_name'].' (<em><a href="view_plant.php?name='.$plant['latin_name'].'">'.$plant['latin_name'].'</a></em>)</td>';
 						echo '</tr>';
 					}
 					unset($plant);
 					?>
 				</table>
-				
+
 				<table class="spp spp-l" style="width: auto">
 					<tr><th colspan="6" style="font-size: 1.5em">Nectar plants</th></tr>
 					<tr><th colspan="2">General preferences</th><td colspan="4"><?= $main_data['nect_prefs'] ?></td></tr>
@@ -263,18 +263,18 @@ unset($plant);
 							echo '</table>"><span class="badge badge-dark">'.count($adult_food_logs[$plant['latin_name']]).'</span></a></td>';
 						}
 						else echo '<span class="badge badge-light">0</span></td>';
-						
-						if ($plant['have'] != 0) echo '<td style="text-align: center">&#x2713;</td>'; 
+
+						if ($plant['have'] != 0) echo '<td style="text-align: center">&#x2713;</td>';
 						else echo '<td style="text-align: center">&mdash;</td>';
-						
+
 						echo '<td>'.$plant['common_name'].'<br/>(<em><a href="view_plant.php?name='.$plant['latin_name'].'">'.$plant['latin_name'].'</a></em>)</td>';
-						
+
 						echo '<td style="text-align: center">';
 						display_months('Blooms', $plant['latin_name']);
 						echo '</td>';
-						
+
 						echo '<td>'.$plant['bloom_length'].'</td>';
-						
+
 						echo '<td>'.$plant['notes'].'</td>';
 						echo '</tr>';
 					}
@@ -298,4 +298,3 @@ unset($plant);
 	</div>
 </div>
 <?php include 'footer.html'; ?>
-

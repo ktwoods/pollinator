@@ -12,7 +12,7 @@ include_once 'build_table.php';
 			<ul class="nav nav-pills justify-content-center" id="pills-tab" role="tablist">
 				<?php
 				global $conn;
-				$stmt = $conn->prepare("SELECT family_name, family_desc FROM Family WHERE overall_type='Butterfly'");
+				$stmt = $conn->prepare("SELECT family_name, family_desc FROM Family WHERE subtype='Butterfly'");
 				$stmt->execute();
 				$families = $stmt->fetchAll();
 				
@@ -50,7 +50,7 @@ include_once 'build_table.php';
 			<ul class="nav nav-pills justify-content-center" id="pills-tab" role="tablist">
 				<?php
 				global $conn;
-				$stmt = $conn->prepare("SELECT family_name, family_desc FROM Family WHERE overall_type='Moth'");
+				$stmt = $conn->prepare("SELECT family_name, family_desc FROM Family WHERE subtype='Moth'");
 				$stmt->execute();
 				$families = $stmt->fetchAll();
 				
@@ -86,11 +86,11 @@ include_once 'build_table.php';
 <?php
 function fam_table($family) {
 	if ($family == 'All butterflies') {
-		$query = "SELECT latin_name, common_name, family_name FROM Lep_full WHERE overall_type='Butterfly' ORDER BY family_name, latin_name";
+		$query = "SELECT latin_name, common_name, family_name FROM Lep_full WHERE subtype='Butterfly' ORDER BY family_name, latin_name";
 		echo "<h3 class='text-center'>All butterflies</h3>";
 	}
 	else if ($family == 'All moths') {
-		$query = "SELECT latin_name, common_name, family_name FROM Lep_full WHERE overall_type='Moth' ORDER BY family_name, latin_name";
+		$query = "SELECT latin_name, common_name, family_name FROM Lep_full WHERE subtype='Moth' ORDER BY family_name, latin_name";
 		echo "<h3 class='text-center'>All moths</h3>";
 	}
 	else

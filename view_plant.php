@@ -57,7 +57,7 @@ $stmt->bindValue(1, $name);
 $stmt->execute();
 $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $conn->prepare("SELECT creature_name AS latin_name, common_name, stage, Feeds.notes, family_name, order_name, overall_type FROM Feeds JOIN Creature_full ON creature_name=Creature_full.latin_name WHERE plant_name=? ORDER BY overall_type, order_name, family_name, latin_name");
+$stmt = $conn->prepare("SELECT creature_name AS latin_name, common_name, stage, Feeds.notes, family_name, type, subtype FROM Feeds JOIN Creature_full ON creature_name=Creature_full.latin_name WHERE plant_name=? ORDER BY subtype, type, family_name, latin_name");
 $stmt->bindValue(1, $name);
 $stmt->execute();
 $full_spp_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -160,12 +160,12 @@ unset($creature);
 							<?php
 							$host_recorded = FALSE;
 							
-							$stmt = $conn->prepare("SELECT latin_name, common_name, order_name FROM Lep_full JOIN Feeds ON (creature_name=latin_name) WHERE plant_name=? AND stage='larva'");
+							$stmt = $conn->prepare("SELECT latin_name, common_name, type FROM Lep_full JOIN Feeds ON (creature_name=latin_name) WHERE plant_name=? AND stage='larva'");
 							$stmt->bindValue(1, $name);
 							$stmt->execute();
 							$hosted_spp = $stmt->fetchAll();
 							foreach ($hosted_spp as $spp) {
-								if ($spp['order_name'] == 'Lepidoptera') {
+								if ($spp['type'] == 'Lepidoptera') {
 									$host_recorded = TRUE;
 									echo '<li>'.$spp['common_name'].' (<em><a href="view.php?spp='.$spp['latin_name'].'">'.$spp['latin_name'].'</a></em>)</li>';	
 								}
@@ -181,7 +181,7 @@ unset($creature);
 						<ul>
 							<?php
 							$special_genus = explode(' ', $main_data['latin_name'])[0];
-							$stmt = $conn->prepare("SELECT latin_name, common_name, specialization FROM Bee_full WHERE specialization LIKE '%".$special_genus."%' OR specialization LIKE '%".$main_data['family']."%' ORDER BY overall_type, family_name, latin_name");
+							$stmt = $conn->prepare("SELECT latin_name, common_name, specialization FROM Bee_full WHERE specialization LIKE '%".$special_genus."%' OR specialization LIKE '%".$main_data['family']."%' ORDER BY subtype, family_name, latin_name");
 							$stmt->bindValue(1, $name);
 							$stmt->execute();
 							
@@ -206,16 +206,16 @@ unset($creature);
 				$tabs_content[' '] = '';
 				for ($i = 0; $i < count($full_spp_list); $i++) {
 					$spp = $full_spp_list[$i];
-					$type = $spp['overall_type'];
+					$type = $spp['subtype'];
 					
 					// If this is a new type, construct a new tab and add opening/ending table tags to the relevant tabs in $tab_content
-					if ($i == 0 || $full_spp_list[$i-1]['overall_type'] != $full_spp_list[$i]['overall_type']) {
+					if ($i == 0 || $full_spp_list[$i-1]['subtype'] != $full_spp_list[$i]['subtype']) {
 						$url = str_replace(' ', '-', $type);
 						$url = str_replace('(', '', $url);
 						$url = str_replace(')', '', $url);
 						echo '<li class="nav-item"><a class="nav-link'.($i == 0 ? ' active' : '').'" id="'.$url.'-tab" href="#'.$url.'" data-toggle="pill" role="tab" aria-controls="'.$url.'" aria-selected="'.($i == 0 ? 'true' : 'false').'">'.$type.'</a></li>';
 						
-						if ($i != 0) $tabs_content[$full_spp_list[$i-1]['overall_type']] .= '</table>';
+						if ($i != 0) $tabs_content[$full_spp_list[$i-1]['subtype']] .= '</table>';
 						
 						$tabs_content[$type] = '<table class="spp spp-p" style="width: auto"><tr>';
 						$tabs_content[$type] .= '<th>Logs</th><th>Species</th><th>Family</th><th>Stage</th><th>Notes</th>';
@@ -258,7 +258,7 @@ unset($creature);
 					$url = str_replace('(', '', $url);
 					$url = str_replace(')', '', $url);
 					
-					if (count($full_spp_list) != 0 && $type == $full_spp_list[0]['overall_type']) echo '<div class="tab-pane fade show active" id="'.$url.'" role="tabpanel" aria-labelledby="'.$url.'-tab">';
+					if (count($full_spp_list) != 0 && $type == $full_spp_list[0]['subtype']) echo '<div class="tab-pane fade show active" id="'.$url.'" role="tabpanel" aria-labelledby="'.$url.'-tab">';
 					else echo '<div class="tab-pane fade" id="'.$url.'" role="tabpanel" aria-labelledby="'.$url.'-tab">';
 					echo $tab;
 					echo '</div>';

@@ -6,9 +6,9 @@
 
 function get_type($latin_name) {
 	global $conn;
-	$stmt = $conn->prepare("SELECT overall_type FROM Creature NATURAL JOIN Family WHERE latin_name = '$latin_name'");
+	$stmt = $conn->prepare("SELECT subtype FROM Creature NATURAL JOIN Family WHERE latin_name = '$latin_name'");
 	$stmt->execute();
-	$type = $stmt->fetch()['overall_type'];
+	$type = $stmt->fetch()['subtype'];
 	
 	if ($type == 'Butterfly' || $type == 'Moth') $type = 'Lepidopteran';
 	else if ($type == 'Long-tongued bee' || $type == 'Short-tongued bee') $type = 'Bee';
