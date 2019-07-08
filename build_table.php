@@ -5,14 +5,20 @@
 <?php
 
 function get_type($latin_name) {
+	$type = 'Creature';
+
 	global $conn;
-	$stmt = $conn->prepare("SELECT subtype FROM Creature NATURAL JOIN Family WHERE latin_name = '$latin_name'");
+	$stmt = $conn->prepare("(SELECT latin_name, 'Bee' AS type FROM Bee) UNION (SELECT latin_name, 'Lepidopteran' AS type FROM Lepidopteran)");
 	$stmt->execute();
-	$type = $stmt->fetch()['subtype'];
-	
-	if ($type == 'Butterfly' || $type == 'Moth') $type = 'Lepidopteran';
-	else if ($type == 'Long-tongued bee' || $type == 'Short-tongued bee') $type = 'Bee';
-	else $type = 'Creature';
+	$bee_lep_list = $stmt->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
+	$stmt = $conn->prepare("SELECT COUNT(latin_name) FROM Plant WHERE latin_name = ?");
+	$stmt->bindValue(1, $spp);
+	$stmt->execute();
+	if ($stmt->fetch() == 1) $type = 'Plant';
+
+	if (array_key_exists($latin_name, $bee_lep_list)) {
+		$type = $bee_lep_list[$latin_name][0];
+	}
 	return $type;
 }
 
@@ -21,38 +27,38 @@ function display_tr($query_string) {
 	global $conn;
 	$stmt = $conn->prepare($query_string);
 	$stmt->execute();
-	
+
 	$num_col = $stmt->columnCount();
-	
+
 	# Determine table class for styling
 	$meta = $stmt->getColumnMeta(0);
 	$table = $meta['table'];
-	
+
 	# Print data rows
 	while ($row = $stmt->fetch()) {
 		# Row formatting options for different tables
 		if ($table == "Plant" && $row['have'] == "0") echo "<tr id=\"havenot\">";
-		
+
 		else if ($table == "Lepidopteran" && $row['seen'] == "1") {
 			if (explode(' ', $row['common_name'])[0] == 'Unknown') echo "<tr class=\"seen-l-fam\">";
 			else echo "<tr class=\"seen-l\">";
 		}
-		
+
 		else if  ( $table == "Bee" && $row['seen'] == "1") {
 			if (explode(' ', $row['latin_name'])[1] == 'spp') echo "<tr class=\"seen-b-genus\">";
 			else echo "<tr class=\"seen-b\">";
 		}
 		else echo "<tr>";
-		
+
 		for ($i = 0; $i < $num_col; $i++) {
 			$meta = $stmt->getColumnMeta($i);
 			$dname = $meta['name'];
 			$dtype = $meta['native_type'];
-			
+
 			# Cell formatting options for different tables
 			if ($dname == "want" && $row[$i] == 1) echo "<td class=\"want\">";
 			else echo "<td>";
-			
+
 			# If first cell is for a species table, make it a link
 			if ($i == 0 && isset($row['latin_name']))
 			{
@@ -60,16 +66,16 @@ function display_tr($query_string) {
 				if ($table == "Plant" || $type == "Plant") echo "<a href='view_plant.php?name=".$row['latin_name']."'>";
 				else echo "<a href='view.php?spp=".$row['latin_name']."'>";
 			}
-			
+
 			# If bool, change output to check mark or dash mark
 			if ($dtype == "TINY") {
-				if ($row[$i] != 0) echo '<div style="text-align: center">&#x2713;</div>'; 
-				else echo '<div style="text-align: center">&mdash;</div>'; 
+				if ($row[$i] != 0) echo '<div style="text-align: center">&#x2713;</div>';
+				else echo '<div style="text-align: center">&mdash;</div>';
 			}
-			
+
 			# If species name, use italics
 			else if ($dname == "latin_name") echo "<em>" . $row[$i] . "</em>";
-			
+
 			else echo $row[$i];
 			if ($i == 0 && isset($row['common_name'])) echo "</a>";
 			echo "</td>";
@@ -84,50 +90,50 @@ function display($query_string) {
 	global $conn;
 	$stmt = $conn->prepare($query_string);
 	$stmt->execute();
-	
+
 	$num_col = $stmt->columnCount();
-	
+
 	# Determine table class for styling
 	$meta = $stmt->getColumnMeta(0);
 	$table = $meta['table'];
-	
+
 	echo "<table>";
-	
+
 	# Print header row
 	echo "<tr>";
-	for ($i = 0; $i < $num_col; $i++) {	
+	for ($i = 0; $i < $num_col; $i++) {
 		$meta = $stmt->getColumnMeta($i);
 		$hname = ucfirst($meta['name']);
 		$hname = str_replace("_", " ", $hname);
 		echo "<th>" . $hname . "</th>";
 	}
 	echo "</tr>";
-	
+
 	# Print data rows
 	while ($row = $stmt->fetch()) {
 		# Row formatting options for different tables
 		if ($table == "Plant" && array_key_exists('have', $row) && $row['have'] == "0") echo "<tr id=\"havenot\">";
-		
+
 		else if ($table == "Lepidopteran" && $row['seen'] == "1") {
 			if (explode(' ', $row['common_name'])[0] == 'Unknown') echo "<tr class=\"seen-l-fam\">";
 			else echo "<tr class=\"seen-l\">";
 		}
-		
+
 		else if  ( $table == "Bee" && $row['seen'] == "1") {
 			if (explode(' ', $row['latin_name'])[1] == 'spp') echo "<tr class=\"seen-b-genus\">";
 			else echo "<tr class=\"seen-b\">";
 		}
 		else echo "<tr>";
-		
+
 		for ($i = 0; $i < $num_col; $i++) {
 			$meta = $stmt->getColumnMeta($i);
 			$dname = $meta['name'];
 			$dtype = $meta['native_type'];
-			
+
 			# Cell formatting options for different tables
 			if ($dname == "want" && $row[$i] == 1) echo "<td class=\"want\">";
 			else echo "<td>";
-			
+
 			# If first cell is for a species table, make it a link
 			if ($i == 0 && isset($row['latin_name']))
 			{
@@ -135,23 +141,23 @@ function display($query_string) {
 				if ($table == "Plant" || $type == "Plant") echo "<a href='view_plant.php?name=".$row['latin_name']."'>";
 				else echo "<a href='view.php?spp=".$row['latin_name']."'>";
 			}
-			
+
 			# If bool, change output to check mark or dash mark
 			if ($dtype == "TINY") {
-				if ($row[$i] != 0) echo '<div style="text-align: center">&#x2713;</div>'; 
-				else echo '<div style="text-align: center">&mdash;</div>'; 
+				if ($row[$i] != 0) echo '<div style="text-align: center">&#x2713;</div>';
+				else echo '<div style="text-align: center">&mdash;</div>';
 			}
-			
+
 			# If species name, use italics
 			else if ($dname == "latin_name") echo "<em>" . $row[$i] . "</em>";
-			
+
 			else echo $row[$i];
 			if ($i == 0 && isset($row['common_name'])) echo "</a>";
 			echo "</td>";
 		}
 		echo "</tr>";
 	}
-	
+
 	echo "</table>";
 	$stmt = null;
 }
@@ -165,7 +171,7 @@ function display_subtable($query, $name) {
 	$stmt->bindValue(1, $name);
 	$stmt->execute();
 	$num_col = $stmt->columnCount();
-	
+
 	echo "<tr>";
 	for ($i = 0; $i < $num_col; $i++) {
 		$col = $stmt->getColumnMeta($i);
@@ -174,14 +180,14 @@ function display_subtable($query, $name) {
 		if ($col['name'] == "latin_name" && ($col['table'] == 'Plant' || $col['table'] == 'Plant_deriv')) echo '<th>Blooms</th>';
 	}
 	echo "</tr>";
-	
+
 	# Print data rows
 	while ($row = $stmt->fetch()) {
 		for ($i = 0; $i < $num_col; $i++) {
 			$meta = $stmt->getColumnMeta($i);
 			$dtable = $meta['table'];
 			$link = false;
-			
+
 			echo '<td>';
 			# If binary value, display as check mark or dash
 			if ($meta['native_type'] == 'TINY') {
@@ -201,7 +207,7 @@ function display_subtable($query, $name) {
 				}
 				echo ucfirst($row[$i]);
 			}
-			
+
 			if ($link) echo '</a>';
 			echo '</td>';
 		}
@@ -216,7 +222,7 @@ function display_months($table, $name) {
 	$stmt = $conn->prepare($query);
 	$stmt->bindValue(1, $name);
 	$stmt->execute();
-	
+
 	$all_months = '';
 	while ($month = $stmt->fetch())
 	{

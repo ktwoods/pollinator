@@ -12,7 +12,7 @@ include_once 'build_table.php';
 			<ul class="nav nav-pills justify-content-center" id="pills-tab" role="tablist">
 				<?php
 				global $conn;
-				$stmt = $conn->prepare("SELECT family_name, family_desc FROM Family WHERE subtype LIKE '%bee%' AND subtype NOT REGEXP '[a-z]+bee[a-z]*|[a-z]*bee[a-z]+' ORDER BY subtype");
+				$stmt = $conn->prepare("SELECT family_name, family_desc FROM Family WHERE family_name IN (SELECT DISTINCT family_name FROM Bee_full)");
 				$stmt->execute();
 				$families = $stmt->fetchAll();
 

@@ -1,22 +1,19 @@
 <?php
 include_once 'connect.php';
+include_once 'build_table.php';
 global $conn;
 if (isset($_POST['spp'])) $name = $_POST['spp'];
 else $name = $_GET['spp'];
 
 // Determine what kind of species template is needed for this page (lepid, bee, or the general template)
-$stmt = $conn->prepare("SELECT type, subtype, latin_name FROM Creature NATURAL JOIN Family WHERE latin_name=?");
-$stmt->bindValue(1, $name);
-$stmt->execute();
-$type = $stmt->fetch(PDO::FETCH_ASSOC);
-$name = $type['latin_name']; // ok I don't know if this actually does anything, but it's intended to make sure that if somebody made up a value for name, the page will break without affecting the database
+$type = get_type($name);
 
-if ($type['type'] == 'Lepidoptera') {
-	$spp_type = 'lepidop';
-	$spp_table = 'Lep_full';
-	$spp_class = 'l';
+if ($type == 'Lepidopteran') {
+	$spp_type = 'lepidop'; // Tells the header which part of the menu we're in
+	$spp_table = 'Lep_full'; // For the query
+	$spp_class = 'l'; // For styling
 }
-else if (stripos($type['subtype'], 'bee') !== FALSE) {
+else if ($type == 'Bee') {
 	$spp_type = 'bee';
 	$spp_table = 'Bee_full';
 	$spp_class = 'b';
@@ -58,7 +55,7 @@ $main_data = $stmt->fetch();
 					<label for="fam">Family</label>
 					<input type="text" class="form-control" id="fam" name="fam" value="<?php echo $main_data['family_name'] ?>">
 				</div>
-				
+
 				<?php if ($spp_type == 'bee') : ?>
 					<div class="form-group">
 						<label for="spec">Specialization</label>
@@ -75,7 +72,7 @@ $main_data = $stmt->fetch();
 						<input type="text" class="form-control" id="nect" name="gen_nect" value="<?php echo $main_data['nect_prefs'] ?>">
 					</div>
 				<?php endif ?>
-				
+
 				<div class="form-group">
 					<label for="notes">Notes</label>
 					<textarea type="text" class="form-control" id="notes" name="notes" rows="5"><?php echo $main_data['notes'] ?></textarea>
@@ -84,7 +81,7 @@ $main_data = $stmt->fetch();
 					<label for="id">Identification</label>
 					<textarea type="text" class="form-control" id="id" name="id" rows="5"><?php echo $main_data['identification'] ?></textarea>
 				</div>
-				
+
 				<div class="form-group">
 					<label for="img">Image URL</label>
 					<input type="text" class="form-control" id="img" name="img" value="<?php echo $main_data['img_url'] ?>">

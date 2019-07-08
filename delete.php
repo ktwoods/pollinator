@@ -6,32 +6,21 @@ include_once 'build_table.php';
 global $conn;
 if (isset($_POST['spp'])) $spp = $_POST['spp'];
 else $spp = $_GET['spp'];
-if (isset($_POST['type'])) $type = $_POST['type'];
-else $type = $_GET['type'];
+$type = get_type($spp);
+
+if ($type == 'Plant') $ret_url = 'plants.php';
+else {
+	$type = 'Creature';
+	$ret_url = 'other.php';
+	if ($type == 'Lepidopteran') $ret_url = 'lepidop.php';
+	else if ($type == 'Bee') $ret_url = 'bees.php';
+}
 ?>
 
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-sm">
 			<?php
-			if ($type == 'p') {
-				$type = 'Plant';
-				$ret_url = 'plants.php';
-			}
-			else if ($type == 'l') {
-				$type = 'Creature';
-				$ret_url = 'lepidop.php';
-			}
-			else if ($type == 'b') {
-				$type = 'Creature';
-				$ret_url = 'bees.php';
-			}
-			else if ($type == 'o') {
-				$type = 'Creature';
-				$ret_url = 'other.php';
-			}
-			else $type = ''; /* If user tries to fudge the type val in url, it won't do anything */
-			
 			$stmt = $conn->prepare("DELETE FROM $type WHERE latin_name = ?");
 			$stmt->bindValue(1, $spp);
 			if ($stmt->execute()) $rows_affected = $stmt->rowCount();

@@ -10,7 +10,7 @@ if (isset($_POST['name'])) $name = $_POST['name'];
 else $name = $_GET['name'];
 
 // If page edits have just been submitted, update the page
-if (isset($_POST['latin'])) { 
+if (isset($_POST['latin'])) {
 	$latin = $_POST['latin'];
 	$common = $_POST['common'];
 	$fam = $_POST['fam'];
@@ -21,7 +21,7 @@ if (isset($_POST['latin'])) {
 	$notes = $_POST['notes'];
 	$obs = $_POST['obs'];
 	$img = $_POST['img'];
-	
+
 	$stmt = $conn->prepare("UPDATE Plant SET latin_name=:latin, common_name=:common, family=:fam, have=:have, want=:want, bloom_length=:blen, tags=:tags, research_notes=:notes, observations=:obs, img_url=:img WHERE latin_name=:name");
 	$stmt->bindValue(':name', $name);
 	$stmt->bindValue(':latin', $latin);
@@ -34,12 +34,12 @@ if (isset($_POST['latin'])) {
 	$stmt->bindValue(':notes', $notes);
 	$stmt->bindValue(':obs', $obs);
 	$stmt->bindValue(':img', $img);
-	
+
 	$changed = false;
 	if ($stmt->execute()) {
 		if ($stmt->rowCount() != 0) $changed = true;
 	}
-	
+
 	echo '<div class="alert alert-success alert-dismissible text-center" role="alert">';
 	if ($changed) echo "Species record updated!";
 	else echo "No changes made.";
@@ -159,18 +159,17 @@ unset($creature);
 						<ul>
 							<?php
 							$host_recorded = FALSE;
-							
-							$stmt = $conn->prepare("SELECT latin_name, common_name, type FROM Lep_full JOIN Feeds ON (creature_name=latin_name) WHERE plant_name=? AND stage='larva'");
+
+							$stmt = $conn->prepare("SELECT latin_name, common_name FROM Lep_full JOIN Feeds ON (creature_name=latin_name) WHERE plant_name=? AND stage='larva'");
 							$stmt->bindValue(1, $name);
 							$stmt->execute();
-							$hosted_spp = $stmt->fetchAll();
-							foreach ($hosted_spp as $spp) {
-								if ($spp['type'] == 'Lepidoptera') {
-									$host_recorded = TRUE;
-									echo '<li>'.$spp['common_name'].' (<em><a href="view.php?spp='.$spp['latin_name'].'">'.$spp['latin_name'].'</a></em>)</li>';	
-								}
+							$hosted_lep = $stmt->fetchAll(PDO::FETCH_ASSOC);
+							foreach ($hosted_lep as $spp) {
+								$lep_l = $spp['latin_name'];
+								$lep_c = $spp['common_name'];
+								echo '<li>'.$lep_c.' (<em><a href="view.php?spp='.$lep_l.'">'.$lep_l.'</a></em>)</li>';
 							}
-							if (!$host_recorded) echo 'n/a';
+							if (!$hosted_lep) echo 'n/a';
 							?>
 						</ul>
 					</td>
@@ -180,20 +179,18 @@ unset($creature);
 					<td id="p-list">
 						<ul>
 							<?php
-							$special_genus = explode(' ', $main_data['latin_name'])[0];
-							$stmt = $conn->prepare("SELECT latin_name, common_name, specialization FROM Bee_full WHERE specialization LIKE '%".$special_genus."%' OR specialization LIKE '%".$main_data['family']."%' ORDER BY subtype, family_name, latin_name");
+							$plant_genus = explode(' ', $main_data['latin_name'])[0];
+							$stmt = $conn->prepare("SELECT latin_name, common_name, specialization FROM Bee_full WHERE specialization LIKE '%".$plant_genus."%' OR specialization LIKE '%".$main_data['family']."%' ORDER BY subtype, family_name, latin_name");
 							$stmt->bindValue(1, $name);
 							$stmt->execute();
-							
-							$host_data = $stmt->fetchAll();
-							$num_items = count($host_data);
-							for ($i = 0; $i < $num_items; $i++)
-							{
-								$bee_l = $host_data[$i]['latin_name'];
-								$bee_c = $host_data[$i]['common_name'];
-								echo '<li>'.$bee_c.' (<em><a href="view.php?spp='.$bee_l.'">'.$bee_l.'</a></em>) &mdash; '.$host_data[$i]['specialization'].'</li>';
+
+							$hosted_bee = $stmt->fetchAll(PDO::FETCH_ASSOC);
+							foreach ($hosted_bee as $spp) {
+								$bee_l = $spp['latin_name'];
+								$bee_c = $spp['common_name'];
+								echo '<li>'.$bee_c.' (<em><a href="view.php?spp='.$bee_l.'">'.$bee_l.'</a></em>) &mdash; '.$spp['specialization'].'</li>';
 							}
-							if ($num_items == 0) echo 'n/a';
+							if (!$hosted_bee) echo 'n/a';
 							?>
 						</ul>
 					</td>
@@ -207,24 +204,24 @@ unset($creature);
 				for ($i = 0; $i < count($full_spp_list); $i++) {
 					$spp = $full_spp_list[$i];
 					$type = $spp['subtype'];
-					
+
 					// If this is a new type, construct a new tab and add opening/ending table tags to the relevant tabs in $tab_content
 					if ($i == 0 || $full_spp_list[$i-1]['subtype'] != $full_spp_list[$i]['subtype']) {
 						$url = str_replace(' ', '-', $type);
 						$url = str_replace('(', '', $url);
 						$url = str_replace(')', '', $url);
 						echo '<li class="nav-item"><a class="nav-link'.($i == 0 ? ' active' : '').'" id="'.$url.'-tab" href="#'.$url.'" data-toggle="pill" role="tab" aria-controls="'.$url.'" aria-selected="'.($i == 0 ? 'true' : 'false').'">'.$type.'</a></li>';
-						
+
 						if ($i != 0) $tabs_content[$full_spp_list[$i-1]['subtype']] .= '</table>';
-						
+
 						$tabs_content[$type] = '<table class="spp spp-p" style="width: auto"><tr>';
 						$tabs_content[$type] .= '<th>Logs</th><th>Species</th><th>Family</th><th>Stage</th><th>Notes</th>';
 						$tabs_content[$type] .= '</tr>';
 					}
-					
+
 					// Append row to tab content
 					$tabs_content[$type] .= '<tr>';
-					
+
 					$tabs_content[$type] .= '<td style="text-align: center">';
 					if (isset($logs_by_spp) && array_key_exists($spp['latin_name'], $logs_by_spp)) {
 						$tabs_content[$type] .= '<a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-placement="top" data-content="';
@@ -238,14 +235,14 @@ unset($creature);
 						$tabs_content[$type] .= '</table>"><span class="badge badge-dark">'.count($logs_by_spp[$spp['latin_name']]).'</span></a></td>';
 					}
 					else $tabs_content[$type] .= '<span class="badge badge-light">0</span></td>';
-					
+
 					$tabs_content[$type] .= '<td>'.$spp['common_name'].'<br/>(<em><a href="view.php?spp='.$spp['latin_name'].'">'.$spp['latin_name'].'</a></em>)</td>';
 					$tabs_content[$type] .= '<td>'.$spp['family_name'].'</td>';
 					$tabs_content[$type] .= '<td>'.ucfirst($spp['stage']).'</td>';
 					$tabs_content[$type] .= '<td>'.$spp['notes'].'</td>';
-					
+
 					$tabs_content[$type] .= '</tr>';
-					
+
 					if ($i == (count($full_spp_list) - 1)) $tabs_content[$type] .= '</table>';
 				}
 				?>
@@ -257,7 +254,7 @@ unset($creature);
 					$url = str_replace(' ', '-', $type);
 					$url = str_replace('(', '', $url);
 					$url = str_replace(')', '', $url);
-					
+
 					if (count($full_spp_list) != 0 && $type == $full_spp_list[0]['subtype']) echo '<div class="tab-pane fade show active" id="'.$url.'" role="tabpanel" aria-labelledby="'.$url.'-tab">';
 					else echo '<div class="tab-pane fade" id="'.$url.'" role="tabpanel" aria-labelledby="'.$url.'-tab">';
 					echo $tab;
@@ -265,7 +262,7 @@ unset($creature);
 				}
 				?>
 			</div>
-		</div>	
+		</div>
 	</div>
 </div>
 <a href="#" class="btn btn-p btn-del" data-toggle="modal" data-target="#delModal"><i class="fas fa-trash-alt"></i></a>

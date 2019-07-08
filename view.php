@@ -1,22 +1,19 @@
 <?php
 include_once 'connect.php';
+include_once 'build_table.php';
 global $conn;
 if (isset($_POST['spp'])) $name = $_POST['spp'];
 else $name = $_GET['spp'];
 
 // Determine what kind of species template is needed for this page (lepid, bee, or the general template)
-$stmt = $conn->prepare("SELECT type, subtype, latin_name FROM Creature NATURAL JOIN Family WHERE latin_name=?");
-$stmt->bindValue(1, $name);
-$stmt->execute();
-$type = $stmt->fetch(PDO::FETCH_ASSOC);
-$name = $type['latin_name']; // ok I don't know if this actually does anything, but it's intended to make sure that if somebody made up a value for name, the page will break without affecting the database
+$type = get_type($name);
 
-if ($type['subtype'] == 'Butterfly' || $type['subtype'] == 'Moth') {
-	$spp_type = 'lepidop';
-	$spp_table = 'Lep_full';
-	$spp_class = 'l';
+if ($type == 'Lepidopteran') {
+	$spp_type = 'lepidop'; // Tells the header which part of the menu we're in
+	$spp_table = 'Lep_full'; // For the query
+	$spp_class = 'l'; // For styling
 }
-else if (stripos($type['subtype'], 'bee') !== FALSE && !preg_match('/[a-z]+bee[a-z]*|[a-z]*bee[a-z]+/i', $type['subtype'])) {
+else if ($type == 'Bee') {
 	$spp_type = 'bee';
 	$spp_table = 'Bee_full';
 	$spp_class = 'b';
@@ -292,7 +289,7 @@ unset($plant);
 			<div class="modal-body">Are you sure you want to delete all data for this species?</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-				<a href="delete.php?type=<?php echo $spp_class ?>&spp=<?php echo $name ?>" target="_blank" class="btn btn-primary">Delete</a>
+				<a href="delete.php?spp=<?php echo $name ?>" target="_blank" class="btn btn-primary">Delete</a>
 			</div>
 		</div>
 	</div>
