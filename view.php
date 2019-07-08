@@ -193,7 +193,8 @@ unset($plant);
 					<div class="card-body">
 						<?php if (count($logs) != 0) {
 							echo '<table class="spp spp-'.$spp_class.'" style="width: auto">';
-							display_subtable('SELECT date, stage, notes FROM Log WHERE latin_name=? ORDER BY date DESC', $name);
+							echo '<tr><th>Date</th><th>Stage</th><th>Notes</th></tr>';
+							build_rows('SELECT date, stage, notes FROM Log WHERE latin_name=? ORDER BY date DESC', $name);
 							echo '</table>';
 						} ?>
 					</div>
