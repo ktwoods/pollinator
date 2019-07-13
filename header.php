@@ -43,6 +43,7 @@
 						<div class="dropdown-menu" aria-labelledby="navbarDropdownLog">
 							<a class="dropdown-item <?php if ($cur_page == 'lep_logs') echo 'active' ?>" href="lep_logs.php">Butterflies & moths</a>
 							<a class="dropdown-item <?php if ($cur_page == 'bee_logs') echo 'active' ?>" href="bee_logs.php">Bees</a>
+              <a class="dropdown-item <?php if ($cur_page == 'other_logs') echo 'active' ?>" href="other_logs.php">Other</a>
 							<a class="dropdown-item <?php if ($cur_page == 'new_log') echo 'active' ?>" href="new_log.php">New entry</a>
 						</div>
 					</li>
