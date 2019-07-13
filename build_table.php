@@ -158,7 +158,7 @@ function display($query_string) {
 
 /* Some other helper functions for displaying the results of queries in interesting ways */
 
-/* Builds rows inside an existing table */
+/* Builds generic rows inside an existing table */
 function build_rows($query, $name='') {
 	global $conn;
 	$stmt = $conn->prepare($query);
