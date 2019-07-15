@@ -41,9 +41,9 @@
 					<li class="nav-item dropdown <?php if ($cur_page == 'lep_logs' || $cur_page == 'bee_logs' || $cur_page == 'new_log' || $cur_page == 'edit_log') echo 'active' ?>"> <!-- main menu item -->
 						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownLog" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Wildlife log</a>
 						<div class="dropdown-menu" aria-labelledby="navbarDropdownLog">
-							<a class="dropdown-item <?php if ($cur_page == 'lep_logs') echo 'active' ?>" href="lep_logs.php">Butterflies & moths</a>
-							<a class="dropdown-item <?php if ($cur_page == 'bee_logs') echo 'active' ?>" href="bee_logs.php">Bees</a>
-              <a class="dropdown-item <?php if ($cur_page == 'other_logs') echo 'active' ?>" href="other_logs.php">Other</a>
+							<a class="dropdown-item <?php if ($cur_page == 'lep_logs') echo 'active' ?>" href="logs.php?type=lep">Butterflies & moths</a>
+							<a class="dropdown-item <?php if ($cur_page == 'bee_logs') echo 'active' ?>" href="logs.php?type=bee">Bees</a>
+              <a class="dropdown-item <?php if ($cur_page == 'other_logs') echo 'active' ?>" href="logs.php?type=other">Other</a>
 							<a class="dropdown-item <?php if ($cur_page == 'new_log') echo 'active' ?>" href="new_log.php">New entry</a>
 						</div>
 					</li>
