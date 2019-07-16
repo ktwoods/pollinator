@@ -13,7 +13,6 @@ include_once 'build_table.php';
 				<?php
 				#Generate family names for pills
 				global $conn;
-				var_dump($conn);
 				$stmt = $conn->prepare("SELECT family_name, family_desc FROM Family WHERE subtype='Butterfly'");
 				$stmt->execute();
 				$families = $stmt->fetchAll();
