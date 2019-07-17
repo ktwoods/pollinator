@@ -57,23 +57,15 @@ function matches_plant($plants, $spp, $start, $end) {
 			?>
 			<table style="width: 100%">
 			<?php
-<<<<<<< HEAD
 			# Get array of plant species names
-=======
-			# Get array of species names
->>>>>>> 64daf243635e55af4576a50d4d7ec8f2cc725620
 			$stmt = $conn->prepare("SELECT latin_name FROM Plant");
 			$stmt->execute();
 			global $plant_names;
 			$plant_names = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-<<<<<<< HEAD
 			# Print each log and the enclosing tables
 			foreach ($logs as $log) {
 				# If we've hit a new year, end the previous table and start a new one
-=======
-			foreach ($logs as $log) {
->>>>>>> 64daf243635e55af4576a50d4d7ec8f2cc725620
 				if (substr($log['date'], 0, 4) != $year) :
 					$year = substr($log['date'], 0, 4);
 					$stmt = $conn->prepare("SELECT COUNT(DISTINCT latin_name) AS num_spp, COUNT(latin_name) as num_logs from $table ".(strpos($table, " WHERE ") === FALSE ? "WHERE" : "AND")." date LIKE '$year%'");
@@ -84,7 +76,6 @@ function matches_plant($plants, $spp, $start, $end) {
 			<h1 class="text-center"><small><?php echo $year.' ('.$stats['num_logs'].' log'.($stats['num_logs'] == 1 ? '' : 's').', '.$stats['num_spp'].' spp)' ?></small></h1>
 			<table style="width: 100%">
 				<th>&nbsp;</th><th>Name</th><th>Date</th><th>Notes</th>
-<<<<<<< HEAD
 			<?php endif; # END OF IF STATEMENT ?>
 				<tr>
 					<!-- Edit button -->
@@ -99,17 +90,6 @@ function matches_plant($plants, $spp, $start, $end) {
 					<td>
 						<?php
 						# Adds hyperlinks to species pages within notes field
-=======
-				<?php endif; ?>
-				<tr>
-					<td><a href="edit_log.php?name=<?php echo $log['latin_name'] ?>&date=<?php echo $log['date'] ?>&stage=<?php echo $log['stage'] ?>" class="btn btn-<?php echo $btn_class ?>">
-						<i class="fas fa-edit"></i>
-					</a></td>
-					<td style="white-space: nowrap"><?php echo $log['common_name'].'<br/><em>(<a href="view.php?spp='.$log['latin_name'].'">'.$log['latin_name'].'</a>)</em>' ?></td>
-					<td style="white-space: nowrap"><?php echo $log['date'] ?></td>
-					<td>
-						<?php
->>>>>>> 64daf243635e55af4576a50d4d7ec8f2cc725620
 						$notes = explode(" ", $log['notes']);
 						for ($i = 0; $i < count($notes) - 1; $i++) {
 							# Remove leading/trailing punctuation for search
@@ -129,19 +109,11 @@ function matches_plant($plants, $spp, $start, $end) {
 								$i++;
 							}
 						}
-<<<<<<< HEAD
 						echo implode(" ", $notes); # Recombine into string
 						?>
 					</td>
 				</tr>
 			<?php } # END OF LOG-PRINTING LOOP ?>
-=======
-						echo implode(" ", $notes);
-						?>
-					</td>
-				</tr>
-				<?php } ?>
->>>>>>> 64daf243635e55af4576a50d4d7ec8f2cc725620
 			</table>
 			<p>&nbsp;</p>
 		</div>
