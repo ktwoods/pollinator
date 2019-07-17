@@ -143,7 +143,8 @@ unset($creature);
 				<div id="logs" class="collapse" aria-labelledby="logbookHeader">
 					<div class="card-body">
 						<?php if (count($logs) != 0): ?><table class="spp spp-p" style="width: auto">
-							<?php display_subtable('SELECT latin_name, date, stage, notes FROM Log WHERE notes LIKE CONCAT("%",?,"%") ORDER BY date DESC', $name); ?>
+							<tr><th>Latin name</th><th>Date</th><th>Stage</th><th>Notes</th></tr>
+							<?php build_rows('SELECT latin_name, date, stage, notes FROM Log WHERE notes LIKE CONCAT("%",?,"%") ORDER BY date DESC', $name); ?>
 						</table><?php endif; ?>
 					</div>
 				</div>

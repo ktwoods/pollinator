@@ -4,6 +4,8 @@
 </script>
 <?php
 
+
+# Determines what type of species is referred to by $latin_name, and returns the name of its most specific table.
 function get_type($latin_name) {
 	$type = 'Creature';
 
@@ -12,7 +14,7 @@ function get_type($latin_name) {
 	$stmt->execute();
 	$bee_lep_list = $stmt->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
 	$stmt = $conn->prepare("SELECT COUNT(latin_name) FROM Plant WHERE latin_name = ?");
-	$stmt->bindValue(1, $spp);
+	$stmt->bindValue(1, $latin_name);
 	$stmt->execute();
 	if ($stmt->fetch() == 1) $type = 'Plant';
 
@@ -22,70 +24,62 @@ function get_type($latin_name) {
 	return $type;
 }
 
-
-function display_tr($query_string) {
+# Builds a table for a family within Bee or Lepidopteran
+# Acceptable inputs for $type = 'Butterfly', 'Moth', 'Bee'; $family can be either a valid family name or 'All'
+function build_family_table($family, $type) {
+	if ($type == 'Butterfly' || $type == 'Moth') {
+		$table = 'Lep_full';
+		$style = 'l';
+		if ($family == 'All') {
+			$query = "SELECT latin_name, common_name, family_name FROM $table WHERE subtype='$type' ORDER BY family_name, latin_name";
+		}
+		else {
+			$query = "SELECT latin_name, common_name, family_name FROM $table WHERE family_name='$family' AND subtype='$type' ORDER BY latin_name";
+		}
+	}
+	else if ($type == 'Bee') {
+		$table = 'Bee_full';
+		$style = 'b';
+		if ($family == 'All') {
+			$query = "SELECT latin_name, common_name, family_name FROM $table ORDER BY family_name, latin_name";
+		}
+		else {
+			$query = "SELECT latin_name, common_name, family_name FROM $table WHERE family_name='$family' ORDER BY latin_name";
+		}
+	}
+	# ***Add error handling for invalid input
 	global $conn;
-	$stmt = $conn->prepare($query_string);
+	$stmt = $conn->prepare($query);
 	$stmt->execute();
 
 	$num_col = $stmt->columnCount();
 
-	# Determine table class for styling
-	$meta = $stmt->getColumnMeta(0);
-	$table = $meta['table'];
-
-	# Print data rows
+	# Start of table
+	echo "<table style='width: 80%'>";
+	echo "<tr><th>Latin name</th><th>Common name</th><th>Sightings</th></tr>";
 	while ($row = $stmt->fetch()) {
-		# Row formatting options for different tables
-		if ($table == "Plant" && $row['have'] == "0") echo "<tr id=\"havenot\">";
+		$name = $row['latin_name'];
+		$substmt = $conn->prepare("SELECT COUNT(DISTINCT date) FROM Log WHERE latin_name='$name'");
+		$substmt->execute();
+		$seen = $substmt->fetch()[0];
 
-		else if ($table == "Lepidopteran" && $row['seen'] == "1") {
-			if (explode(' ', $row['common_name'])[0] == 'Unknown') echo "<tr class=\"seen-l-fam\">";
-			else echo "<tr class=\"seen-l\">";
-		}
-
-		else if  ( $table == "Bee" && $row['seen'] == "1") {
-			if (explode(' ', $row['latin_name'])[1] == 'spp') echo "<tr class=\"seen-b-genus\">";
-			else echo "<tr class=\"seen-b\">";
+		if  ($seen != "0") {
+			if (explode(' ', $row['latin_name'])[1] == 'spp') echo "<tr class=\"seen-$style-fam\">";
+			else echo "<tr class=\"seen-$style\">";
 		}
 		else echo "<tr>";
 
-		for ($i = 0; $i < $num_col; $i++) {
-			$meta = $stmt->getColumnMeta($i);
-			$dname = $meta['name'];
-			$dtype = $meta['native_type'];
-
-			# Cell formatting options for different tables
-			if ($dname == "want" && $row[$i] == 1) echo "<td class=\"want\">";
-			else echo "<td>";
-
-			# If first cell is for a species table, make it a link
-			if ($i == 0 && isset($row['latin_name']))
-			{
-				$type = get_type($row['latin_name']);
-				if ($table == "Plant" || $type == "Plant") echo "<a href='view_plant.php?name=".$row['latin_name']."'>";
-				else echo "<a href='view.php?spp=".$row['latin_name']."'>";
-			}
-
-			# If bool, change output to check mark or dash mark
-			if ($dtype == "TINY") {
-				if ($row[$i] != 0) echo '<div style="text-align: center">&#x2713;</div>';
-				else echo '<div style="text-align: center">&mdash;</div>';
-			}
-
-			# If species name, use italics
-			else if ($dname == "latin_name") echo "<em>" . $row[$i] . "</em>";
-
-			else echo $row[$i];
-			if ($i == 0 && isset($row['common_name'])) echo "</a>";
-			echo "</td>";
-		}
+		$lat = $row['latin_name'];
+		$com = $row['common_name'];
+		echo "<td><a href='view.php?spp=$lat'>$lat</a></td>";
+		echo "<td>$com</td>";
+		echo "<td>$seen</td>";
 		echo "</tr>";
 	}
-	$stmt = null;
+	echo "</table>";
 }
 
-/* Takes a query and uses it to build the standard tables */
+/* Takes a query and uses it to build a basic table */
 function display($query_string) {
 	global $conn;
 	$stmt = $conn->prepare($query_string);
@@ -164,22 +158,13 @@ function display($query_string) {
 
 /* Some other helper functions for displaying the results of queries in interesting ways */
 
-/* Builds rows inside an existing table */
-function display_subtable($query, $name) {
+/* Builds generic rows inside an existing table */
+function build_rows($query, $name='') {
 	global $conn;
 	$stmt = $conn->prepare($query);
-	$stmt->bindValue(1, $name);
+	if ($name != '') $stmt->bindValue(1, $name);
 	$stmt->execute();
 	$num_col = $stmt->columnCount();
-
-	echo "<tr>";
-	for ($i = 0; $i < $num_col; $i++) {
-		$col = $stmt->getColumnMeta($i);
-		$col_name = str_replace('_', '&nbsp;', $col['name']);
-		echo "<th>".ucfirst($col_name)."</th>";
-		if ($col['name'] == "latin_name" && ($col['table'] == 'Plant' || $col['table'] == 'Plant_deriv')) echo '<th>Blooms</th>';
-	}
-	echo "</tr>";
 
 	# Print data rows
 	while ($row = $stmt->fetch()) {

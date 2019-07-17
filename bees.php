@@ -11,6 +11,7 @@ include_once 'build_table.php';
 			<h1 class="text-center">Bees</h1>
 			<ul class="nav nav-pills justify-content-center" id="pills-tab" role="tablist">
 				<?php
+				# Generate family names for pills
 				global $conn;
 				$stmt = $conn->prepare("SELECT family_name, family_desc FROM Family WHERE family_name IN (SELECT DISTINCT family_name FROM Bee_full)");
 				$stmt->execute();
@@ -33,81 +34,17 @@ include_once 'build_table.php';
 					if ($i == 0) echo '<div id="'.$fam.'" class="tab-pane fade show active" role="tabpanel" aria-labelledby="'.$fam.'-tab">';
 					else echo '<div id="'.$fam.'" class="tab-pane fade" role="tabpanel" aria-labelledby="'.$fam.'-tab">';
 					echo '<h3 class="text-center">'.$fam.' ('.$desc.')'.'</h3>';
-					fam_table($fam);
+					build_family_table($fam, 'Bee');
 					echo '<p>&nbsp;</p></div>';
 				}
 				?>
 				<div id="all" class="tab-pane fade" role="tabpanel" aria-labelledby="all-tab">
-					<?php fam_table('All bees'); ?>
+					<h3>All species</h3>
+					<?php build_family_table('All', 'Bee'); ?>
 					<p>&nbsp;</p>
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
-<?php
-function fam_table($family) {
-	if ($family == 'All bees') {
-		$query = "SELECT latin_name, common_name FROM Bee_full ORDER BY subtype, family_name, latin_name";
-		echo "<h3 class='text-center'>All species</h3>";
-	}
-	else
-		$query = "SELECT latin_name, common_name FROM Bee_full WHERE family_name ='$family' ORDER BY latin_name";
-
-	global $conn;
-	$stmt = $conn->prepare($query);
-	$stmt->execute();
-	$num_col = $stmt->columnCount();
-
-	echo "<table style='width: 100%'>";
-	# Print header row
-	echo "<tr>";
-	for ($i = 0; $i < $num_col; $i++) {
-		$meta = $stmt->getColumnMeta($i);
-		$hname = ucfirst($meta['name']);
-		$hname = str_replace("_", " ", $hname);
-		echo "<th>" . $hname . "</th>";
-	}
-	echo "<th>Sightings</th>";
-	echo "</tr>";
-
-	# Print data rows
-	while ($row = $stmt->fetch()) {
-		$name = $row['latin_name'];
-		$substmt = $conn->prepare("SELECT COUNT(date) FROM Log WHERE latin_name='$name'");
-		$substmt->execute();
-		$seen = $substmt->fetch()[0];
-
-		if  ($seen != "0") {
-			if (explode(' ', $row['latin_name'])[1] == 'spp') echo "<tr class=\"seen-b-genus\">";
-			else echo "<tr class=\"seen-b\">";
-		}
-		else echo "<tr>";
-
-		for ($i = 0; $i < $num_col; $i++) {
-			$meta = $stmt->getColumnMeta($i);
-			$dname = $meta['name'];
-			$dtype = $meta['native_type'];
-
-			echo "<td>";
-
-			# Make first cell a link
-			if ($i == 0) {
-				echo "<a href='view.php?spp=".$row['latin_name']."'>";
-			}
-
-			# If species name, use italics
-			if ($dname == "latin_name") echo "<em>" . $row[$i] . "</em>";
-
-			else echo $row[$i];
-
-			if ($i == 0) echo "</a>";
-			echo "</td>";
-		}
-		echo "<td>$seen</td>";
-		echo "</tr>";
-	}
-	echo "</table>";
-}
-?>
 <?php include 'footer.html'; ?>
