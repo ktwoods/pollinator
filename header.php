@@ -22,13 +22,13 @@
 			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarFull" aria-controls="navbarFull" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
-			
+
 			<div class="collapse navbar-collapse" id="navbarFull">
 				<ul class="navbar-nav">
 					<li class="nav-item <?php if ($cur_page == 'home') echo 'active' ?>"><a class="nav-link" href="home.php">Home</a></li>
-					
+
 					<li class="nav-item <?php if ($cur_page == 'plants') echo 'active' ?>"><a class="nav-link" href="plants.php">Plants</a></li>
-					
+
 					<li class="nav-item dropdown <?php if ($cur_page == 'lepidop' || $cur_page == 'bees' || $cur_page == 'other') echo 'active' ?>">
 						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownWildlife" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Wildlife</a>
 						<div class="dropdown-menu" aria-labelledby="navbarDropdownWildlife">
@@ -37,13 +37,14 @@
 							<a class="dropdown-item <?php if ($cur_page == 'other') echo 'active' ?>" href="other.php">Other</a>
 						</div>
 					</li>
-					
+
 					<li class="nav-item dropdown <?php if ($cur_page == 'lep_logs' || $cur_page == 'bee_logs' || $cur_page == 'new_log' || $cur_page == 'edit_log') echo 'active' ?>"> <!-- main menu item -->
 						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownLog" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Wildlife log</a>
 						<div class="dropdown-menu" aria-labelledby="navbarDropdownLog">
-							<a class="dropdown-item" href="lep_logs.php">Butterflies & moths</a>
-							<a class="dropdown-item" href="bee_logs.php">Bees</a>
-							<a class="dropdown-item" href="new_log.php">New entry</a>
+							<a class="dropdown-item <?php if ($cur_page == 'lep_logs') echo 'active' ?>" href="logs.php?type=lep">Butterflies & moths</a>
+							<a class="dropdown-item <?php if ($cur_page == 'bee_logs') echo 'active' ?>" href="logs.php?type=bee">Bees</a>
+              <a class="dropdown-item <?php if ($cur_page == 'other_logs') echo 'active' ?>" href="logs.php?type=other">Other</a>
+							<a class="dropdown-item <?php if ($cur_page == 'new_log') echo 'active' ?>" href="new_log.php">New entry</a>
 						</div>
 					</li>
 				</ul>
