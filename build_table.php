@@ -25,7 +25,7 @@ function get_type($latin_name) {
 }
 
 # Builds a table for a family within Bee or Lepidopteran
-# Acceptable inputs for $type = 'Butterfly', 'Moth', 'Bee'
+# Acceptable inputs for $type = 'Butterfly', 'Moth', 'Bee'; $family can be either a valid family name or 'All'
 function build_family_table($family, $type) {
 	if ($type == 'Butterfly' || $type == 'Moth') {
 		$table = 'Lep_full';
@@ -47,7 +47,7 @@ function build_family_table($family, $type) {
 			$query = "SELECT latin_name, common_name, family_name FROM $table WHERE family_name='$family' ORDER BY latin_name";
 		}
 	}
-	# Add error handling for invalid input
+	# ***Add error handling for invalid input
 	global $conn;
 	$stmt = $conn->prepare($query);
 	$stmt->execute();

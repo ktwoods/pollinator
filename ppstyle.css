@@ -1,6 +1,6 @@
 body { margin: 0; }
 
-/* Remove the navbar's default margin-bottom and rounded borders */ 
+/* Remove the navbar's default margin-bottom and rounded borders */
 .navbar { margin-bottom: 0; border-radius: 0; }
 
 /* Set height of the grid so .sidenav can be 100% (adjust as needed) */
@@ -36,7 +36,7 @@ table {
 table, th, td { border: 2px solid black; padding: 5px; }
 
 th {
-	background-color: black;
+	background-color: #343a40;
 	color: white;
 	text-align: center;
 }
@@ -95,7 +95,7 @@ th {
 
 /* Plant tags */
 .spp-tag {
-	margin: 0px 10px 0px 0px; 
+	margin: 0px 10px 0px 0px;
 	padding: 5px;
 	display: inline-block;
 	border-radius: 5px;
@@ -129,5 +129,3 @@ a.btn-d { color: white; }
 
 .btn-del { margin-bottom: 1em; left: 1em; }
 .btn-edit { margin-top: 1em; right: 1em; position: absolute; z-index: 100; }
-
-
