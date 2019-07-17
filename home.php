@@ -39,6 +39,20 @@ function build_category_card($table) {
     echo '</div></div>';
 }
 
+function print_thumbnails($query) {
+  global $conn;
+  $stmt = $conn->prepare($query);
+  $stmt->execute();
+  $thumbs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  $curline = -1;
+  for ($i = 0; $i < count($thumbs); $i++) {
+    $url = str_replace('l.', 't.', $thumbs[$i]['img_url']);
+    echo '<a href="view.php?spp='.$thumbs[$i]['latin_name'].'" data-toggle="tooltip" data-placement="right" title="'.$thumbs[$i]['common_name'].'">';
+    if ($url != '') echo '<div style="width:4rem; display:inline-block; vertical-align:middle"><img src="'.$url.'" style="max-width:100%; max-height:100%"></div></a>';
+    else echo '<div style="width:4rem; height:4rem; display:inline-block; background-color:#e9ecef; vertical-align: middle">&nbsp;</div></a>';
+  }
+}
+
 # Putting all this inside a function so it can be collapsed easily
 function getStats() {
   global $conn;
@@ -116,7 +130,7 @@ $stats = getStats();
       build_category_card("Other");
       ?>
   </div>
-<div>&nbsp;</div>
+  <div>&nbsp;</div>
   <div class="jumbotron">
     <div class="col">
       <h1 class="display-4">Wildlife logs</h1>
@@ -125,7 +139,7 @@ $stats = getStats();
     </div>
   </div>
   <div class="row">
-    <div class="col-sm-4">
+    <div class="col">
       <div class="card">
         <div class="card-header d-flex justify-content-between"><strong>Today</strong> <span><?php echo $stats['today'] ?> spp</span></div>
         <ul class="list-group list-group-flush">
@@ -169,40 +183,22 @@ $stats = getStats();
         </ul>
       </div>
     </div>
-    <div class="col-sm-8">
+    <div class="col-md-auto" style="max-width: 42rem">
       <div class="card">
         <div class="card-header">Today's species</div>
-        <div class="card-body text-center">
-        <?php
-          $stmt = $conn->prepare("SELECT latin_name, common_name, img_url FROM Log JOIN Creature_full USING (latin_name) WHERE TIMESTAMPDIFF(DAY, date, CURDATE()) = 0 ORDER BY type, subtype, family_name, latin_name");
-          $stmt->execute();
-          $thumbs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-          $curline = -1;
-          for ($i = 0; $i < count($thumbs); $i++) {
-            $url = str_replace('l.', 't.', $thumbs[$i]['img_url']);
-            echo '<a href="view.php?spp='.$thumbs[$i]['latin_name'].'">';
-            if ($url != '') echo '<img src="'.$url.'" width=80></a>';
-            else echo '<div style="width:80px; height:80px; display:inline-block; background-color:#e9ecef; vertical-align: middle">&nbsp;</div></a>';
-          }
-        ?>
+        <div class="card-body" style="padding:0px">
+          <?php
+          print_thumbnails("SELECT latin_name, common_name, img_url FROM Log JOIN Creature_full USING (latin_name) WHERE TIMESTAMPDIFF(DAY, date, CURDATE()) = 0 ORDER BY type, subtype, family_name, latin_name");
+          ?>
         </div>
       </div>
       <div>&nbsp;</div>
       <div class="card">
         <div class="card-header">Recent species</div>
-        <div class="card-body text-center">
-        <?php
-          $stmt = $conn->prepare("SELECT DISTINCT latin_name, common_name, img_url FROM (SELECT latin_name, common_name, img_url, date FROM Log JOIN Creature_full USING (latin_name) WHERE TIMESTAMPDIFF(DAY, date, CURDATE()) <= 30 ORDER BY date DESC, type, subtype, family_name, latin_name) Past_logs LIMIT 40");
-          $stmt->execute();
-          $thumbs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-          $curline = -1;
-          for ($i = 0; $i < count($thumbs); $i++) {
-            $url = str_replace('l.', 't.', $thumbs[$i]['img_url']);
-            echo '<a href="view.php?spp='.$thumbs[$i]['latin_name'].'">';
-            if ($url != '') echo '<img src="'.$url.'" width=80></a>';
-            else echo '<div style="width:80px; height:80px; display:inline-block; background-color:#e9ecef; vertical-align: middle">&nbsp;</div></a>';
-          }
-        ?>
+        <div class="card-body" style="padding:0px">
+            <?php
+            print_thumbnails("SELECT DISTINCT latin_name, common_name, img_url FROM (SELECT latin_name, common_name, img_url, date FROM Log JOIN Creature_full USING (latin_name) WHERE TIMESTAMPDIFF(DAY, date, CURDATE()) <= 30 ORDER BY date DESC, type, subtype, family_name, latin_name) Past_logs LIMIT 40");
+            ?>
         </div>
       </div>
     </div>
