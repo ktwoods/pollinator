@@ -40,7 +40,7 @@ include_once 'build_table.php';
 			if ($rows_affected != 0)
 			{
 				$url = str_replace(' ', '%20', $latin);
-				echo "<p class='text-center'>Species <em>$latin</em> ($common) was added! <a href='view_plant.php?name=$url'>[View species profile]</a></p>";
+				echo "<p class='text-center'>Species <em>$latin</em> ($common) was added! <a href='view_plant.php?spp=$url'>[View species profile]</a></p>";
 			}
 			else echo "<p class='text-center'>Error: failed to add species <em>$latin</em> ($common) to the database.</p>";
 		}

@@ -229,7 +229,7 @@ unset($plant);
 						if ($plant['have'] != 0) echo '<td style="text-align: center">&#x2713;</td>';
 						else echo '<td style="text-align: center">&mdash;</td>';
 
-						echo '<td>'.$plant['common_name'].' (<em><a href="view_plant.php?name='.$plant['latin_name'].'">'.$plant['latin_name'].'</a></em>)</td>';
+						echo '<td>'.$plant['common_name'].' (<em><a href="view_plant.php?spp='.$plant['latin_name'].'">'.$plant['latin_name'].'</a></em>)</td>';
 						echo '</tr>';
 					}
 					unset($plant);
@@ -265,7 +265,7 @@ unset($plant);
 						if ($plant['have'] != 0) echo '<td style="text-align: center">&#x2713;</td>';
 						else echo '<td style="text-align: center">&mdash;</td>';
 
-						echo '<td>'.$plant['common_name'].'<br/>(<em><a href="view_plant.php?name='.$plant['latin_name'].'">'.$plant['latin_name'].'</a></em>)</td>';
+						echo '<td>'.$plant['common_name'].'<br/>(<em><a href="view_plant.php?spp='.$plant['latin_name'].'">'.$plant['latin_name'].'</a></em>)</td>';
 
 						echo '<td style="text-align: center">';
 						display_months('Blooms', $plant['latin_name']);

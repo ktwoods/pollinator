@@ -35,10 +35,10 @@ $(document).ready(function(){
 					<div class="col col-lg-4 col-med-6 col-sm-8"><input class="form-control" id="searchHerb" type="text" placeholder="Search species"></div>
 					<table>
 						<thead>
-							<th>Common name</th><th>Latin name</th><th>Have</th><th>Want</th><th>Tags</th>
+							<th>&nbsp;</th><th>Common name</th><th>Latin name</th><th>Have</th><th>Want</th><th>Tags</th>
 						</thead>
 						<tbody id="herb-list">
-							<?php build_rows("select common_name, latin_name, have, want, tags from Plant where tags not like '%shrub%' and tags not like '%tree%' and tags not like '%vine%' order by have desc, latin_name asc"); ?>
+							<?php build_rows("select img_url, common_name, latin_name, have, want, tags from Plant where tags not like '%shrub%' and tags not like '%tree%' and tags not like '%vine%' order by have desc, latin_name asc"); ?>
 						</tbody>
 					</table>
 					<p>&nbsp;</p>
@@ -47,10 +47,10 @@ $(document).ready(function(){
 					<div class="col col-lg-4 col-med-6 col-sm-8"><input class="form-control" id="searchWood" type="text" placeholder="Search species"></div>
 					<table>
 						<thead>
-							<tr><th>Common name</th><th>Latin name</th><th>Have</th><th>Want</th><th>Tags</th></tr>
+							<tr><th>&nbsp;</th><th>Common name</th><th>Latin name</th><th>Have</th><th>Want</th><th>Tags</th></tr>
 						</thead>
 						<tbody id="wood-list">
-							<?php build_rows("select common_name, latin_name, have, want, tags from Plant where tags like '%shrub%' or tags like '%tree%' or tags like '%vine%' order by have desc, latin_name asc"); ?>
+							<?php build_rows("select img_url, common_name, latin_name, have, want, tags from Plant where tags like '%shrub%' or tags like '%tree%' or tags like '%vine%' order by have desc, latin_name asc"); ?>
 						</tbody>
 					</table>
 					<p>&nbsp;</p>

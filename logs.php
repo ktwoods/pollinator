@@ -50,7 +50,7 @@ function matches_plant($plants, $spp, $start, $end) {
 		<div class="col col-lg-8">
 			<h1 class="text-center"><?php echo $header ?> sightings</h1>
 			<?php
-			$stmt = $conn->prepare("SELECT latin_name, common_name, date, Log.notes FROM $table ORDER BY date DESC");
+			$stmt = $conn->prepare("SELECT latin_name, common_name, img_url, date, Log.notes FROM $table ORDER BY date DESC, latin_name ASC");
 			$stmt->execute();
 			$logs = $stmt->fetchAll();
 			$year = $logs[0]['date'];
@@ -60,7 +60,6 @@ function matches_plant($plants, $spp, $start, $end) {
 			# Get array of plant species names
 			$stmt = $conn->prepare("SELECT latin_name FROM Plant");
 			$stmt->execute();
-			global $plant_names;
 			$plant_names = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			# Print each log and the enclosing tables
@@ -75,13 +74,15 @@ function matches_plant($plants, $spp, $start, $end) {
 			</table>
 			<h1 class="text-center"><small><?php echo $year.' ('.$stats['num_logs'].' log'.($stats['num_logs'] == 1 ? '' : 's').', '.$stats['num_spp'].' spp)' ?></small></h1>
 			<table style="width: 100%">
-				<th>&nbsp;</th><th>Name</th><th>Date</th><th>Notes</th>
+				<th colspan=2>&nbsp;</th><th>Name</th><th>Date</th><th>Notes</th>
 			<?php endif; # END OF IF STATEMENT ?>
 				<tr>
 					<!-- Edit button -->
 					<td><a href="edit_log.php?name=<?php echo $log['latin_name'] ?>&date=<?php echo $log['date'] ?>&stage=<?php echo $log['stage'] ?>" class="btn btn-<?php echo $btn_class ?>">
 						<i class="fas fa-edit"></i>
 					</a></td>
+					<!-- Thumbnail -->
+					<?php thumbnail($log['img_url'], $log['latin_name'], "3rem"); ?>
 					<!-- Species name -->
 					<td style="white-space: nowrap"><?php echo $log['common_name'].'<br/><em>(<a href="view.php?spp='.$log['latin_name'].'">'.$log['latin_name'].'</a>)</em>' ?></td>
 					<!-- Date -->
@@ -102,7 +103,7 @@ function matches_plant($plants, $spp, $start, $end) {
 								$startdif = strlen($notes[$i]) - strlen($genus);
 								$enddif = strlen($notes[$i+1]) - strlen($spp);
 								# Add opening tag
-								$notes[$i] = substr($notes[$i], 0, $startdif)."<a href='view_plant.php?name=$match'>".substr($notes[$i], $startdif);
+								$notes[$i] = substr($notes[$i], 0, $startdif)."<a href='view_plant.php?spp=$match'>".substr($notes[$i], $startdif);
 								# Add closing tag
 								$notes[$i+1] = substr($notes[$i+1], 0, strlen($notes[$i+1])-$enddif)."</a>".substr($notes[$i+1], strlen($notes[$i+1])-$enddif, $enddif);
 								# Advance index beyond end of species name

@@ -13,7 +13,7 @@ function build_category_card($table) {
   $rand_link = "view.php?spp=".$rand_spp['latin_name'];
   if ($table == "Plant") {
     $header = "Plants";
-    $rand_link = "view_plant.php?name=".$rand_spp['latin_name'];
+    $rand_link = "view_plant.php?spp=".$rand_spp['latin_name'];
     $tbl_link = "plants.php";
     $btn_class = "p";
   }

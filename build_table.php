@@ -5,6 +5,13 @@
 <?php
 
 
+function thumbnail($img_url, $latin, $size, $page='view.php') {
+	$thumb = str_replace('l.', 't.', $img_url);
+	echo '<td><a href="'.$page.'?spp='.$latin.'"><div style="width:'.$size.'; height:'.$size.'; background-color:#e9ecef">';
+	if ($thumb != '') echo '<img src="'.$thumb.'" style="max-width:100%; max-height:100%">';
+	echo '</div></a></td>';
+}
+
 # Determines what type of species is referred to by $latin_name, and returns the name of its most specific table.
 function get_type($latin_name) {
 	$type = 'Creature';
@@ -31,20 +38,20 @@ function build_family_table($family, $type) {
 		$table = 'Lep_full';
 		$style = 'l';
 		if ($family == 'All') {
-			$query = "SELECT latin_name, common_name, family_name FROM $table WHERE subtype='$type' ORDER BY family_name, latin_name";
+			$query = "SELECT latin_name, common_name, family_name, img_url FROM $table WHERE subtype='$type' ORDER BY family_name, latin_name";
 		}
 		else {
-			$query = "SELECT latin_name, common_name, family_name FROM $table WHERE family_name='$family' AND subtype='$type' ORDER BY latin_name";
+			$query = "SELECT latin_name, common_name, family_name, img_url FROM $table WHERE family_name='$family' AND subtype='$type' ORDER BY latin_name";
 		}
 	}
 	else if ($type == 'Bee') {
 		$table = 'Bee_full';
 		$style = 'b';
 		if ($family == 'All') {
-			$query = "SELECT latin_name, common_name, family_name FROM $table ORDER BY family_name, latin_name";
+			$query = "SELECT latin_name, common_name, family_name, img_url FROM $table ORDER BY family_name, latin_name";
 		}
 		else {
-			$query = "SELECT latin_name, common_name, family_name FROM $table WHERE family_name='$family' ORDER BY latin_name";
+			$query = "SELECT latin_name, common_name, family_name, img_url FROM $table WHERE family_name='$family' ORDER BY latin_name";
 		}
 	}
 	# ***Add error handling for invalid input
@@ -56,7 +63,7 @@ function build_family_table($family, $type) {
 
 	# Start of table
 	echo "<table style='width: 80%'>";
-	echo "<tr><th>Latin name</th><th>Common name</th><th>Sightings</th></tr>";
+	echo "<tr><th>&nbsp;</th><th>Latin name</th><th>Common name</th><th>Sightings</th></tr>";
 	while ($row = $stmt->fetch()) {
 		$name = $row['latin_name'];
 		$substmt = $conn->prepare("SELECT COUNT(DISTINCT date) FROM Log WHERE latin_name='$name'");
@@ -71,6 +78,7 @@ function build_family_table($family, $type) {
 
 		$lat = $row['latin_name'];
 		$com = $row['common_name'];
+		thumbnail($row['img_url'], $row['latin_name'], "2rem");
 		echo "<td><a href='view.php?spp=$lat'>$lat</a></td>";
 		echo "<td>$com</td>";
 		echo "<td>$seen</td>";
@@ -98,8 +106,11 @@ function display($query_string) {
 	for ($i = 0; $i < $num_col; $i++) {
 		$meta = $stmt->getColumnMeta($i);
 		$hname = ucfirst($meta['name']);
-		$hname = str_replace("_", " ", $hname);
-		echo "<th>" . $hname . "</th>";
+		if ($hname != 'Img_url') {
+			$hname = str_replace("_", " ", $hname);
+			echo "<th>" . $hname . "</th>";
+		}
+		else echo '<th></th>';
 	}
 	echo "</tr>";
 
@@ -124,6 +135,11 @@ function display($query_string) {
 			$dname = $meta['name'];
 			$dtype = $meta['native_type'];
 
+			# Quick patch to add thumbnails until this function gets properly overhauled
+			if ($i == 0 && isset($row['latin_name']) && isset($row['img_url'])) {
+				thumbnail($row['img_url'], $row['latin_name'], "2rem");
+				continue;
+			}
 			# Cell formatting options for different tables
 			if ($dname == "want" && $row[$i] == 1) echo "<td class=\"want\">";
 			else echo "<td>";
@@ -132,7 +148,7 @@ function display($query_string) {
 			if ($i == 0 && isset($row['latin_name']))
 			{
 				$type = get_type($row['latin_name']);
-				if ($table == "Plant" || $type == "Plant") echo "<a href='view_plant.php?name=".$row['latin_name']."'>";
+				if ($table == "Plant" || $type == "Plant") echo "<a href='view_plant.php?spp=".$row['latin_name']."'>";
 				else echo "<a href='view.php?spp=".$row['latin_name']."'>";
 			}
 
@@ -173,6 +189,11 @@ function build_rows($query, $name='') {
 			$dtable = $meta['table'];
 			$link = false;
 
+			# Quick patch to add thumbnails until this function gets properly overhauled
+			if ($i == 0 && isset($row['latin_name']) && isset($row['img_url'])) {
+				thumbnail($row['img_url'], $row['latin_name'], "2rem", "view_plant.php");
+				continue;
+			}
 			echo '<td>';
 			# If binary value, display as check mark or dash
 			if ($meta['native_type'] == 'TINY') {
@@ -183,10 +204,12 @@ function build_rows($query, $name='') {
 			else if ($meta['name'] == "latin_name") echo "<em>" . $row[$i] . "</em>";
 			else
 			{
-				# If first cell is for a species table, make it a link
-				if ($i == 0 && (isset($row['latin_name'])))
+				# If row is for a species table, make it a link
+				if ($i == 1 && (isset($row['latin_name'])))
 				{
-					if ($dtable == "Plant" || $dtable == "Plant_deriv") echo "<a href='view_plant.php?name=".$row['latin_name']."'>";
+					if ($dtable == "Plant" || $dtable == "Plant_deriv") {
+						echo "<a href='view_plant.php?spp=".$row['latin_name']."'>";
+					}
 					else echo "<a href='view.php?spp=".$row['latin_name']."'>";
 					$link = true;
 				}
