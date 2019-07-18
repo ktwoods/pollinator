@@ -46,7 +46,7 @@ function print_thumbnails($query) {
   $thumbs = $stmt->fetchAll(PDO::FETCH_ASSOC);
   $curline = -1;
   for ($i = 0; $i < count($thumbs); $i++) {
-    $url = str_replace('l.', 't.', $thumbs[$i]['img_url']);
+    if (strpos($thumbs[$i]['img_url'], 'https://i.imgur.com/') !== false ) $url = str_replace('l.', 't.', $thumbs[$i]['img_url']);
     echo '<a href="view.php?spp='.$thumbs[$i]['latin_name'].'" data-toggle="tooltip" data-placement="right" title="'.$thumbs[$i]['common_name'].'">';
     if ($url != '') echo '<div style="width:4rem; display:inline-block; vertical-align:middle"><img src="'.$url.'" style="max-width:100%; max-height:100%"></div></a>';
     else echo '<div style="width:4rem; height:4rem; display:inline-block; background-color:#e9ecef; vertical-align: middle">&nbsp;</div></a>';

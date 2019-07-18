@@ -6,7 +6,7 @@
 
 
 function thumbnail($img_url, $latin, $size, $page='view.php') {
-	$thumb = str_replace('l.', 't.', $img_url);
+	if (strpos($img_url, 'https://i.imgur.com/') !== false ) $thumb = str_replace('l.', 't.', $img_url);
 	echo '<td><a href="'.$page.'?spp='.$latin.'"><div style="width:'.$size.'; height:'.$size.'; background-color:#e9ecef">';
 	if ($thumb != '') echo '<img src="'.$thumb.'" style="max-width:100%; max-height:100%">';
 	echo '</div></a></td>';
