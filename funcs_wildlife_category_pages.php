@@ -43,7 +43,7 @@ function build_tabs($header, $type, $query) {
   // Builds each tab
   for ($i = 0; $i < count($category_list); $i++) {
     $category = $category_list[$i][0];
-    $desc = $category_list[$i][1];
+    if ($type != 'Other') $desc = $category_list[$i][1];
     // Opening div tag
     echo '<div id="' . $category . '" class="tab-pane fade ' . ($i == 0 ? 'show active' : '')
          . '" role="tabpanel" aria-labelledby="' . $category . '-tab">';
