@@ -6,8 +6,8 @@ include_once 'build_table.php';
 
 global $conn;
 
-if (isset($_POST['name'])) $name = $_POST['name'];
-else $name = $_GET['name'];
+if (isset($_POST['spp'])) $name = $_POST['spp'];
+else $name = $_GET['spp'];
 
 // If page edits have just been submitted, update the page
 if (isset($_POST['latin'])) {

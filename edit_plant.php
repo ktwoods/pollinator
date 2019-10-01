@@ -16,7 +16,7 @@ $name = $main_data['latin_name'];
 ?>
 <div class="container-fluid">
 	<h1 class="text-center">Edit plant profile</h1>
-	<form action="view_plant.php?name=<?php echo $name ?>" method="post">
+	<form action="view_plant.php?spp=<?php echo $name ?>" method="post">
 		<div class="row justify-content-center">
 			<!-- Basic fields -->
 			<div class="col-lg-6 sec-p">
