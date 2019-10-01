@@ -59,10 +59,12 @@ th {
 .want { background-color: greenyellow; }
 
 .seen-l { background-color: #80fdff; }
-.seen-l-fam { background-color: #ccfeff; }
+.seen-l-genus { background-color: #ccfeff; }
 
 .seen-b { background-color: gold; }
 .seen-b-genus { background-color: #fff4b3; }
+
+.seen-o { background-color: #ffdb99; }
 
 /* Basic color styling */
 .prim-p { background-color: greenyellow; }

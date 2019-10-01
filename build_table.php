@@ -2,9 +2,8 @@
 	$(document).ready(function() { $('[data-toggle="tooltip"]').tooltip(); });
 	$(document).ready(function(){ $('[data-toggle="popover"]').popover(); });
 </script>
+
 <?php
-
-
 function thumbnail($img_url, $latin, $size, $page='view.php') {
 	if (strpos($img_url, 'https://i.imgur.com/') !== false ) $thumb = str_replace('l.', 't.', $img_url);
 	echo '<td><a href="'.$page.'?spp='.$latin.'"><div style="width:'.$size.'; height:'.$size.'; background-color:#e9ecef">';
@@ -29,62 +28,6 @@ function get_type($latin_name) {
 		$type = $bee_lep_list[$latin_name][0];
 	}
 	return $type;
-}
-
-# Builds a table for a family within Bee or Lepidopteran
-# Acceptable inputs for $type = 'Butterfly', 'Moth', 'Bee'; $family can be either a valid family name or 'All'
-function build_family_table($family, $type) {
-	if ($type == 'Butterfly' || $type == 'Moth') {
-		$table = 'Lep_full';
-		$style = 'l';
-		if ($family == 'All') {
-			$query = "SELECT latin_name, common_name, family_name, img_url FROM $table WHERE subtype='$type' ORDER BY family_name, latin_name";
-		}
-		else {
-			$query = "SELECT latin_name, common_name, family_name, img_url FROM $table WHERE family_name='$family' AND subtype='$type' ORDER BY latin_name";
-		}
-	}
-	else if ($type == 'Bee') {
-		$table = 'Bee_full';
-		$style = 'b';
-		if ($family == 'All') {
-			$query = "SELECT latin_name, common_name, family_name, img_url FROM $table ORDER BY family_name, latin_name";
-		}
-		else {
-			$query = "SELECT latin_name, common_name, family_name, img_url FROM $table WHERE family_name='$family' ORDER BY latin_name";
-		}
-	}
-	# ***Add error handling for invalid input
-	global $conn;
-	$stmt = $conn->prepare($query);
-	$stmt->execute();
-
-	$num_col = $stmt->columnCount();
-
-	# Start of table
-	echo "<table style='width: 80%'>";
-	echo "<tr><th>&nbsp;</th><th>Latin name</th><th>Common name</th><th>Sightings</th></tr>";
-	while ($row = $stmt->fetch()) {
-		$name = $row['latin_name'];
-		$substmt = $conn->prepare("SELECT COUNT(DISTINCT date) FROM Log WHERE latin_name='$name'");
-		$substmt->execute();
-		$seen = $substmt->fetch()[0];
-
-		if  ($seen != "0") {
-			if (explode(' ', $row['latin_name'])[1] == 'spp') echo "<tr class=\"seen-$style-fam\">";
-			else echo "<tr class=\"seen-$style\">";
-		}
-		else echo "<tr>";
-
-		$lat = $row['latin_name'];
-		$com = $row['common_name'];
-		thumbnail($row['img_url'], $row['latin_name'], "2rem");
-		echo "<td><a href='view.php?spp=$lat'>$lat</a></td>";
-		echo "<td>$com</td>";
-		echo "<td>$seen</td>";
-		echo "</tr>";
-	}
-	echo "</table>";
 }
 
 /* Takes a query and uses it to build a basic table */

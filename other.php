@@ -3,12 +3,17 @@ $cur_page = 'other';
 include 'header.php';
 include_once 'connect.php';
 include_once 'build_table.php';
+include_once 'funcs_wildlife_category_pages.php';
 ?>
+<!-- "Add species" button -->
 <a href="new.php?type=other" class="btn btn-o" style="margin-top: 15px; position: fixed;"><i class="fas fa-plus"></i> Add species</a>
-<h1 class="text-center">Other creatures</h1><p>&nbsp;</p>
-<?php
-display("SELECT img_url, latin_name, common_name, type, subtype FROM Creature_full NATURAL JOIN Family WHERE family_name NOT IN (SELECT family_name FROM Bee_full) AND family_name NOT IN (SELECT family_name FROM Lep_full)");
-echo "<p>&nbsp;</p>";
 
-include 'footer.html';
-?>
+<!-- Main container -->
+<div class="container-fluid">
+	<div class="row justify-content-center">
+		<div class="col col-lg-8">
+      <?php build_tabs('Other creatures', 'Other', 'SELECT DISTINCT type FROM Creature_full WHERE family_name NOT IN (SELECT family_name FROM Bee_full) AND family_name NOT IN (SELECT family_name FROM Lep_full)'); ?>
+    </div>
+  </div>
+</div>
+<?php include 'footer.html'; ?>
