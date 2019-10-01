@@ -5,6 +5,8 @@
 
 <?php
 function thumbnail($img_url, $latin, $size, $page='view.php') {
+	$thumb = $img_url;
+	// If the image is hosted on imgur, swap to a lower-res version for better load time
 	if (strpos($img_url, 'https://i.imgur.com/') !== false ) $thumb = str_replace('l.', 't.', $img_url);
 	echo '<td><a href="'.$page.'?spp='.$latin.'"><div style="width:'.$size.'; height:'.$size.'; background-color:#e9ecef">';
 	if ($thumb != '') echo '<img src="'.$thumb.'" style="max-width:100%; max-height:100%">';
