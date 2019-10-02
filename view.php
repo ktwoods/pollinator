@@ -1,4 +1,5 @@
 <?php
+/* Setup */
 include_once 'connect.php';
 include_once 'funcs_general.php';
 global $conn;
@@ -8,61 +9,10 @@ else $name = $_GET['spp'];
 $template = template_vals(get_type($name));
 $cur_page = $template['type'];
 
-include 'header.html';
+include_once 'header.html';
+include_once 'view_edited.php'; // Handles submitting edits, if returning from edit.php
 
-// If page edits have just been submitted, update the page
-if (isset($_POST['latin'])) {
-	$latin = $_POST['latin'];
-	$common = $_POST['common'];
-	$fam = $_POST['fam'];
-	if (isset($_POST['gen_host'])) $gen_host = $_POST['gen_host'];
-	if (isset($_POST['gen_nect'])) $gen_nect = $_POST['gen_nect'];
-	if (isset($_POST['spec'])) $spec = $_POST['spec'];
-	$id = $_POST['id'];
-	$notes = $_POST['notes'];
-	$img = $_POST['img'];
-
-	$stmt = $conn->prepare("UPDATE Creature SET latin_name=:latin, common_name=:common, family_name=:fam, identification=:id, notes=:notes, img_url=:img WHERE latin_name=:name");
-	$stmt->bindValue(':name', $name);
-	$stmt->bindValue(':latin', $latin);
-	$stmt->bindValue(':common', $common);
-	$stmt->bindValue(':fam', $fam);
-	$stmt->bindValue(':id', $id);
-	$stmt->bindValue(':notes', $notes);
-	$stmt->bindValue(':img', $img);
-
-	$changed = false;
-	if ($stmt->execute())
-	{
-		if ($stmt->rowCount() != 0) $changed = true;
-	}
-
-	if ($template['type'] == 'lepidop') {
-		$stmt = $conn->prepare("UPDATE Lepidopteran SET host_prefs=:gen_host, nect_prefs=:gen_nect WHERE latin_name=:name");
-		$stmt->bindValue(':name', $name);
-		$stmt->bindValue(':gen_host', $gen_host);
-		$stmt->bindValue(':gen_nect', $gen_nect);
-		if ($stmt->execute())
-		{
-			if ($stmt->rowCount() != 0) $changed = true;
-		}
-	}
-	else if ($template['type'] == 'bee') {
-		$stmt = $conn->prepare("UPDATE Bee SET specialization=:spec WHERE latin_name=:name");
-		$stmt->bindValue(':name', $name);
-		$stmt->bindValue(':spec', $spec);
-		if ($stmt->execute())
-		{
-			if ($stmt->rowCount() != 0) $changed = true;
-		}
-	}
-
-	echo '<div class="alert alert-success alert-dismissible text-center" role="alert">';
-	if ($changed) echo "Species record updated!";
-	else echo "No changes made.";
-	echo '<button type="button" class="close" data-dismiss="alert" aria-label="close"><span aria-hidden="true">&times;</span></button></div>';
-}
-
+/* Get all of the data that's going to be needed on this page */
 // $main_data = attributes for this species
 $stmt = $conn->prepare("SELECT * FROM ".$template['table']." WHERE latin_name = ?");
 $stmt->bindValue(1, $name);
@@ -111,6 +61,30 @@ foreach ($adult_food_spp as $plant) {
 	unset($l, $rel_logs);
 }
 unset($plant);
+
+/* Builds badge and popover that are used in the first column of the plant lists */
+function build_popover($food_logs, $plant) {
+	echo '<td style="text-align: center">';
+	// Build popover and table (if there's actually data to put in it)
+	if (isset($food_logs) && array_key_exists($plant['latin_name'], $food_logs)) {
+		echo '<a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-placement="top" '
+				 . 'data-content="<table class=&quot;spp spp-' . $template['class'] . '&quot;>'
+				 . '<tr><th>Date</th><th>Notes</th></tr>';
+		foreach ($food_logs[$plant['latin_name']] as $log) {
+			echo '<tr>';
+			echo '<td>' . $log['date'] . '</td>';
+			echo '<td>' . $log['notes'] . '</td>';
+			echo '</tr>';
+		}
+		echo '</table>">';
+		// Build badge and close out table cell
+		echo '<span class="badge badge-dark">'
+				 . count($food_logs[$plant['latin_name']])
+				 . '</span></a></td>';
+	}
+	// Otherwise just build badge, with no popover
+	else echo '<span class="badge badge-light">0</span></td>';
+}
 ?>
 
 <div class="container-fluid">
@@ -119,43 +93,57 @@ unset($plant);
 		<a href="edit.php?spp=<?php echo $name ?>" class="btn btn-<?php echo $template['class'] ?> btn-edit"><i class="fas fa-edit"></i></a>
 		<!-- Image -->
 		<div class="col-sm-4">
-			<?php if ($main_data['img_url'] != NULL): ?><a href="<?= $main_data['img_url'] ?>"><img src="<?= $main_data['img_url'] ?>" class="img-fluid center-block" style="max-height: 100%"></a><?php endif; ?>
+			<?php if ($main_data['img_url']): ?>
+				<a href="<?php echo $main_data['img_url'] ?>"><img src="<?php echo $main_data['img_url'] ?>" class="img-fluid center-block" style="max-height: 100%"></a>
+			<?php endif; ?>
 		</div>
 		<div class="col-sm-8">
 			<div style="margin-left: .5em">
 				<!-- Page header -->
-				<h1><?= $main_data['common_name']; ?>
+				<h1>
+					<?php
+					echo $main_data['common_name'];
 
-				<!-- [LEP: BAMONA button] -->
-				<?php
-				if ($template['type'] == 'lepidop' && explode(' ', $name)[1] != 'spp') :
-					$url = str_replace(' ', '-', $main_data['latin_name']); ?>
-					<a href="https://www.butterfliesandmoths.org/species/<?= $url ?>" class="btn btn-<?php echo $template['class'] ?>" style="margin-left: 2em;"><i class="fas fa-external-link-alt"></i> BAMONA</a>
-				<?php endif ?>
+					/* Some buttons for convenience; I refer to BAMONA and DL frequently,
+					   and their URLs are easy to calculate */
+					// If this page is for a butterfly/moth and describes a species,
+					// not a genus, link to its BAMONA profile
+					if ($template['type'] == 'lepidop' && explode(' ', $name)[1] != 'spp') {
+						$url = str_replace(' ', '-', $main_data['latin_name']);
+						echo '<a href="https://www.butterfliesandmoths.org/species/' . $url
+						     . '" class="btn btn-' . $template['class']
+								 . '" style="margin-left: 2em;"><i class="fas fa-external-link-alt"></i> BAMONA</a>';
+					}
+					// If this page is for a bee and describes a species, not a genus,
+					// link to its Discover Life profile
+					else if ($template['type'] == 'bee' && explode(' ', $name)[1] != 'spp') {
+						$url = str_replace(' ', '+', $main_data['latin_name']);
+						echo '<a href="http://www.discoverlife.org/20/q?search=' . $url
+								 . '" class="btn btn-' . $template['class']
+								 . '" style="margin-left: 2em;"><i class="fas fa-external-link-alt"></i> Discover Life</a>';
+					}
+					?>
 
-				<!-- [BEE: Discover Life button] -->
-				<?php if ($template['type'] == 'bee' && explode(' ', $name)[1] != 'spp') :
-					$url = str_replace(' ', '+', $main_data['latin_name']); ?>
-					<a href="http://www.discoverlife.org/20/q?search=<?= $url ?>" class="btn btn-<?php echo $template['class'] ?>" style="margin-left: 2em;"><i class="fas fa-external-link-alt"></i> Discover Life</a>
-				<?php endif ?>
+					<!-- Page subheader (Latin name and family name) -->
+					<br/><small><em><?php echo $main_data['latin_name'] ?></em>
+					<br/><?php echo $main_data['family_name'] ?></small>
+				</h1>
 
-				<br/><small><em><?php echo $main_data['latin_name'] ?></em>
-				<br/><?php echo $main_data['family_name'] ?></small></h1>
-
-				<!-- Profile -->
+				<!-- Column 1: Type, specialization (if bee), general notes -->
 				<div class="row">
 					<div class="col-sm-6">
 						<table class="spp spp-<?php echo $template['class'] ?>">
-							<tr><th>Type</th><td><?= $main_data['subtype'] ?></td></tr>
+							<tr><th>Type</th><td><?php echo $main_data['subtype'] ?></td></tr>
 							<?php if ($template['type'] == 'bee') echo '<tr><th>Specialization</th><td>'.$main_data['specialization'].'</td></tr>' ?>
 							<tr><th colspan="2">Notes</th></tr>
-							<tr><td colspan = "2"><?php display_list($main_data['notes']); ?></td></tr>
+							<tr><td colspan = "2"><?php display_list($main_data['notes']) ?></td></tr>
 						</table>
 					</div>
+					<!-- Column 2: identification notes -->
 					<div class="col-sm-6">
 						<table class="spp spp-<?php echo $template['class'] ?>">
 							<tr><th colspan="2">Identification</th></tr>
-							<tr><td colspan="2"><?php display_list($main_data['identification']); ?></td></tr>
+							<tr><td colspan="2"><?php display_list($main_data['identification']) ?></td></tr>
 						</table>
 					</div>
 				</div>
@@ -163,22 +151,26 @@ unset($plant);
 		</div>
 	</div>
 	<div class="row">
-		<!-- Logs -->
+		<!-- Logbook -->
 		<div class="col-sm-4">
 			<div class="card">
+				<!-- Logbook header: Downward caret + badge indicating number of logs + "Logbook" -->
 				<div class= "card-header prim-<?php echo $template['class'] ?>" id="logbookHeader">
-					<div class="mb-0" style="font-size: 1.5em; font-weight: bold;">
-						<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#logs" >Logbook <?php echo (count($logs) == 0 ? '<span class="badge badge-light">0</span>' : '<span class="badge badge-dark">'.count($logs).'</span>') ?></button>
+					<div class="mb-0" data-toggle="collapse" data-target="#logs">
+						<i class="fas fa-caret-down"></i> <span class="badge badge-<?php echo (count($logs) == 0 ? 'light' : 'dark') ?>"><?php echo count($logs) ?></span> <strong>Logbook</strong>
 					</div>
 				</div>
+				<!-- Logbook body: Simple table of logs from most to least recent -->
 				<div id="logs" class="collapse" aria-labelledby="logbookHeader">
 					<div class="card-body">
-						<?php if (count($logs) != 0) {
+						<?php
+						if (count($logs) != 0) {
 							echo '<table class="spp spp-'.$template['class'].'" style="width: auto">';
 							echo '<tr><th>Date</th><th>Stage</th><th>Notes</th></tr>';
 							build_rows('SELECT date, stage, notes FROM Log WHERE latin_name=? ORDER BY date DESC', $name);
 							echo '</table>';
-						} ?>
+						}
+						?>
 					</div>
 				</div>
 			</div>
@@ -188,73 +180,67 @@ unset($plant);
 			<!-- [LEP: Host/nectar plant tables] -->
 			<?php if ($template['type'] == 'lepidop') : ?>
 				<table class="spp spp-l">
-					<tr><th colspan="3" style="font-size: 1.5em">Host plants</th></tr>
-					<tr><th colspan="2">General preferences</th><td><?= $main_data['host_prefs'] ?></td></tr>
-					<tr><th>Logs</th><th>Have</th><th>Plant species</th></tr>
+					<tr><th colspan="4" style="font-size: 1.5em">Host plants</th></tr>
+					<tr><th colspan="2">General preferences</th><td colspan="2"><?php echo $main_data['host_prefs'] ?></td></tr>
+					<tr><th>Logs</th><th>Have</th><th>Plant species</th><th>Feeding notes</th></tr>
 					<?php
 					foreach ($larval_food_spp as $plant) {
 						echo '<tr>';
-						echo '<td style="text-align: center">';
-						if (isset($larval_food_logs) && array_key_exists($plant['latin_name'], $larval_food_logs)) {
-							echo '<a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-placement="top" data-content="';
-							echo '<table class=&quot;spp spp-'.$template['class'].'&quot;><tr><th>Date</th><th>Notes</th></tr>';
-							foreach ($larval_food_logs[$plant['latin_name']] as $log) {
-								echo '<tr>';
-								echo '<td>'.$log['date'].'</td>';
-								echo '<td>'.$log['notes'].'</td>';
-								echo '</tr>';
-							}
-							echo '</table>"><span class="badge badge-dark">'.count($larval_food_logs[$plant['latin_name']]).'</span></a></td>';
-						}
-						else echo '<span class="badge badge-light">0</span></td>';
+						// First cell: logs button (indicates count, and clicking brings up the associated table in a popover)
+						build_popover($larval_food_logs, $plant);
 
+						// Second cell: check mark or em-dash indicating if plant is owned
 						if ($plant['have'] != 0) echo '<td style="text-align: center">&#x2713;</td>';
 						else echo '<td style="text-align: center">&mdash;</td>';
 
-						echo '<td>'.$plant['common_name'].' (<em><a href="view_plant.php?spp='.$plant['latin_name'].'">'.$plant['latin_name'].'</a></em>)</td>';
+						// Third cell: Plant species (common name and Latin name, linking to plant page)
+						echo '<td>' . $plant['common_name']
+						     . ' (<em><a href="view_plant.php?spp=' . $plant['latin_name'] . '">' . $plant['latin_name']
+								 . '</a></em>)</td>';
+
+						// Fourth cell: Any notes associated with this plant
+						echo '<td>' . $plant['notes'] . '</td>';
+
 						echo '</tr>';
 					}
 					unset($plant);
 					?>
 				</table>
-
+			<!-- The "Nectar plants" table for butterflies/moths and the "Plant interactions" table
+			for everything else use the same template; they just need different headers -->
+				<!-- Start the butterfly/moth version before exiting "if ($template['type'] == 'lepidop')"-->
 				<table class="spp spp-l" style="width: auto">
 					<tr><th colspan="6" style="font-size: 1.5em">Nectar plants</th></tr>
-					<tr><th colspan="2">General preferences</th><td colspan="4"><?= $main_data['nect_prefs'] ?></td></tr>
+					<tr><th colspan="2">General preferences</th><td colspan="4"><?php echo $main_data['nect_prefs'] ?></td></tr>
+			<!-- Else it's not a lepidopteran, so just start the regular version -->
 			<?php else: ?>
 				<table class="spp spp-<?php echo $template['class'] ?>" style="width: auto">
 					<tr><th colspan="6" style="font-size: 1.5em">Plant interactions</th></tr>
+			<!-- Continue building the rest of the table -->
 			<?php endif ?>
 					<tr><th>Logs</th><th>Have</th><th>Plant species</th><th>Blooms</th><th>Bloom length</th><th>Feeding notes</th></th></tr>
 					<?php
 					foreach ($adult_food_spp as $plant) {
 						echo '<tr>';
-						echo '<td style="text-align: center">';
-						if (isset($adult_food_logs) && array_key_exists($plant['latin_name'], $adult_food_logs)) {
-							echo '<a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-placement="top" data-content="';
-							echo '<table class=&quot;spp spp-'.$template['class'].'&quot;><tr><th>Date</th><th>Notes</th></tr>';
-							foreach ($adult_food_logs[$plant['latin_name']] as $log) {
-								echo '<tr>';
-								echo '<td>'.$log['date'].'</td>';
-								$log['notes'] = str_replace('"','&quot;',$log['notes']);
-								echo '<td>'.$log['notes'].'</td>';
-								echo '</tr>';
-							}
-							echo '</table>"><span class="badge badge-dark">'.count($adult_food_logs[$plant['latin_name']]).'</span></a></td>';
-						}
-						else echo '<span class="badge badge-light">0</span></td>';
+						// First cell: logs button (indicates count, and clicking brings up the associated table in a popover)
+						build_popover($adult_food_logs, $plant);
 
+						// Second cell: check mark or em-dash indicating if plant is owned
 						if ($plant['have'] != 0) echo '<td style="text-align: center">&#x2713;</td>';
 						else echo '<td style="text-align: center">&mdash;</td>';
 
+						// Third cell: Plant species (common name and Latin name, linking to plant page)
 						echo '<td>'.$plant['common_name'].'<br/>(<em><a href="view_plant.php?spp='.$plant['latin_name'].'">'.$plant['latin_name'].'</a></em>)</td>';
 
+						// Fourth cell: Months during which this plant blooms
 						echo '<td style="text-align: center">';
 						display_months('Blooms', $plant['latin_name']);
 						echo '</td>';
 
+						// Fifth cell: Approximate length of bloom period
 						echo '<td>'.$plant['bloom_length'].'</td>';
 
+						// Sixth cell: Any notes associated with this plant
 						echo '<td>'.$plant['notes'].'</td>';
 						echo '</tr>';
 					}
@@ -264,6 +250,7 @@ unset($plant);
 		</div>
 	</div>
 </div>
+<!-- Delete button -->
 <a href="#" class="btn btn-<?php echo $template['class'] ?> btn-del" data-toggle="modal" data-target="#delModal"><i class="fas fa-trash-alt"></i></a>
 <div class="modal fade" id="delModal" tabindex="-1" role="dialog">
 	<div class="modal-dialog" role="document">

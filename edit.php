@@ -1,4 +1,5 @@
 <?php
+/* Setup */
 include_once 'connect.php';
 include_once 'funcs_general.php';
 global $conn;
@@ -9,11 +10,9 @@ else $name = $_GET['spp'];
 $template = template_vals(get_type($name));
 $cur_page = $template['type'];
 
-include 'header.html';
+include_once 'header.html';
 
-if (isset($_POST['spp'])) $name = $_POST['spp'];
-else $name = $_GET['spp'];
-
+// Get current species attributes to populate edit form
 $stmt = $conn->prepare("Select * from {$template['table']} where latin_name = ?");
 $stmt->bindValue(1, $name);
 $stmt->execute();
@@ -24,7 +23,7 @@ $main_data = $stmt->fetch();
 	<form action="view.php?spp=<?php echo $name ?>" method="post">
 		<div class="row justify-content-center">
 			<div class="col-med-8 col-lg-6 sec-<?php echo $template['class'] ?>">
-				<!-- Basic fields -->
+				<!-- Basic fields: name, Latin name, family -->
 				<div>&nbsp;</div>
 				<div class="form-group">
 					<label for="latin">Latin name</label>
@@ -38,14 +37,14 @@ $main_data = $stmt->fetch();
 					<label for="fam">Family</label>
 					<input type="text" class="form-control" id="fam" name="fam" value="<?php echo $main_data['family_name'] ?>">
 				</div>
-
+				<!-- Optional field: bee specialization -->
 				<?php if ($template['type'] == 'bee') : ?>
 					<div class="form-group">
 						<label for="spec">Specialization</label>
 						<input type="text" class="form-control" id="spec" name="spec" value="<?php echo $main_data['specialization'] ?>">
 					</div>
 				<?php endif ?>
-
+				<!-- Optional fields: butterfly/moth host and nectar preferences -->
 				<?php if ($template['type'] == 'lepidop') : ?>
 					<div class="form-group">
 						<label for="host">General host preferences</label>
@@ -56,7 +55,7 @@ $main_data = $stmt->fetch();
 						<input type="text" class="form-control" id="nect" name="gen_nect" value="<?php echo $main_data['nect_prefs'] ?>">
 					</div>
 				<?php endif ?>
-
+				<!-- General and identification notes -->
 				<div class="form-group">
 					<label for="notes">Notes</label>
 					<textarea type="text" class="form-control" id="notes" name="notes" rows="5"><?php echo $main_data['notes'] ?></textarea>
@@ -65,7 +64,7 @@ $main_data = $stmt->fetch();
 					<label for="id">Identification</label>
 					<textarea type="text" class="form-control" id="id" name="id" rows="5"><?php echo $main_data['identification'] ?></textarea>
 				</div>
-
+				<!-- Image url -->
 				<div class="form-group">
 					<label for="img">Image URL</label>
 					<input type="text" class="form-control" id="img" name="img" value="<?php echo $main_data['img_url'] ?>">
@@ -73,8 +72,8 @@ $main_data = $stmt->fetch();
 			</div>
 		</div>
 		<div>&nbsp;</div>
-		<div class="row justify-content-center"><div class="col-1"><button type="Submit" class="btn btn-<?php echo $template['class'] ?>" >Save</button></div></div>
+		<div class="row justify-content-center"><div class="col-1"><button type="Submit" class="btn btn-<?php echo $template['class'] ?>">Save</button></div></div>
 	</form>
 	<div>&nbsp;</div>
 </div>
-<?php include 'footer.html'; ?>
+<?php include_once 'footer.html'; ?>
