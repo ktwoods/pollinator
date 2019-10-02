@@ -4,27 +4,10 @@ include_once 'funcs_general.php';
 global $conn;
 if (isset($_POST['spp'])) $name = $_POST['spp'];
 else $name = $_GET['spp'];
-
 // Determine what kind of species template is needed for this page (lepid, bee, or the general template)
-$type = get_type($name);
+$template = template_vals(get_type($name));
+$cur_page = $template['type'];
 
-if ($type == 'Lepidopteran') {
-	$spp_type = 'lepidop'; // Tells the header which part of the menu we're in
-	$spp_table = 'Lep_full'; // For the query
-	$spp_class = 'l'; // For styling
-}
-else if ($type == 'Bee') {
-	$spp_type = 'bee';
-	$spp_table = 'Bee_full';
-	$spp_class = 'b';
-}
-else {
-	$spp_type = 'other';
-	$spp_table = 'Creature_full';
-	$spp_class = 'o';
-}
-
-$cur_page = $spp_type;
 include 'header.php';
 include_once 'funcs_general.php';
 
@@ -55,7 +38,7 @@ if (isset($_POST['latin'])) {
 		if ($stmt->rowCount() != 0) $changed = true;
 	}
 
-	if ($spp_type == 'lepidop') {
+	if ($template['type'] == 'lepidop') {
 		$stmt = $conn->prepare("UPDATE Lepidopteran SET host_prefs=:gen_host, nect_prefs=:gen_nect WHERE latin_name=:name");
 		$stmt->bindValue(':name', $name);
 		$stmt->bindValue(':gen_host', $gen_host);
@@ -65,7 +48,7 @@ if (isset($_POST['latin'])) {
 			if ($stmt->rowCount() != 0) $changed = true;
 		}
 	}
-	else if ($spp_type == 'bee') {
+	else if ($template['type'] == 'bee') {
 		$stmt = $conn->prepare("UPDATE Bee SET specialization=:spec WHERE latin_name=:name");
 		$stmt->bindValue(':name', $name);
 		$stmt->bindValue(':spec', $spec);
@@ -82,7 +65,7 @@ if (isset($_POST['latin'])) {
 }
 
 // $main_data = attributes for this species
-$stmt = $conn->prepare("SELECT * FROM ".$spp_table." WHERE latin_name = ?");
+$stmt = $conn->prepare("SELECT * FROM ".$template['table']." WHERE latin_name = ?");
 $stmt->bindValue(1, $name);
 $stmt->execute();
 $main_data = $stmt->fetch();
@@ -134,7 +117,7 @@ unset($plant);
 <div class="container-fluid">
 	<!-- Basic profile -->
 	<div class="row">
-		<a href="edit.php?spp=<?php echo $name ?>" class="btn btn-<?php echo $spp_class ?> btn-edit"><i class="fas fa-edit"></i></a>
+		<a href="edit.php?spp=<?php echo $name ?>" class="btn btn-<?php echo $template['class'] ?> btn-edit"><i class="fas fa-edit"></i></a>
 		<!-- Image -->
 		<div class="col-sm-4">
 			<?php if ($main_data['img_url'] != NULL): ?><a href="<?= $main_data['img_url'] ?>"><img src="<?= $main_data['img_url'] ?>" class="img-fluid center-block" style="max-height: 100%"></a><?php endif; ?>
@@ -146,15 +129,15 @@ unset($plant);
 
 				<!-- [LEP: BAMONA button] -->
 				<?php
-				if ($spp_type == 'lepidop' && explode(' ', $name)[1] != 'spp') :
+				if ($template['type'] == 'lepidop' && explode(' ', $name)[1] != 'spp') :
 					$url = str_replace(' ', '-', $main_data['latin_name']); ?>
-					<a href="https://www.butterfliesandmoths.org/species/<?= $url ?>" class="btn btn-<?php echo $spp_class ?>" style="margin-left: 2em;"><i class="fas fa-external-link-alt"></i> BAMONA</a>
+					<a href="https://www.butterfliesandmoths.org/species/<?= $url ?>" class="btn btn-<?php echo $template['class'] ?>" style="margin-left: 2em;"><i class="fas fa-external-link-alt"></i> BAMONA</a>
 				<?php endif ?>
 
 				<!-- [BEE: Discover Life button] -->
-				<?php if ($spp_type == 'bee' && explode(' ', $name)[1] != 'spp') :
+				<?php if ($template['type'] == 'bee' && explode(' ', $name)[1] != 'spp') :
 					$url = str_replace(' ', '+', $main_data['latin_name']); ?>
-					<a href="http://www.discoverlife.org/20/q?search=<?= $url ?>" class="btn btn-<?php echo $spp_class ?>" style="margin-left: 2em;"><i class="fas fa-external-link-alt"></i> Discover Life</a>
+					<a href="http://www.discoverlife.org/20/q?search=<?= $url ?>" class="btn btn-<?php echo $template['class'] ?>" style="margin-left: 2em;"><i class="fas fa-external-link-alt"></i> Discover Life</a>
 				<?php endif ?>
 
 				<br/><small><em><?php echo $main_data['latin_name'] ?></em>
@@ -163,15 +146,15 @@ unset($plant);
 				<!-- Profile -->
 				<div class="row">
 					<div class="col-sm-6">
-						<table class="spp spp-<?php echo $spp_class ?>">
+						<table class="spp spp-<?php echo $template['class'] ?>">
 							<tr><th>Type</th><td><?= $main_data['subtype'] ?></td></tr>
-							<?php if ($spp_type == 'bee') echo '<tr><th>Specialization</th><td>'.$main_data['specialization'].'</td></tr>' ?>
+							<?php if ($template['type'] == 'bee') echo '<tr><th>Specialization</th><td>'.$main_data['specialization'].'</td></tr>' ?>
 							<tr><th colspan="2">Notes</th></tr>
 							<tr><td colspan = "2"><?php display_list($main_data['notes']); ?></td></tr>
 						</table>
 					</div>
 					<div class="col-sm-6">
-						<table class="spp spp-<?php echo $spp_class ?>">
+						<table class="spp spp-<?php echo $template['class'] ?>">
 							<tr><th colspan="2">Identification</th></tr>
 							<tr><td colspan="2"><?php display_list($main_data['identification']); ?></td></tr>
 						</table>
@@ -184,7 +167,7 @@ unset($plant);
 		<!-- Logs -->
 		<div class="col-sm-4">
 			<div class="card">
-				<div class= "card-header prim-<?php echo $spp_class ?>" id="logbookHeader">
+				<div class= "card-header prim-<?php echo $template['class'] ?>" id="logbookHeader">
 					<div class="mb-0" style="font-size: 1.5em; font-weight: bold;">
 						<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#logs" >Logbook <?php echo (count($logs) == 0 ? '<span class="badge badge-light">0</span>' : '<span class="badge badge-dark">'.count($logs).'</span>') ?></button>
 					</div>
@@ -192,7 +175,7 @@ unset($plant);
 				<div id="logs" class="collapse" aria-labelledby="logbookHeader">
 					<div class="card-body">
 						<?php if (count($logs) != 0) {
-							echo '<table class="spp spp-'.$spp_class.'" style="width: auto">';
+							echo '<table class="spp spp-'.$template['class'].'" style="width: auto">';
 							echo '<tr><th>Date</th><th>Stage</th><th>Notes</th></tr>';
 							build_rows('SELECT date, stage, notes FROM Log WHERE latin_name=? ORDER BY date DESC', $name);
 							echo '</table>';
@@ -204,7 +187,7 @@ unset($plant);
 		<!-- Plant interaction table(s) -->
 		<div class="col-sm-8">
 			<!-- [LEP: Host/nectar plant tables] -->
-			<?php if ($spp_type == 'lepidop') : ?>
+			<?php if ($template['type'] == 'lepidop') : ?>
 				<table class="spp spp-l">
 					<tr><th colspan="3" style="font-size: 1.5em">Host plants</th></tr>
 					<tr><th colspan="2">General preferences</th><td><?= $main_data['host_prefs'] ?></td></tr>
@@ -215,7 +198,7 @@ unset($plant);
 						echo '<td style="text-align: center">';
 						if (isset($larval_food_logs) && array_key_exists($plant['latin_name'], $larval_food_logs)) {
 							echo '<a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-placement="top" data-content="';
-							echo '<table class=&quot;spp spp-'.$spp_class.'&quot;><tr><th>Date</th><th>Notes</th></tr>';
+							echo '<table class=&quot;spp spp-'.$template['class'].'&quot;><tr><th>Date</th><th>Notes</th></tr>';
 							foreach ($larval_food_logs[$plant['latin_name']] as $log) {
 								echo '<tr>';
 								echo '<td>'.$log['date'].'</td>';
@@ -240,7 +223,7 @@ unset($plant);
 					<tr><th colspan="6" style="font-size: 1.5em">Nectar plants</th></tr>
 					<tr><th colspan="2">General preferences</th><td colspan="4"><?= $main_data['nect_prefs'] ?></td></tr>
 			<?php else: ?>
-				<table class="spp spp-<?php echo $spp_class ?>" style="width: auto">
+				<table class="spp spp-<?php echo $template['class'] ?>" style="width: auto">
 					<tr><th colspan="6" style="font-size: 1.5em">Plant interactions</th></tr>
 			<?php endif ?>
 					<tr><th>Logs</th><th>Have</th><th>Plant species</th><th>Blooms</th><th>Bloom length</th><th>Feeding notes</th></th></tr>
@@ -250,7 +233,7 @@ unset($plant);
 						echo '<td style="text-align: center">';
 						if (isset($adult_food_logs) && array_key_exists($plant['latin_name'], $adult_food_logs)) {
 							echo '<a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-placement="top" data-content="';
-							echo '<table class=&quot;spp spp-'.$spp_class.'&quot;><tr><th>Date</th><th>Notes</th></tr>';
+							echo '<table class=&quot;spp spp-'.$template['class'].'&quot;><tr><th>Date</th><th>Notes</th></tr>';
 							foreach ($adult_food_logs[$plant['latin_name']] as $log) {
 								echo '<tr>';
 								echo '<td>'.$log['date'].'</td>';
@@ -282,7 +265,7 @@ unset($plant);
 		</div>
 	</div>
 </div>
-<a href="#" class="btn btn-<?php echo $spp_class ?> btn-del" data-toggle="modal" data-target="#delModal"><i class="fas fa-trash-alt"></i></a>
+<a href="#" class="btn btn-<?php echo $template['class'] ?> btn-del" data-toggle="modal" data-target="#delModal"><i class="fas fa-trash-alt"></i></a>
 <div class="modal fade" id="delModal" tabindex="-1" role="dialog">
 	<div class="modal-dialog" role="document">
 		<div class="modal-content">

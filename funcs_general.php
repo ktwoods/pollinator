@@ -4,6 +4,7 @@
 </script>
 
 <?php
+/* Generates tiny thumbnail for species tables */
 function thumbnail($img_url, $latin, $size, $page='view.php') {
 	if (strpos($img_url, 'https://i.imgur.com/') !== false ) $thumb = str_replace('l.', 't.', $img_url);
 	echo '<td><a href="'.$page.'?spp='.$latin.'"><div style="width:'.$size.'; height:'.$size.'; background-color:#e9ecef">';
@@ -11,7 +12,7 @@ function thumbnail($img_url, $latin, $size, $page='view.php') {
 	echo '</div></a></td>';
 }
 
-# Determines what type of species is referred to by $latin_name, and returns the name of its most specific table.
+/* Determines what type of species is referred to by $latin_name, and returns the name of its most specific table. */
 function get_type($latin_name) {
 	$type = 'Creature';
 
@@ -113,6 +114,25 @@ function display($query_string) {
 
 	echo "</table>";
 	$stmt = null;
+}
+
+/* Populates some values used to customize view.php and edit.php with styling and content */
+function template_vals($type) {
+	$template['type'] = 'other'; // Tells the header which part of the menu should be marked as active
+	$template['table'] = 'Creature_full'; // Table name for the query
+	$template['class'] = 'o'; // For styling
+
+	if ($type == 'Lepidopteran') {
+		$template['type'] = 'lepidop';
+		$template['table'] = 'Lep_full';
+		$template['class'] = 'l';
+	}
+	else if ($type == 'Bee') {
+		$template['type'] = 'bee';
+		$template['table'] = 'Bee_full';
+		$template['class'] = 'b';
+	}
+	return $template;
 }
 
 /* Some other helper functions for displaying the results of queries in interesting ways */

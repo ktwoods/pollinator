@@ -6,32 +6,16 @@ if (isset($_POST['spp'])) $name = $_POST['spp'];
 else $name = $_GET['spp'];
 
 // Determine what kind of species template is needed for this page (lepid, bee, or the general template)
-$type = get_type($name);
+$template = template_vals(get_type($name));
+$cur_page = $template['type'];
 
-if ($type == 'Lepidopteran') {
-	$spp_type = 'lepidop'; // Tells the header which part of the menu we're in
-	$spp_table = 'Lep_full'; // For the query
-	$spp_class = 'l'; // For styling
-}
-else if ($type == 'Bee') {
-	$spp_type = 'bee';
-	$spp_table = 'Bee_full';
-	$spp_class = 'b';
-}
-else {
-	$spp_type = 'other';
-	$spp_table = 'Creature_full';
-	$spp_class = 'o';
-}
-
-$cur_page = $spp_type;
 include 'header.php';
 include_once 'funcs_general.php';
 
 if (isset($_POST['spp'])) $name = $_POST['spp'];
 else $name = $_GET['spp'];
 
-$stmt = $conn->prepare("Select * from $spp_table where latin_name = ?");
+$stmt = $conn->prepare('Select * from ' . $template['table'] . 'where latin_name = ?');
 $stmt->bindValue(1, $name);
 $stmt->execute();
 $main_data = $stmt->fetch();
@@ -40,7 +24,7 @@ $main_data = $stmt->fetch();
 	<h1 class="text-center">Edit species profile</h1>
 	<form action="view.php?spp=<?php echo $name ?>" method="post">
 		<div class="row justify-content-center">
-			<div class="col-med-8 col-lg-6 sec-<?php echo $spp_class ?>">
+			<div class="col-med-8 col-lg-6 sec-<?php echo $template['class'] ?>">
 				<!-- Basic fields -->
 				<div>&nbsp;</div>
 				<div class="form-group">
@@ -56,14 +40,14 @@ $main_data = $stmt->fetch();
 					<input type="text" class="form-control" id="fam" name="fam" value="<?php echo $main_data['family_name'] ?>">
 				</div>
 
-				<?php if ($spp_type == 'bee') : ?>
+				<?php if ($template['type'] == 'bee') : ?>
 					<div class="form-group">
 						<label for="spec">Specialization</label>
 						<input type="text" class="form-control" id="spec" name="spec" value="<?php echo $main_data['specialization'] ?>">
 					</div>
 				<?php endif ?>
 
-				<?php if ($spp_type == 'lepidop') : ?>
+				<?php if ($template['type'] == 'lepidop') : ?>
 					<div class="form-group">
 						<label for="host">General host preferences</label>
 						<input type="text" class="form-control" id="host" name="gen_host" value="<?php echo $main_data['host_prefs'] ?>">
@@ -90,7 +74,7 @@ $main_data = $stmt->fetch();
 			</div>
 		</div>
 		<div>&nbsp;</div>
-		<div class="row justify-content-center"><div class="col-1"><button type="Submit" class="btn btn-<?php echo $spp_class ?>" >Save</button></div></div>
+		<div class="row justify-content-center"><div class="col-1"><button type="Submit" class="btn btn-<?php echo $template['class'] ?>" >Save</button></div></div>
 	</form>
 	<div>&nbsp;</div>
 </div>
