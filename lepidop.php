@@ -3,7 +3,6 @@ $cur_page = 'lepidop';
 include_once 'header.html';
 include_once 'connect.php';
 include_once 'funcs_general.php';
-include_once 'funcs_wildlife_category_pages.php';
 ?>
 <!-- "Add species" button -->
 <a href="new.php?type=lepidop" class="btn btn-l" style="margin-top: 15px; position:fixed;"><i class="fas fa-plus"></i> Add species</a>

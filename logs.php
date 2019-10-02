@@ -82,7 +82,7 @@ function matches_plant($plants, $spp, $start, $end) {
 						<i class="fas fa-edit"></i>
 					</a></td>
 					<!-- Thumbnail -->
-					<?php thumbnail($log['img_url'], $log['latin_name'], "3rem"); ?>
+					<td><?php thumbnail($log['img_url'], $log['latin_name'], "3rem"); ?></td>
 					<!-- Species name -->
 					<td style="white-space: nowrap"><?php echo $log['common_name'].'<br/><em>(<a href="view.php?spp='.$log['latin_name'].'">'.$log['latin_name'].'</a>)</em>' ?></td>
 					<!-- Date -->
