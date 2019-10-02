@@ -110,7 +110,7 @@ function delete_button($name, $class) {
 	 start experimenting with formatting properly, there might end up being a lot
 	 of such tweaks, temporarily, so I wanted maximum flexibility. */
 function table($query, $bound_var, $table_settings) {
-	if (!$table_settings['width']) $table_settings['width'] = 'auto';
+	if (!isset($table_settings['width'])) $table_settings['width'] = 'auto';
 
 	global $conn;
 	$stmt = $conn->prepare($query);
@@ -118,7 +118,7 @@ function table($query, $bound_var, $table_settings) {
 	$stmt->execute();
 	$num_col = $stmt->columnCount();
 
-	echo '<table'.($table_settings['class'] ? ' class="'.$table_settings['class'].'"' : '').' style="width: '.$table_settings['width'].'">';
+	echo '<table'.(isset($table_settings['class']) ? ' class="'.$table_settings['class'].'"' : '').' style="width: '.$table_settings['width'].'">';
 
 	// Print header row by iterating through results to get each column's name
 	echo '<thead>';
@@ -134,7 +134,7 @@ function table($query, $bound_var, $table_settings) {
 	}
 	echo '</thead>';
 
-	echo '<tbody' . ($table_settings['tbody_id'] ? ' id="'.$table_settings['tbody_id'].'"' : '') . '>';
+	echo '<tbody' . (isset($table_settings['tbody_id']) ? ' id="'.$table_settings['tbody_id'].'"' : '') . '>';
 	// Print data rows
 	while ($row = $stmt->fetch()) {
 		echo '<tr>';
