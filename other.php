@@ -1,9 +1,8 @@
 <?php
 $cur_page = 'other';
-include 'header.php';
+include 'header.html';
 include_once 'connect.php';
-include_once 'build_table.php';
-include_once 'funcs_wildlife_category_pages.php';
+include_once 'funcs_general.php';
 ?>
 <!-- "Add species" button -->
 <a href="new.php?type=other" class="btn btn-o" style="margin-top: 15px; position: fixed;"><i class="fas fa-plus"></i> Add species</a>

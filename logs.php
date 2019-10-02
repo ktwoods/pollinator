@@ -26,9 +26,9 @@ else if ($type == 'other') {
 	$btn_class = 'o';
 }
 
-include 'header.php';
+include 'header.html';
 include_once 'connect.php';
-include_once 'build_table.php';
+include_once 'funcs_general.php';
 global $conn;
 
 # For hyperlinking within log notes:
@@ -82,7 +82,7 @@ function matches_plant($plants, $spp, $start, $end) {
 						<i class="fas fa-edit"></i>
 					</a></td>
 					<!-- Thumbnail -->
-					<?php thumbnail($log['img_url'], $log['latin_name'], "3rem"); ?>
+					<td><?php thumbnail($log['img_url'], $log['latin_name'], "3rem"); ?></td>
 					<!-- Species name -->
 					<td style="white-space: nowrap"><?php echo $log['common_name'].'<br/><em>(<a href="view.php?spp='.$log['latin_name'].'">'.$log['latin_name'].'</a>)</em>' ?></td>
 					<!-- Date -->

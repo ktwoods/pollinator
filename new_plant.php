@@ -1,8 +1,8 @@
 <?php
 $cur_page = 'plants';
-include 'header.php';
+include 'header.html';
 include_once 'connect.php';
-include_once 'build_table.php';
+include_once 'funcs_general.php';
 ?>
 
 <div class="container-fluid">

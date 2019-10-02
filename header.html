@@ -12,7 +12,7 @@
 	<!-- Font Awesome icons -->
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/solid.css" integrity="sha384-+0VIRx+yz1WBcCTXBkVQYIBVNEFH1eP6Zknm16roZCyeNg2maWEpk/l/KsyFKs7G" crossorigin="anonymous">
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/fontawesome.css" integrity="sha384-jLuaxTTBR42U2qJ/pm4JRouHkEDHkVqH0T1nyQXn1mZ7Snycpf6Rl25VBNthU4z0" crossorigin="anonymous">
-	<!-- personal stylesheet mods -->
+	<!-- Personal stylesheet mods -->
 	<link rel="stylesheet" type="text/css" href="ppstyle.css">
 </head>
 
@@ -25,10 +25,14 @@
 
 			<div class="collapse navbar-collapse" id="navbarFull">
 				<ul class="navbar-nav">
+
+          <!-- HOME -->
 					<li class="nav-item <?php if ($cur_page == 'home') echo 'active' ?>"><a class="nav-link" href="home.php">Home</a></li>
 
+          <!-- PLANTS -->
 					<li class="nav-item <?php if ($cur_page == 'plants') echo 'active' ?>"><a class="nav-link" href="plants.php">Plants</a></li>
 
+          <!-- WILDLIFE (dropdown: Butterflies & moths, Bees, Other) -->
 					<li class="nav-item dropdown <?php if ($cur_page == 'lepidop' || $cur_page == 'bees' || $cur_page == 'other') echo 'active' ?>">
 						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownWildlife" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Wildlife</a>
 						<div class="dropdown-menu" aria-labelledby="navbarDropdownWildlife">
@@ -38,6 +42,7 @@
 						</div>
 					</li>
 
+          <!-- WILDLIFE LOG (dropdown: Butterflies & moths, Bees, Other, New entry) -->
 					<li class="nav-item dropdown <?php if ($cur_page == 'lep_logs' || $cur_page == 'bee_logs' || $cur_page == 'new_log' || $cur_page == 'edit_log') echo 'active' ?>"> <!-- main menu item -->
 						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownLog" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Wildlife log</a>
 						<div class="dropdown-menu" aria-labelledby="navbarDropdownLog">
@@ -47,6 +52,7 @@
 							<a class="dropdown-item <?php if ($cur_page == 'new_log') echo 'active' ?>" href="new_log.php">New entry</a>
 						</div>
 					</li>
+
 				</ul>
 			</div>
 	</nav>

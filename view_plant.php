@@ -1,49 +1,29 @@
 <?php
 $cur_page = 'plants';
-include 'header.php';
+include_once 'header.html';
 include_once 'connect.php';
-include_once 'build_table.php';
+include_once 'funcs_general.php';
 
 global $conn;
-
 if (isset($_POST['spp'])) $name = $_POST['spp'];
 else $name = $_GET['spp'];
 
-// If page edits have just been submitted, update the page
-if (isset($_POST['latin'])) {
-	$latin = $_POST['latin'];
-	$common = $_POST['common'];
-	$fam = $_POST['fam'];
-	$have = $_POST['have'];
-	$want = $_POST['want'];
-	$tags = $_POST['tags'];
-	$blen = $_POST['blen'];
-	$notes = $_POST['notes'];
-	$obs = $_POST['obs'];
-	$img = $_POST['img'];
+include_once 'view_plant_edited.php'; // Handles submitting edits, if returning from edit_plant.php
 
-	$stmt = $conn->prepare("UPDATE Plant SET latin_name=:latin, common_name=:common, family=:fam, have=:have, want=:want, bloom_length=:blen, tags=:tags, research_notes=:notes, observations=:obs, img_url=:img WHERE latin_name=:name");
-	$stmt->bindValue(':name', $name);
-	$stmt->bindValue(':latin', $latin);
-	$stmt->bindValue(':common', $common);
-	$stmt->bindValue(':fam', $fam);
-	$stmt->bindValue(':have', $have);
-	$stmt->bindValue(':want', $want);
-	$stmt->bindValue(':blen', $blen);
-	$stmt->bindValue(':tags', $tags);
-	$stmt->bindValue(':notes', $notes);
-	$stmt->bindValue(':obs', $obs);
-	$stmt->bindValue(':img', $img);
+/* */
+function print_specialists($query) {
+	global $name, $conn;
+  $stmt = $conn->prepare($query);
+  $stmt->bindValue(1, $name);
+  $stmt->execute();
 
-	$changed = false;
-	if ($stmt->execute()) {
-		if ($stmt->rowCount() != 0) $changed = true;
-	}
-
-	echo '<div class="alert alert-success alert-dismissible text-center" role="alert">';
-	if ($changed) echo "Species record updated!";
-	else echo "No changes made.";
-	echo '<button type="button" class="close" data-dismiss="alert" aria-label="close"><span aria-hidden="true">&times;</span></button></div>';
+  $specialists = $stmt->fetchAll(PDO::FETCH_ASSOC);
+	echo '<ul>';
+  foreach ($specialists as $spp) {
+    echo '<li>' . $spp['common_name'] . ' (<em><a href="view.php?spp=' . $spp['latin_name'] . '">' . $spp['latin_name'] . '</a></em>)' . ($spp['specialization'] ? ' &mdash; ' . $spp['specialization'] : '') . '</li>';
+  }
+  if (!$specialists) echo 'n/a';
+	echo '</ul>';
 }
 
 $stmt = $conn->prepare("SELECT * FROM Plant WHERE latin_name = ?");
@@ -79,30 +59,33 @@ unset($creature);
 <div class="container-fluid">
 	<!-- Main profile -->
 	<div class="row">
-		<a href="edit_plant.php?name=<?= $name ?>" class="btn btn-p btn-edit"><i class="fas fa-edit"></i></a>
+		<a href="edit_plant.php?name=<?php echo $name ?>" class="btn btn-p btn-edit"><i class="fas fa-edit"></i></a>
 		<!-- Image -->
 		<div class="col-sm-4">
-			<?php if ($main_data['img_url'] != NULL): ?><a href="<?= $main_data['img_url'] ?>"><img src="<?= $main_data['img_url'] ?>" class="img-fluid center-block" style="max-height: 100%"></a><?php endif; ?>
-			&nbsp;
+			<?php if ($main_data['img_url']) {
+				echo '<a href="' . $main_data['img_url'] . '"><img src="' . $main_data['img_url'] . '" class="img-fluid center-block" style="max-height: 100%"></a>';
+			} ?>
 		</div>
 		<div class="col-sm-8">
 			<div style="margin-left: .5em">
-				<!-- Page header -->
-				<h1><?= $main_data['common_name']; ?><br/>
-				<small><em><?= $main_data['latin_name'] ?></em><br/><?= $main_data['family'] ?></small></h1>
-				<!-- Tags -->
+				<!-- Page header (common name, Latin name, family name) -->
+				<h1><?php echo $main_data['common_name']; ?><br/>
+				<small><em><?php echo $main_data['latin_name'] ?></em>
+				<br/><?php echo $main_data['family'] ?></small></h1>
+
+				<!-- Have/want badges -->
 				<div>
 					<?php
 					if ($main_data['have'] == 0) echo '<span class="spp-tag tag-no">have &mdash;</span>';
 					else echo '<span class="spp-tag">have &#x2713;</span>';
 					if ($main_data['want'] == 0) echo '<span class="spp-tag tag-no">want &mdash;</span>';
 					else echo '<span class="spp-tag">want &#x2713;</span>';
-					echo '</div><div>';
 					?>
 				</div>
+
 				<!-- Profile -->
 				<div class="row">
-					<!-- SUBCOL 1: tags, blooms, bloom length, fruits -->
+					<!-- Column 1: tags, blooms, bloom length, fruits -->
 					<div class="col-sm-6">
 						<table class="spp spp-p">
 							<tr><th>Tags</th><td><?php echo $main_data['tags'] ?></td></tr>
@@ -117,7 +100,7 @@ unset($creature);
 							<tr><td colspan="2" style="background-color: white">&nbsp;</td></tr>
 						</table>
 					</div>
-					<!-- SUBCOL 2: characteristics, notes -->
+					<!-- Column 2: characteristics, notes -->
 					<div class="col-sm-6">
 						<table class="spp spp-p" style="width: 100%">
 							<tr><th colspan="2">Characteristics</th></tr>
@@ -133,70 +116,33 @@ unset($creature);
 	<!-- Plant interaction tables -->
 	<div class="row">
 		<div class="col-sm-4">
-			<!-- Logs -->
-			<div class="card">
-				<div class= "card-header prim-p" id="logbookHeader">
-					<div class="mb-0" style="font-size: 1.5em; font-weight: bold;">
-						<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#logs" >Logbook <?php echo (count($logs) == 0 ? '<span class="badge badge-light">0</span>' : '<span class="badge badge-dark">'.count($logs).'</span>') ?></button>
-					</div>
-				</div>
-				<div id="logs" class="collapse" aria-labelledby="logbookHeader">
-					<div class="card-body">
-						<?php if (count($logs) != 0): ?><table class="spp spp-p" style="width: auto">
-							<tr><th>Latin name</th><th>Date</th><th>Stage</th><th>Notes</th></tr>
-							<?php build_rows('SELECT latin_name, date, stage, notes FROM Log WHERE notes LIKE CONCAT("%",?,"%") ORDER BY date DESC', $name); ?>
-						</table><?php endif; ?>
-					</div>
-				</div>
-			</div>
+			<!-- Logbook -->
+			<?php logbook('SELECT latin_name, date, stage, notes FROM Log WHERE notes LIKE CONCAT("%",?,"%") ORDER BY date DESC', $name, count($logs), 'p'); ?>
 		</div>
-		<!-- COL 1: Host plant, specialists -->
 		<div class="col-sm-8">
+			<!-- Specialist butterflies, moths, and bees -->
 			<table class="spp spp-p" style="table-layout: auto;">
 				<tr><th colspan="2" style="font-size: 1.5em">Specialist insects</th></tr>
 				<tr>
 					<th>Host plant for</th>
 					<td id="p-list">
-						<ul>
-							<?php
-							$host_recorded = FALSE;
-
-							$stmt = $conn->prepare("SELECT latin_name, common_name FROM Lep_full JOIN Feeds ON (creature_name=latin_name) WHERE plant_name=? AND stage='larva'");
-							$stmt->bindValue(1, $name);
-							$stmt->execute();
-							$hosted_lep = $stmt->fetchAll(PDO::FETCH_ASSOC);
-							foreach ($hosted_lep as $spp) {
-								$lep_l = $spp['latin_name'];
-								$lep_c = $spp['common_name'];
-								echo '<li>'.$lep_c.' (<em><a href="view.php?spp='.$lep_l.'">'.$lep_l.'</a></em>)</li>';
-							}
-							if (!$hosted_lep) echo 'n/a';
-							?>
-						</ul>
+						<?php
+						print_specialists("SELECT latin_name, common_name FROM Lep_full JOIN Feeds ON (creature_name=latin_name) WHERE plant_name=? AND stage='larva' ORDER BY family_name, latin_name");
+						?>
 					</td>
 				</tr>
 				<tr>
 					<th>Specialist bees</th>
 					<td id="p-list">
-						<ul>
-							<?php
-							$plant_genus = explode(' ', $main_data['latin_name'])[0];
-							$stmt = $conn->prepare("SELECT latin_name, common_name, specialization FROM Bee_full WHERE specialization LIKE '%".$plant_genus."%' OR specialization LIKE '%".$main_data['family']."%' ORDER BY subtype, family_name, latin_name");
-							$stmt->bindValue(1, $name);
-							$stmt->execute();
-
-							$hosted_bee = $stmt->fetchAll(PDO::FETCH_ASSOC);
-							foreach ($hosted_bee as $spp) {
-								$bee_l = $spp['latin_name'];
-								$bee_c = $spp['common_name'];
-								echo '<li>'.$bee_c.' (<em><a href="view.php?spp='.$bee_l.'">'.$bee_l.'</a></em>) &mdash; '.$spp['specialization'].'</li>';
-							}
-							if (!$hosted_bee) echo 'n/a';
-							?>
-						</ul>
+						<?php
+						$plant_genus = explode(' ', $main_data['latin_name'])[0];
+						print_specialists("SELECT latin_name, common_name, specialization FROM Bee_full WHERE specialization LIKE '%{$plant_genus}%' OR specialization LIKE '%{$main_data['family']}%' ORDER BY subtype, family_name, latin_name");
+						?>
 					</td>
 				</tr>
 			</table>
+
+			<!-- All visitors, organized by type -->
 			<table class="spp spp-p"><tr><th style="font-size: 1.5em">All visitors</th></tr></table>
 			<!-- Tabs -->
 			<ul class="nav nav-pills nav-p justify-content-center" id="type-tabs" role="tablist">
@@ -266,17 +212,5 @@ unset($creature);
 		</div>
 	</div>
 </div>
-<a href="#" class="btn btn-p btn-del" data-toggle="modal" data-target="#delModal"><i class="fas fa-trash-alt"></i></a>
-<div class="modal fade" id="delModal" tabindex="-1" role="dialog">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header"><h3 class="modal-title" id="delLabel">Delete species</h3></div>
-			<div class="modal-body">Are you sure you want to delete all data for this species?</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-				<a href="delete.php?type=p&spp=<?= $name ?>" target="_blank" class="btn btn-primary">Delete</a>
-			</div>
-		</div>
-	</div>
-</div>
-<?php include 'footer.html'; ?>
+<?php delete_button($name, 'p') ?>
+<?php include_once 'footer.html'; ?>

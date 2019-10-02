@@ -1,8 +1,8 @@
 <?php
 $cur_page = 'new_log';
-include 'header.php';
+include 'header.html';
 include_once 'connect.php';
-include_once 'build_table.php';
+include_once 'funcs_general.php';
 ?>
 <script>
 $(document).ready(function(){
@@ -51,7 +51,7 @@ $(document).ready(function(){
 					$day = $today['mday'];
 					$datestring = $today['year'].'-'.($mon < 10? '0'.$mon : $mon).'-'.($day < 10? '0'.$day : $day);
 					?>
-					<input type="text" class="form-control" id="date" name="date" value="<?= $datestring ?>">
+					<input type="text" class="form-control" id="date" name="date" value="<?php echo $datestring ?>">
 					<small id="dateHelp" class="form-text text-muted">YYYY-MM-DD</small>
 				</div>
 				

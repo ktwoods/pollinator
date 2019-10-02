@@ -18,8 +18,8 @@ else {
 }
 
 $cur_page = $spp_type;
-include 'header.php';
-include_once 'build_table.php';
+include 'header.html';
+include_once 'funcs_general.php';
 
 if (isset($_POST['latin'])) {
 	$latin = $_POST['latin'];
