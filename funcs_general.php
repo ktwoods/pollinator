@@ -118,7 +118,7 @@ function table($query, $bound_var, $table_settings) {
 	$stmt->execute();
 	$num_col = $stmt->columnCount();
 
-	echo '<table class="'.$table_settings['class'].'" style="width: '.$table_settings['width'].'">';
+	echo '<table'.($table_settings['class'] ? 'class="'.$table_settings['class'].'"' : '').'" style="width: '.$table_settings['width'].'">';
 
 	// Print header row by iterating through results to get each column's name
 	echo '<thead>';
@@ -127,8 +127,8 @@ function table($query, $bound_var, $table_settings) {
 		// Make uppercase and remove underscores
 		$hname = ucfirst($meta['name']);
 		if ($hname != 'Img_url') {
-			$hname = str_replace("_", " ", $hname);
-			echo "<th>" . $hname . "</th>";
+			$hname = str_replace('_', ' ', $hname);
+			echo '<th>' . $hname . '</th>';
 		}
 		else echo '<th></th>'; // If it's a thumbnail column, leave the header cell empty
 	}
@@ -140,14 +140,14 @@ function table($query, $bound_var, $table_settings) {
 		echo '<tr>';
 		for ($i = 0; $i < $num_col; $i++) {
 			$meta = $stmt->getColumnMeta($i);
-			$db_table = $meta['table'];
-			$link = false;
 
 			echo '<td>';
 			// A few types of cells get special formatting, as follows:
 			// Thumbnails
 			if ($meta['name'] == 'img_url') {
-				thumbnail($row['img_url'], $row['latin_name'], "2rem", "view_plant.php");
+				if ($meta['table'] == 'Plant') $url = 'view_plant.php';
+				else $url = 'view.php';
+				thumbnail($row['img_url'], $row['latin_name'], '2rem', $url);
 			}
 			// Boolean values (have, want): convert to check mark or dash
 			else if ($meta['native_type'] == 'TINY') {
@@ -164,7 +164,7 @@ function table($query, $bound_var, $table_settings) {
 
 			echo '</td>';
 		}
-		echo "</tr>";
+		echo '</tr>';
 	}
 	echo '</tbody></table>';
 }
