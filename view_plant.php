@@ -2,7 +2,7 @@
 $cur_page = 'plants';
 include 'header.php';
 include_once 'connect.php';
-include_once 'build_table.php';
+include_once 'funcs_general.php';
 
 global $conn;
 

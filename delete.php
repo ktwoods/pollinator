@@ -1,7 +1,7 @@
 <?php
 include 'header.php';
 include_once 'connect.php';
-include_once 'build_table.php';
+include_once 'funcs_general.php';
 
 global $conn;
 if (isset($_POST['spp'])) $spp = $_POST['spp'];

@@ -28,7 +28,7 @@ else if ($type == 'other') {
 
 include 'header.php';
 include_once 'connect.php';
-include_once 'build_table.php';
+include_once 'funcs_general.php';
 global $conn;
 
 # For hyperlinking within log notes:

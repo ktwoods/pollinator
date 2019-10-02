@@ -2,7 +2,7 @@
 $cur_page = 'lepidop';
 include_once 'header.php';
 include_once 'connect.php';
-include_once 'build_table.php';
+include_once 'funcs_general.php';
 include_once 'funcs_wildlife_category_pages.php';
 ?>
 <!-- "Add species" button -->

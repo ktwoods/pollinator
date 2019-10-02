@@ -2,7 +2,7 @@
 $cur_page = 'new_log';
 include 'header.php';
 include_once 'connect.php';
-include_once 'build_table.php';
+include_once 'funcs_general.php';
 ?>
 <script>
 $(document).ready(function(){

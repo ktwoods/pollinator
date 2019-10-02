@@ -1,6 +1,6 @@
 <?php
 include_once 'connect.php';
-include_once 'build_table.php';
+include_once 'funcs_general.php';
 global $conn;
 if (isset($_POST['spp'])) $name = $_POST['spp'];
 else $name = $_GET['spp'];
@@ -26,7 +26,7 @@ else {
 
 $cur_page = $spp_type;
 include 'header.php';
-include_once 'build_table.php';
+include_once 'funcs_general.php';
 
 if (isset($_POST['spp'])) $name = $_POST['spp'];
 else $name = $_GET['spp'];
@@ -38,7 +38,7 @@ $main_data = $stmt->fetch();
 ?>
 <div class="container-fluid">
 	<h1 class="text-center">Edit species profile</h1>
-	<form action="view.php?spp=<?= $name ?>" method="post">
+	<form action="view.php?spp=<?php echo $name ?>" method="post">
 		<div class="row justify-content-center">
 			<div class="col-med-8 col-lg-6 sec-<?php echo $spp_class ?>">
 				<!-- Basic fields -->
@@ -62,6 +62,7 @@ $main_data = $stmt->fetch();
 						<input type="text" class="form-control" id="spec" name="spec" value="<?php echo $main_data['specialization'] ?>">
 					</div>
 				<?php endif ?>
+
 				<?php if ($spp_type == 'lepidop') : ?>
 					<div class="form-group">
 						<label for="host">General host preferences</label>

@@ -1,6 +1,6 @@
 <?php
 include_once 'connect.php';
-include_once 'build_table.php';
+include_once 'funcs_general.php';
 global $conn;
 if (isset($_POST['spp'])) $name = $_POST['spp'];
 else $name = $_GET['spp'];
@@ -26,7 +26,7 @@ else {
 
 $cur_page = $spp_type;
 include 'header.php';
-include_once 'build_table.php';
+include_once 'funcs_general.php';
 
 // If page edits have just been submitted, update the page
 if (isset($_POST['latin'])) {

@@ -2,7 +2,7 @@
 $cur_page = 'home';
 include 'header.php';
 include_once 'connect.php';
-include_once 'build_table.php';
+include_once 'funcs_general.php';
 
 function build_category_card($table) {
   global $conn;
