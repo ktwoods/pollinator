@@ -118,7 +118,7 @@ function table($query, $bound_var, $table_settings) {
 	$stmt->execute();
 	$num_col = $stmt->columnCount();
 
-	echo '<table'.($table_settings['class'] ? 'class="'.$table_settings['class'].'"' : '').'" style="width: '.$table_settings['width'].'">';
+	echo '<table'.($table_settings['class'] ? ' class="'.$table_settings['class'].'"' : '').' style="width: '.$table_settings['width'].'">';
 
 	// Print header row by iterating through results to get each column's name
 	echo '<thead>';
@@ -134,19 +134,19 @@ function table($query, $bound_var, $table_settings) {
 	}
 	echo '</thead>';
 
-	echo '<tbody' . ($table_settings['tbody_id'] ? 'id="'.$table_settings['tbody_id'].'"' : '') . '>';
+	echo '<tbody' . ($table_settings['tbody_id'] ? ' id="'.$table_settings['tbody_id'].'"' : '') . '>';
 	// Print data rows
 	while ($row = $stmt->fetch()) {
 		echo '<tr>';
 		for ($i = 0; $i < $num_col; $i++) {
 			$meta = $stmt->getColumnMeta($i);
+			if ($meta['table'] == 'Plant') $url = 'view_plant.php';
+			else $url = 'view.php';
 
 			echo '<td>';
 			// A few types of cells get special formatting, as follows:
 			// Thumbnails
 			if ($meta['name'] == 'img_url') {
-				if ($meta['table'] == 'Plant') $url = 'view_plant.php';
-				else $url = 'view.php';
 				thumbnail($row['img_url'], $row['latin_name'], '2rem', $url);
 			}
 			// Boolean values (have, want): convert to check mark or dash
@@ -155,7 +155,7 @@ function table($query, $bound_var, $table_settings) {
 			}
 			// Latin names: italicize
 			else if ($meta['name'] == "latin_name") {
-				echo '<a href="view' . ($db_table == 'Plant' ? '_plant' : '') . '.php?spp=' . $row[$i] . '">';
+				echo '<a href="' . $url . '?spp=' . $row[$i] . '">';
 				echo '<em>' . $row[$i] . '</em>';
 				echo '</a>';
 			}
