@@ -186,5 +186,4 @@ function display_list($notes) {
 		echo '</ul>';
 	}
 }
-
 ?>

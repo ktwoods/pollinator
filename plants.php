@@ -24,16 +24,17 @@ $(document).ready(function(){
 
 <div class="container-fluid">
 	<div class="row justify-content-center">
-		<div class="col col-lg-10">
-			<p>&nbsp;</p>
+		<div class="col col-lg-8">
+      <h1 class="text-center">Plants</h1>
 			<ul class="nav nav-pills justify-content-center" id="pills-tab" role="tablist">
 				<li class="nav-item"><a class="nav-link active" id="herb-tab" data-toggle="pill" href="#herb" role="tab" aria-controls="pills-herb" aria-selected="true">Herbaceous</a></li>
 				<li class="nav-item"><a class="nav-link" id="woody-tab" data-toggle="pill" href="#woody" role="tab" aria-controls="pills-woody" aria-selected="false">Woody</a></li>
 			</ul>
+			<div>&nbsp;</div>
 			<div class="tab-content" id="pills-tabContent">
 				<div id="herb" class="tab-pane fade show active" role="tabpanel" aria-labelledby="pills-herb">
-					<div class="col col-lg-4 col-med-6 col-sm-8"><input class="form-control" id="searchHerb" type="text" placeholder="Search species"></div>
-					<table>
+					<input class="form-control" id="searchHerb" type="text" placeholder="Search species">
+					<table style="width: 100%">
 						<thead>
 							<th>&nbsp;</th><th>Common name</th><th>Latin name</th><th>Have</th><th>Want</th><th>Tags</th>
 						</thead>
@@ -44,8 +45,8 @@ $(document).ready(function(){
 					<p>&nbsp;</p>
 				</div>
 				<div id="woody" class="tab-pane fade" role="tabpanel" aria-labelledby="pills-woody">
-					<div class="col col-lg-4 col-med-6 col-sm-8"><input class="form-control" id="searchWood" type="text" placeholder="Search species"></div>
-					<table>
+					<input class="form-control" id="searchWood" type="text" placeholder="Search species">
+					<table style="width: 100%">
 						<thead>
 							<tr><th>&nbsp;</th><th>Common name</th><th>Latin name</th><th>Have</th><th>Want</th><th>Tags</th></tr>
 						</thead>
