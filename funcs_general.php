@@ -14,19 +14,17 @@ function thumbnail($img_url, $latin, $size, $page='view.php') {
 
 /* Determines what type of species is referred to by $latin_name, and returns the name of its most specific table. */
 function get_type($latin_name) {
-	$type = 'Creature';
-
 	global $conn;
-	$stmt = $conn->prepare("(SELECT latin_name, 'Bee' AS type FROM Bee) UNION (SELECT latin_name, 'Lepidopteran' AS type FROM Lepidopteran)");
+	// Get list of all species in Bee, Lepidopteran, and Plant, and mark them by table of origin
+	$stmt = $conn->prepare("(SELECT latin_name, 'Bee' AS type FROM Bee) UNION (SELECT latin_name, 'Lepidopteran' AS type FROM Lepidopteran) UNION (SELECT latin_name, 'Plant' AS type FROM Plant)");
 	$stmt->execute();
-	$bee_lep_list = $stmt->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
-	$stmt = $conn->prepare("SELECT COUNT(latin_name) FROM Plant WHERE latin_name = ?");
-	$stmt->bindValue(1, $latin_name);
-	$stmt->execute();
-	if ($stmt->fetch() == 1) $type = 'Plant';
+	$species_list = $stmt->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
 
-	if (array_key_exists($latin_name, $bee_lep_list)) {
-		$type = $bee_lep_list[$latin_name][0];
+	// If it's not one of those, it's just in the Creature list;
+	// if it is one of those, adjust the type accordingly
+	$type = 'Creature';
+	if (array_key_exists($latin_name, $species_list)) {
+		$type = $species_list[$latin_name][0];
 	}
 	return $type;
 }
@@ -116,7 +114,7 @@ function display($query_string) {
 	$stmt = null;
 }
 
-/* Build logbook */
+/* Builds logbook */
 function logbook($query, $name, $num_logs, $class) {
 		echo '<div class="card">';
 		// Logbook header: Downward caret + badge indicating number of logs + "Logbook"
@@ -142,6 +140,23 @@ function logbook($query, $name, $num_logs, $class) {
 			echo '</table>';
 		}
 		echo '</div></div></div>';
+}
+
+/* Builds delete button and dialog */
+function delete_button($name, $class) {
+	echo '<a href="#" class="btn btn-' . $class . ' btn-del" data-toggle="modal" data-target="#delModal"><i class="fas fa-trash-alt"></i></a>';
+	echo '<div class="modal fade" id="delModal" tabindex="-1" role="dialog">'
+			 . '<div class="modal-dialog" role="document">'
+			 . '<div class="modal-content">'
+			 . '<div class="modal-header"><h3 class="modal-title" id="delLabel">Delete species</h3></div>'
+			 . '<div class="modal-body">Are you sure you want to delete all data for this species?</div>'
+			 . '<div class="modal-footer">'
+			 . '<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>'
+			 . '<a href="delete.php?spp=' . $name . '" target="_blank" class="btn btn-primary">Delete</a>'
+			 . '</div>'
+			 . '</div>'
+			 . '</div>'
+			 . '</div>';
 }
 
 /* Populates some values used to customize view.php and edit.php with styling and content */

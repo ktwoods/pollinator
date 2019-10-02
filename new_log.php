@@ -51,7 +51,7 @@ $(document).ready(function(){
 					$day = $today['mday'];
 					$datestring = $today['year'].'-'.($mon < 10? '0'.$mon : $mon).'-'.($day < 10? '0'.$day : $day);
 					?>
-					<input type="text" class="form-control" id="date" name="date" value="<?= $datestring ?>">
+					<input type="text" class="form-control" id="date" name="date" value="<?php echo $datestring ?>">
 					<small id="dateHelp" class="form-text text-muted">YYYY-MM-DD</small>
 				</div>
 				

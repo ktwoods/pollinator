@@ -93,9 +93,9 @@ function build_popover($food_logs, $plant) {
 		<a href="edit.php?spp=<?php echo $name ?>" class="btn btn-<?php echo $template['class'] ?> btn-edit"><i class="fas fa-edit"></i></a>
 		<!-- Image -->
 		<div class="col-sm-4">
-			<?php if ($main_data['img_url']): ?>
-				<a href="<?php echo $main_data['img_url'] ?>"><img src="<?php echo $main_data['img_url'] ?>" class="img-fluid center-block" style="max-height: 100%"></a>
-			<?php endif; ?>
+			<?php if ($main_data['img_url']) {
+				echo '<a href="' . $main_data['img_url'] . '"><img src="' . $main_data['img_url'] . '" class="img-fluid center-block" style="max-height: 100%"></a>';
+			} ?>
 		</div>
 		<div class="col-sm-8">
 			<div style="margin-left: .5em">
@@ -231,17 +231,5 @@ function build_popover($food_logs, $plant) {
 	</div>
 </div>
 <!-- Delete button -->
-<a href="#" class="btn btn-<?php echo $template['class'] ?> btn-del" data-toggle="modal" data-target="#delModal"><i class="fas fa-trash-alt"></i></a>
-<div class="modal fade" id="delModal" tabindex="-1" role="dialog">
-	<div class="modal-dialog" role="document">
-		<div class="modal-content">
-			<div class="modal-header"><h3 class="modal-title" id="delLabel">Delete species</h3></div>
-			<div class="modal-body">Are you sure you want to delete all data for this species?</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-				<a href="delete.php?spp=<?php echo $name ?>" target="_blank" class="btn btn-primary">Delete</a>
-			</div>
-		</div>
-	</div>
-</div>
+<?php delete_button($name, $template['class']) ?>
 <?php include 'footer.html'; ?>
