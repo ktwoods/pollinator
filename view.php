@@ -153,27 +153,7 @@ function build_popover($food_logs, $plant) {
 	<div class="row">
 		<!-- Logbook -->
 		<div class="col-sm-4">
-			<div class="card">
-				<!-- Logbook header: Downward caret + badge indicating number of logs + "Logbook" -->
-				<div class= "card-header prim-<?php echo $template['class'] ?>" id="logbookHeader">
-					<div class="mb-0" data-toggle="collapse" data-target="#logs">
-						<i class="fas fa-caret-down"></i> <span class="badge badge-<?php echo (count($logs) == 0 ? 'light' : 'dark') ?>"><?php echo count($logs) ?></span> <strong>Logbook</strong>
-					</div>
-				</div>
-				<!-- Logbook body: Simple table of logs from most to least recent -->
-				<div id="logs" class="collapse" aria-labelledby="logbookHeader">
-					<div class="card-body">
-						<?php
-						if (count($logs) != 0) {
-							echo '<table class="spp spp-'.$template['class'].'" style="width: auto">';
-							echo '<tr><th>Date</th><th>Stage</th><th>Notes</th></tr>';
-							build_rows('SELECT date, stage, notes FROM Log WHERE latin_name=? ORDER BY date DESC', $name);
-							echo '</table>';
-						}
-						?>
-					</div>
-				</div>
-			</div>
+			<?php logbook('SELECT date, stage, notes FROM Log WHERE latin_name=? ORDER BY date DESC', $name, count($logs), $template['class']); ?>
 		</div>
 		<!-- Plant interaction table(s) -->
 		<div class="col-sm-8">

@@ -116,6 +116,34 @@ function display($query_string) {
 	$stmt = null;
 }
 
+/* Build logbook */
+function logbook($query, $name, $num_logs, $class) {
+		echo '<div class="card">';
+		// Logbook header: Downward caret + badge indicating number of logs + "Logbook"
+		echo '<div class= "card-header prim-' . $class . '" id="logbookHeader">'
+		 		 . '<div class="mb-0" data-toggle="collapse" data-target="#logs">'
+				 . '<i class="fas fa-caret-down"></i> '
+			 	 . '<span class="badge badge-' . ($num_logs == 0 ? 'light' : 'dark') . '">'
+				 . $num_logs . '</span> <strong>Logbook</strong>'
+				 . '</div></div>';
+		// Logbook body: Simple table of logs from most to least recent
+		echo '<div id="logs" class="collapse" aria-labelledby="logbookHeader">';
+		echo '<div class="card-body">';
+		if ($num_logs != 0) {
+			echo '<table class="spp spp-' . $class . '" style="width: auto">';
+			if ($class == 'p') {
+				echo '<tr><th>Latin name</th><th>Date</th><th>Stage</th><th>Notes</th></tr>';
+				build_rows($query, $name);
+			}
+			else {
+				echo '<tr><th>Date</th><th>Stage</th><th>Notes</th></tr>';
+				build_rows($query, $name);
+			}
+			echo '</table>';
+		}
+		echo '</div></div></div>';
+}
+
 /* Populates some values used to customize view.php and edit.php with styling and content */
 function template_vals($type) {
 	$template['type'] = 'other'; // Tells the header which part of the menu should be marked as active

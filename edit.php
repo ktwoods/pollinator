@@ -13,7 +13,7 @@ $cur_page = $template['type'];
 include_once 'header.html';
 
 // Get current species attributes to populate edit form
-$stmt = $conn->prepare("Select * from {$template['table']} where latin_name = ?");
+$stmt = $conn->prepare("SELECT * FROM {$template['table']} WHERE latin_name = ?");
 $stmt->bindValue(1, $name);
 $stmt->execute();
 $main_data = $stmt->fetch();

@@ -132,23 +132,9 @@ unset($creature);
 	</div>
 	<!-- Plant interaction tables -->
 	<div class="row">
+		<!-- Logbook -->
 		<div class="col-sm-4">
-			<!-- Logs -->
-			<div class="card">
-				<div class= "card-header prim-p" id="logbookHeader">
-					<div class="mb-0" style="font-size: 1.5em; font-weight: bold;">
-						<button class="btn btn-link" type="button" data-toggle="collapse" data-target="#logs" >Logbook <?php echo (count($logs) == 0 ? '<span class="badge badge-light">0</span>' : '<span class="badge badge-dark">'.count($logs).'</span>') ?></button>
-					</div>
-				</div>
-				<div id="logs" class="collapse" aria-labelledby="logbookHeader">
-					<div class="card-body">
-						<?php if (count($logs) != 0): ?><table class="spp spp-p" style="width: auto">
-							<tr><th>Latin name</th><th>Date</th><th>Stage</th><th>Notes</th></tr>
-							<?php build_rows('SELECT latin_name, date, stage, notes FROM Log WHERE notes LIKE CONCAT("%",?,"%") ORDER BY date DESC', $name); ?>
-						</table><?php endif; ?>
-					</div>
-				</div>
-			</div>
+			<?php logbook('SELECT latin_name, date, stage, notes FROM Log WHERE notes LIKE CONCAT("%",?,"%") ORDER BY date DESC', $name, count($logs), 'p'); ?>
 		</div>
 		<!-- COL 1: Host plant, specialists -->
 		<div class="col-sm-8">
