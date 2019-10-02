@@ -18,7 +18,7 @@ else {
 }
 
 $cur_page = $spp_type;
-include 'header.php';
+include 'header.html';
 include_once 'funcs_general.php';
 
 if (isset($_POST['latin'])) {

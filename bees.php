@@ -1,6 +1,6 @@
 <?php
 $cur_page = 'bees';
-include_once 'header.php';
+include_once 'header.html';
 include_once 'connect.php';
 include_once 'funcs_general.php';
 include_once 'funcs_wildlife_category_pages.php';

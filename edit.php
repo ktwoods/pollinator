@@ -9,13 +9,12 @@ else $name = $_GET['spp'];
 $template = template_vals(get_type($name));
 $cur_page = $template['type'];
 
-include 'header.php';
-include_once 'funcs_general.php';
+include 'header.html';
 
 if (isset($_POST['spp'])) $name = $_POST['spp'];
 else $name = $_GET['spp'];
 
-$stmt = $conn->prepare('Select * from ' . $template['table'] . 'where latin_name = ?');
+$stmt = $conn->prepare("Select * from {$template['table']} where latin_name = ?");
 $stmt->bindValue(1, $name);
 $stmt->execute();
 $main_data = $stmt->fetch();

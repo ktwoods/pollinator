@@ -26,7 +26,7 @@ else if ($type == 'other') {
 	$btn_class = 'o';
 }
 
-include 'header.php';
+include 'header.html';
 include_once 'connect.php';
 include_once 'funcs_general.php';
 global $conn;

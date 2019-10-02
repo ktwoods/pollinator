@@ -1,6 +1,6 @@
 <?php
 $cur_page = 'other';
-include 'header.php';
+include 'header.html';
 include_once 'connect.php';
 include_once 'funcs_general.php';
 include_once 'funcs_wildlife_category_pages.php';

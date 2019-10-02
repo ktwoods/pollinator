@@ -8,8 +8,7 @@ else $name = $_GET['spp'];
 $template = template_vals(get_type($name));
 $cur_page = $template['type'];
 
-include 'header.php';
-include_once 'funcs_general.php';
+include 'header.html';
 
 // If page edits have just been submitted, update the page
 if (isset($_POST['latin'])) {
