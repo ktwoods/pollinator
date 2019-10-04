@@ -9,9 +9,8 @@ $(document).ready(function(){
 
 <?php
 $cur_page = 'update_logs';
-include_once 'header.html';
-include_once 'connect.php';
 include_once 'funcs_general.php';
+include_once 'header.html';
 
 $editing = ($_GET['do'] == 'edit');
 

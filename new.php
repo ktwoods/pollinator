@@ -1,8 +1,9 @@
 <?php
-include_once 'connect.php';
+$cur_page = $_GET['type'];
+include_once 'funcs_general.php';
+include_once 'header.html';
 
-if (isset($_POST['type'])) $spp_type = $_POST['type'];
-else $spp_type = $_GET['type'];
+$spp_type = $cur_page;
 
 if ($spp_type == 'lepidop') {
 	$spp_type_full = 'butterfly/moth';
@@ -16,10 +17,6 @@ else {
 	$spp_type_full = 'creature';
 	$spp_class = 'o';
 }
-
-$cur_page = $spp_type;
-include 'header.html';
-include_once 'funcs_general.php';
 
 if (isset($_POST['latin'])) {
 	$latin = $_POST['latin'];
@@ -134,4 +131,4 @@ else { ?>
 	<div>&nbsp;</div>
 </div>
 <?php } ?>
-<?php include 'footer.html'; ?>
+<?php include_once 'footer.html'; ?>

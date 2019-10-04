@@ -1,8 +1,7 @@
 <?php
 $cur_page = 'home';
-include 'header.html';
-include_once 'connect.php';
 include_once 'funcs_general.php';
+include 'header.html';
 
 /* Builds card to represent a species category (plants, butterflies & moths,
    bees, everything else). Each card has three elements:

@@ -1,11 +1,7 @@
 <?php
 $cur_page = 'plants';
-include_once 'header.html';
-include_once 'connect.php';
 include_once 'funcs_general.php';
-
-if (isset($_POST['spp'])) $name = $_POST['spp'];
-else $name = $_GET['spp'];
+include_once 'header.html';
 
 /* Handles submitting edits, if returning from edit_plant.php */
 function submit_edits() {
@@ -37,7 +33,7 @@ function submit_edits() {
 	success_fail_message($success, 'Species record updated!');
 }
 
-/* */
+/* Generates list of species using the given query. */
 function print_specialists($query) {
 	global $name, $conn;
   $stmt = $conn->prepare($query);
@@ -52,6 +48,8 @@ function print_specialists($query) {
   if (!$specialists) echo 'n/a';
 	echo '</ul>';
 }
+
+$name = $_GET['spp'];
 
 $stmt = $conn->prepare("SELECT * FROM Plant WHERE latin_name = ?");
 $stmt->bindValue(1, $name);

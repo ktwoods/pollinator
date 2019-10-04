@@ -1,8 +1,7 @@
 <?php
 $cur_page = 'bees';
-include_once 'header.html';
-include_once 'connect.php';
 include_once 'funcs_general.php';
+include_once 'header.html';
 ?>
 <!-- "Add species" button -->
 <a href="new.php?type=bee" class="btn btn-b" style="margin-top: 15px; position: fixed;"><i class="fas fa-plus"></i> Add species</a>

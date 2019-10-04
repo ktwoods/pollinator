@@ -1,7 +1,5 @@
 <?php
-if (isset($_POST['type'])) $type = $_POST['type'];
-else $type = $_GET['type'];
-
+$type = $_GET['type'];
 $cur_page = 'all_logs';
 $header = 'All';
 $table = 'Log JOIN Creature USING (latin_name)';
@@ -26,9 +24,8 @@ else if ($type == 'other') {
 	$btn_class = 'o';
 }
 
-include_once 'header.html';
-include_once 'connect.php';
 include_once 'funcs_general.php';
+include_once 'header.html';
 
 // Get array of plant species names
 $stmt = $conn->prepare("SELECT latin_name FROM Plant");

@@ -1,6 +1,6 @@
 <?php
 $cur_page = 'other';
-include 'header.html';
+include_once 'header.html';
 include_once 'connect.php';
 include_once 'funcs_general.php';
 ?>
@@ -15,4 +15,4 @@ include_once 'funcs_general.php';
     </div>
   </div>
 </div>
-<?php include 'footer.html'; ?>
+<?php include_once 'footer.html'; ?>

@@ -1,11 +1,7 @@
 <?php
-/* Setup */
-include_once 'connect.php';
 include_once 'funcs_general.php';
 
-if (isset($_POST['spp'])) $name = $_POST['spp'];
-else $name = $_GET['spp'];
-
+$name = $_GET['spp'];
 // Determine what kind of species template is needed for this page (lepid, bee, or the general template)
 $template = template_vals(get_type($name));
 $cur_page = $template['type'];
