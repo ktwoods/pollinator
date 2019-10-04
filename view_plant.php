@@ -7,7 +7,35 @@ include_once 'funcs_general.php';
 if (isset($_POST['spp'])) $name = $_POST['spp'];
 else $name = $_GET['spp'];
 
-include_once 'view_plant_edited.php'; // Handles submitting edits, if returning from edit_plant.php
+/* Handles submitting edits, if returning from edit_plant.php */
+function submit_edits() {
+	$latin = $_POST['latin'];
+	$common = $_POST['common'];
+	$fam = $_POST['fam'];
+	$have = $_POST['have'];
+	$want = $_POST['want'];
+	$tags = $_POST['tags'];
+	$blen = $_POST['blen'];
+	$notes = $_POST['notes'];
+	$obs = $_POST['obs'];
+	$img = $_POST['img'];
+
+	$stmt = $conn->prepare("UPDATE Plant SET latin_name=:latin, common_name=:common, family=:fam, have=:have, want=:want, bloom_length=:blen, tags=:tags, research_notes=:notes, observations=:obs, img_url=:img WHERE latin_name=:name");
+	$stmt->bindValue(':name', $name);
+	$stmt->bindValue(':latin', $latin);
+	$stmt->bindValue(':common', $common);
+	$stmt->bindValue(':fam', $fam);
+	$stmt->bindValue(':have', $have);
+	$stmt->bindValue(':want', $want);
+	$stmt->bindValue(':blen', $blen);
+	$stmt->bindValue(':tags', $tags);
+	$stmt->bindValue(':notes', $notes);
+	$stmt->bindValue(':obs', $obs);
+	$stmt->bindValue(':img', $img);
+
+	$success = ($stmt->execute() && $stmt->rowCount() != 0);
+	success_fail_message($success, 'Species record updated!');
+}
 
 /* */
 function print_specialists($query) {
@@ -53,6 +81,8 @@ foreach ($full_spp_list as $creature) {
 	unset($l, $rel_logs);
 }
 unset($creature);
+
+if (isset($_POST['latin'])) submit_edits();
 ?>
 
 <div class="container-fluid">
