@@ -112,7 +112,10 @@ function delete_button($name, $class) {
 	 start experimenting with formatting properly, there might end up being a lot
 	 of such tweaks, temporarily, so I wanted maximum flexibility. */
 function table($query, $bound_var, $table_settings) {
-	if (!$table_settings['width']) $table_settings['width'] = 'auto';
+	if (isset($table_settings['width'])) $width = $table_settings['width'];
+	else $width = 'auto';
+	if (isset($table_settings['class'])) $class = 'class="' . $table_settings['class'] . '" ';
+	else $class = '';
 
 	global $conn;
 	$stmt = $conn->prepare($query);
@@ -120,7 +123,7 @@ function table($query, $bound_var, $table_settings) {
 	$stmt->execute();
 	$num_col = $stmt->columnCount();
 
-	echo '<table class="'.$table_settings['class'].'" style="width: '.$table_settings['width'].'">';
+	echo '<table '.$class.'style="width: '.$width.'">';
 
 	// Print header row by iterating through results to get each column's name
 	echo '<thead>';
