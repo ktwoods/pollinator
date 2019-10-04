@@ -53,22 +53,22 @@ function matches_plant($spp, $start, $end) {
 	else return $mid_item;
 }
 
-/* Makes updates to a log entry, if coming here from edit_log.php */
+/* Makes updates to a log entry, if coming here from update_logs.php */
 function submit_edits() {
 	global $conn;
 
 	$stmt = $conn->prepare("UPDATE Log SET latin_name=:new_name, date=:new_date, notes=:new_notes, stage=:new_stage WHERE latin_name=:name AND date=:date AND stage=:stage");
-	$stmt->bindParam(':name', $_GET['name']);
-	$stmt->bindParam(':date', $_GET['date']);
-	$stmt->bindParam(':stage', $_GET['stage']);
-	$stmt->bindParam(':new_name', $_POST['new_name']);
-	$stmt->bindParam(':new_date', $_POST['new_date']);
-	$stmt->bindParam(':new_stage', $_POST['new_stage']);
-	$stmt->bindParam(':new_notes', $_POST['new_notes']);
+	$stmt->bindParam(':name', $_GET['on']);
+	$stmt->bindParam(':date', $_GET['od']);
+	$stmt->bindParam(':stage', $_GET['os']);
+	$stmt->bindParam(':new_name', $_POST['name']);
+	$stmt->bindParam(':new_date', $_POST['date']);
+	$stmt->bindParam(':new_stage', $_POST['stage']);
+	$stmt->bindParam(':new_notes', $_POST['notes']);
 
 	if ($stmt->execute() && $stmt->rowCount() != 0)
 	{
-		echo "<div class='alert alert-success alert-dismissable text-center'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Log entry updated</div>";
+		echo "<div class='alert alert-success alert-dismissable text-center'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Log entry for {$_POST['stage']} {$_POST['name']}, {$_POST['date']} updated</div>";
 	}
 	else
 	{
@@ -78,7 +78,7 @@ function submit_edits() {
 ?>
 
 <div class="container-fluid">
-	<?php if (isset($_GET['name'])) submit_edits(); ?>
+	<?php if (isset($_GET['on'])) submit_edits(); ?>
 	<div class="row justify-content-center">
 		<div class="col col-lg-8">
 			<h1 class="text-center"><?php echo $header ?> sightings</h1>
@@ -107,7 +107,7 @@ function submit_edits() {
 				} ?>
 				<tr>
 					<!-- Edit button -->
-					<td><a href="edit_log.php?name=<?php echo $log['latin_name'] ?>&date=<?php echo $log['date'] ?>&stage=<?php echo $log['stage'] ?>" class="btn btn-<?php echo $btn_class ?>">
+					<td><a href="update_logs.php?do=edit&n=<?php echo $log['latin_name'] ?>&d=<?php echo $log['date'] ?>&s=<?php echo $log['stage'] ?>" class="btn btn-<?php echo $btn_class ?>">
 						<i class="fas fa-edit"></i>
 					</a></td>
 					<!-- Thumbnail -->
