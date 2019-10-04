@@ -3,7 +3,6 @@ include 'header.html';
 include_once 'connect.php';
 include_once 'funcs_general.php';
 
-global $conn;
 if (isset($_POST['spp'])) $spp = $_POST['spp'];
 else $spp = $_GET['spp'];
 $type = get_type($spp);

@@ -3,7 +3,7 @@ $cur_page = 'plants';
 include_once 'header.html';
 include_once 'connect.php';
 include_once 'funcs_general.php';
-global $conn;
+
 if (isset($_POST['name'])) $name = $_POST['name'];
 else $name = $_GET['name'];
 

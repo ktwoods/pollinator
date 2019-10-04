@@ -29,7 +29,6 @@ else if ($type == 'other') {
 include 'header.html';
 include_once 'connect.php';
 include_once 'funcs_general.php';
-global $conn;
 
 # For hyperlinking within log notes:
 # Binary search to check if a two-word phrase is a valid species name

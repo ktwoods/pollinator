@@ -1,6 +1,6 @@
 <?php
 include_once 'connect.php';
-global $conn;
+
 if (isset($_POST['type'])) $spp_type = $_POST['type'];
 else $spp_type = $_GET['type'];
 
@@ -31,7 +31,7 @@ if (isset($_POST['latin'])) {
 	if (isset($_POST['gen_host'])) $gen_host = $_POST['gen_host'];
 	if (isset($_POST['gen_nect'])) $gen_nect = $_POST['gen_nect'];
 	if (isset($_POST['spec'])) $spec = $_POST['spec'];
-	
+
 	$stmt = $conn->prepare("INSERT INTO Creature (latin_name, common_name, family_name, identification, notes, img_url) VALUES (:latin, :common, :fam, :id, :notes, :img)");
 	$stmt->bindParam(':latin', $latin);
 	$stmt->bindParam(':common', $common);
@@ -39,7 +39,7 @@ if (isset($_POST['latin'])) {
 	$stmt->bindParam(':id', $id);
 	$stmt->bindParam(':notes', $notes);
 	$stmt->bindParam(':img', $img);
-	
+
 	if ($stmt->execute()) {
 		echo '<h1 class="text-center">New '.$spp_type_full.' species</h1><p>&nbsp;</p>';
 		if ($stmt->rowCount() != 0) {
@@ -47,7 +47,7 @@ if (isset($_POST['latin'])) {
 			echo "<p class='text-center'>Species <em>$latin</em> ($common) was added! <a href='view.php?spp=$url'>[View species profile]</a></p>";
 		}
 		else echo "<p class='text-center'>Error: failed to add species <em>$latin</em> ($common) to the database.</p>";
-		
+
 		$full_success = true;
 		if ($spp_type == 'lepidop') {
 			$stmt = $conn->prepare("INSERT INTO Lepidopteran (latin_name, host_prefs, nect_prefs) VALUES (:latin, :gen_host, :gen_nect)");
@@ -83,12 +83,12 @@ else { ?>
 					<label for="latin">Latin name</label>
 					<input type="text" class="form-control" id="latin" name="latin">
 				</div>
-				
+
 				<div class="form-group">
 					<label for="common">Common name</label>
 					<input type="text" class="form-control" id="common" name="common">
 				</div>
-				
+
 				<div class="form-group">
 					<label for="fam">Family</label>
 					<input type="text" class="form-control" id="fam" name="fam">
@@ -110,17 +110,17 @@ else { ?>
 						<input type="text" class="form-control" id="nect" name="gen_nect">
 					</div>
 				<?php endif ?>
-				
+
 				<div class="form-group">
 					<label for="notes">Notes</label>
 					<textarea class="form-control" id="notes" name="notes"></textarea>
 				</div>
-				
+
 				<div class="form-group">
 					<label for="id">Identification</label>
 					<textarea class="form-control" id="id" name="id"></textarea>
 				</div>
-				
+
 				<div class="form-group">
 					<label for="img">Image URL</label>
 					<input type="text" class="form-control" id="img" name="img" placeholder="Link to a photo of this species">

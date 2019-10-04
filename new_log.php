@@ -15,21 +15,19 @@ $(document).ready(function(){
 
 <div class="container-fluid">
 	<?php
-	global $conn;
-
 	if (isset($_POST['latin'])) // Submitting data
 	{
 		$latin = $_POST['latin'];
 		$date = $_POST['date'];
 		$stage = $_POST['stage'];
 		$notes = $_POST['notes'];
-		
+
 		$stmt = $conn->prepare("INSERT INTO Log VALUES (:latin, :date, :notes, :stage)");
 		$stmt->bindParam(':latin', $latin);
 		$stmt->bindParam(':date', $date);
 		$stmt->bindParam(':stage', $stage);
 		$stmt->bindParam(':notes', $notes);
-		
+
 		if ($stmt->execute())
 		{
 			$rows_affected = $stmt->rowCount();
@@ -38,7 +36,7 @@ $(document).ready(function(){
 		}
 	}
 	?>
-	
+
 	<h1 class="text-center">New log entry</h1>
 	<form action="new_log.php" method="post">
 		<div class="row justify-content-center">
@@ -54,7 +52,7 @@ $(document).ready(function(){
 					<input type="text" class="form-control" id="date" name="date" value="<?php echo $datestring ?>">
 					<small id="dateHelp" class="form-text text-muted">YYYY-MM-DD</small>
 				</div>
-				
+
 				<!-- Latin name -->
 				<div class="form-group">
 					<label for="latin">Species</label>
@@ -71,16 +69,16 @@ $(document).ready(function(){
 					</select>
 				</div>
 				<div class="form-check checkbox-inline" id="stage">
-					<input class="form-check-input" type="radio" name="stage" value="larva" id="larva"><label class="form-check-label" for="larva" style="margin-left: 10px">Larva</label>	
+					<input class="form-check-input" type="radio" name="stage" value="larva" id="larva"><label class="form-check-label" for="larva" style="margin-left: 10px">Larva</label>
 				</div>
 				<div class="form-check checkbox-inline">
-					<input class="form-check-input" type="radio" name="stage" value="adult" id="adult" checked><label class="form-check-label" for="adult" style="margin-left: 10px">Adult</label>	
+					<input class="form-check-input" type="radio" name="stage" value="adult" id="adult" checked><label class="form-check-label" for="adult" style="margin-left: 10px">Adult</label>
 				</div>
-				
+
 				<div class="form-group">
 					<label for="notes" style="margin-top: 1em">Notes</label>
 					<textarea class="form-control" id="notes" name="notes"></textarea>
-				</div>	
+				</div>
 			</div>
 		</div>
 		<div class="row justify-content-center"><div class="col-1"><button type="Submit" class="btn btn-d" style="color: white">Create</button></div></div>

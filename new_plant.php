@@ -1,14 +1,12 @@
 <?php
 $cur_page = 'plants';
-include 'header.html';
+include_once 'header.html';
 include_once 'connect.php';
 include_once 'funcs_general.php';
 ?>
 
 <div class="container-fluid">
 	<?php
-	global $conn;
-
 	if (isset($_POST['latin'])) {
 		$latin = $_POST['latin'];
 		$common = $_POST['common'];
@@ -20,9 +18,9 @@ include_once 'funcs_general.php';
 		$notes = $_POST['notes'];
 		$obs = $_POST['obs'];
 		$img = $_POST['img'];
-		
+
 		echo '<h1 class="text-center">New plant species</h1><p>&nbsp;</p>';
-		$stmt = $conn->prepare("Insert into Plant (latin_name, family, common_name, have, want, bloom_length, tags, research_notes, observations, img_url) values (:latin, :fam, :common, :have, :want, :blen, :tags, :notes, :obs, :img)");
+		$stmt = $conn->prepare("INSERT INTO Plant (latin_name, family, common_name, have, want, bloom_length, tags, research_notes, observations, img_url) VALUES (:latin, :fam, :common, :have, :want, :blen, :tags, :notes, :obs, :img)");
 		$stmt->bindParam(':latin', $latin);
 		$stmt->bindParam(':fam', $fam);
 		$stmt->bindParam(':common', $common);
@@ -33,7 +31,7 @@ include_once 'funcs_general.php';
 		$stmt->bindParam(':notes', $notes);
 		$stmt->bindParam(':obs', $obs);
 		$stmt->bindParam(':img', $img);
-		
+
 		if ($stmt->execute())
 		{
 			$rows_affected = $stmt->rowCount();
@@ -46,7 +44,7 @@ include_once 'funcs_general.php';
 		}
 	}
 	else { ?>
-	
+
 	<h1 class="text-center">New plant species</h1>
 	<form action="new_plant.php" method="post">
 		<div class="row justify-content-center">
@@ -56,52 +54,52 @@ include_once 'funcs_general.php';
 					<label for="latin">Latin name</label>
 					<input type="text" class="form-control" id="latin" name="latin">
 				</div>
-				
+
 				<div class="form-group">
 					<label for="common">Common name</label>
 					<input type="text" class="form-control" id="common" name="common">
 				</div>
-				
+
 				<div class="form-group">
 					<label for="fam">Family</label>
 					<input type="text" class="form-control" id="fam" name="fam">
 				</div>
-			
+
 				<div style="margin-bottom: 10px">
 					<div class="form-check checkbox-inline">
-						<input class="form-check-input" type="radio" name="have" value="1" id="have"><label class="form-check-label" for="have" style="margin-left: 10px">have</label>	
+						<input class="form-check-input" type="radio" name="have" value="1" id="have"><label class="form-check-label" for="have" style="margin-left: 10px">have</label>
 					</div>
 					<div class="form-check checkbox-inline">
-						<input class="form-check-input" type="radio" name="have" value="0" id="dhave"><label class="form-check-label" for="dhave" style="margin-left: 10px">don't have</label>	
+						<input class="form-check-input" type="radio" name="have" value="0" id="dhave"><label class="form-check-label" for="dhave" style="margin-left: 10px">don't have</label>
 					</div>
 					<div class="form-check checkbox-inline">
-						<input class="form-check-input" type="radio" name="want" value="1" id="want"><label class="form-check-label" for="want" style="margin-left: 10px">want</label>	
+						<input class="form-check-input" type="radio" name="want" value="1" id="want"><label class="form-check-label" for="want" style="margin-left: 10px">want</label>
 					</div>
 					<div class="form-check checkbox-inline">
-						<input class="form-check-input" type="radio" name="want" value="0" id="dwant"><label class="form-check-label" for="dwant" style="margin-left: 10px">don't want</label>	
+						<input class="form-check-input" type="radio" name="want" value="0" id="dwant"><label class="form-check-label" for="dwant" style="margin-left: 10px">don't want</label>
 					</div>
 				</div>
-			
+
 				<div class="form-group">
 					<label for="fam">Tags</label>
 					<input type="text" class="form-control" id="tags" name="tags" placeholder="shade, ephemeral, rabbit-proof, etc">
 				</div>
-				
+
 				<div class="form-group">
 					<label for="blen">Bloom length</label>
 					<input type="text" class="form-control" id="blen" name="blen" placeholder="1 week, 3 days, 2+ months, etc">
 				</div>
-				
+
 				<div class="form-group">
 					<label for="notes">Characteristics</label>
 					<textarea class="form-control" id="notes" name="notes" placeholder="Sun/water/soil needs, size, other reported characteristics"></textarea>
 				</div>
-				
+
 				<div class="form-group">
 					<label for="obs">Notes</label>
 					<textarea class="form-control" id="obs" name="obs" placeholder="Cultivar names, observations, and personal notes"></textarea>
 				</div>
-				
+
 				<div class="form-group">
 					<label for="img">Image URL</label>
 					<input type="text" class="form-control" id="img" name="img" placeholder="Link to a photo of this species">
@@ -116,4 +114,4 @@ include_once 'funcs_general.php';
 	<?php } ?>
 </div>
 
-<?php include 'footer.html'; ?>
+<?php include_once 'footer.html'; ?>

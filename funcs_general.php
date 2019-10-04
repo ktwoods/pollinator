@@ -216,12 +216,13 @@ function build_tabs($header, $type, $query) {
   // Builds each tab
   for ($i = 0; $i < count($category_list); $i++) {
     $category = $category_list[$i][0];
-    $desc = $category_list[$i][1];
+    if ($type != 'Other') $desc = ' (' . $category_list[$i][1] . ')';
+		else $desc = '';
     // Opening div tag
     echo '<div id="' . $category . '" class="tab-pane fade ' . ($i == 0 ? 'show active' : '')
          . '" role="tabpanel" aria-labelledby="' . $category . '-tab">';
     // Tab header
-    echo '<h3 class="text-center">' . $category . ($type != 'Other' ? ' (' . $desc . ')' : '') . '</h3>';
+    echo '<h3 class="text-center">' . $category . $desc . '</h3>';
     build_tab_tables($category, $type);
     echo '</div>';
   }

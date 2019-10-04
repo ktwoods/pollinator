@@ -2,7 +2,7 @@
 /* Setup */
 include_once 'connect.php';
 include_once 'funcs_general.php';
-global $conn;
+
 if (isset($_POST['spp'])) $name = $_POST['spp'];
 else $name = $_GET['spp'];
 
