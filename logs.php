@@ -52,14 +52,38 @@ function matches_plant($spp, $start, $end) {
 	else if (strcasecmp($spp, $mid_item) < 0) return matches_plant($spp, $start, $mid-1);
 	else return $mid_item;
 }
+
+/* Makes updates to a log entry, if coming here from edit_log.php */
+function submit_edits() {
+	global $conn;
+
+	$stmt = $conn->prepare("UPDATE Log SET latin_name=:new_name, date=:new_date, notes=:new_notes, stage=:new_stage WHERE latin_name=:name AND date=:date AND stage=:stage");
+	$stmt->bindParam(':name', $_GET['name']);
+	$stmt->bindParam(':date', $_GET['date']);
+	$stmt->bindParam(':stage', $_GET['stage']);
+	$stmt->bindParam(':new_name', $_POST['new_name']);
+	$stmt->bindParam(':new_date', $_POST['new_date']);
+	$stmt->bindParam(':new_stage', $_POST['new_stage']);
+	$stmt->bindParam(':new_notes', $_POST['new_notes']);
+
+	if ($stmt->execute() && $stmt->rowCount() != 0)
+	{
+		echo "<div class='alert alert-success alert-dismissable text-center'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Log entry updated</div>";
+	}
+	else
+	{
+		echo "<div class='alert alert-success alert-dismissable text-center'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>No changes made</div>";
+	}
+}
 ?>
 
 <div class="container-fluid">
+	<?php if (isset($_GET['name'])) submit_edits(); ?>
 	<div class="row justify-content-center">
 		<div class="col col-lg-8">
 			<h1 class="text-center"><?php echo $header ?> sightings</h1>
 			<?php
-			$stmt = $conn->prepare("SELECT latin_name, common_name, img_url, date, Log.notes FROM $table ORDER BY date DESC, latin_name ASC");
+			$stmt = $conn->prepare("SELECT latin_name, common_name, img_url, date, stage, Log.notes FROM $table ORDER BY date DESC, latin_name ASC");
 			$stmt->execute();
 			$logs = $stmt->fetchAll();
 			$year = $logs[0]['date'];

@@ -1,6 +1,6 @@
 <?php
 $cur_page = 'edit_log';
-include 'header.html';
+include_once 'header.html';
 include_once 'connect.php';
 include_once 'funcs_general.php';
 ?>
@@ -15,39 +15,9 @@ $(document).ready(function(){
 
 <div class="container-fluid">
 	<?php
-	if (isset($_POST['name'])) $name = $_POST['name'];
-	else $name = $_GET['name'];
-	if (isset($_POST['date'])) $date = $_POST['date'];
-	else $date = $_GET['date'];
-	if (isset($_POST['stage'])) $stage = $_POST['stage'];
-	else $stage = $_GET['stage'];
-
-	// Submit edits
-	if (isset($_POST['new_name'])) {
-		$new_name = $_POST['new_name'];
-		$new_date = $_POST['new_date'];
-		$new_stage = $_POST['new_stage'];
-		$new_notes = $_POST['new_notes'];
-
-		$stmt = $conn->prepare("UPDATE Log SET latin_name=:new_name, date=:new_date, notes=:new_notes, stage=:new_stage WHERE latin_name=:name AND date=:date AND stage=:stage");
-		$stmt->bindParam(':name', $name);
-		$stmt->bindParam(':date', $date);
-		$stmt->bindParam(':stage', $stage);
-
-		$stmt->bindParam(':new_name', $new_name);
-		$stmt->bindParam(':new_date', $new_date);
-		$stmt->bindParam(':new_notes', $new_notes);
-		$stmt->bindParam(':new_stage', $new_stage);
-
-		if ($stmt->execute())
-		{
-			$rows_affected = $stmt->rowCount();
-			if ($rows_affected != 0)
-				echo "<div class='alert alert-success alert-dismissable text-center'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Log entry updated</div>";
-			else
-				echo "<div class='alert alert-success alert-dismissable text-center'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>No changes made</div>";
-		}
-	}
+	$name = $_GET['name'];
+	$date = $_GET['date'];
+	$stage = $_GET['stage'];
 
 	// Prompt for edits
 	if ($stage != NULL) {
@@ -60,7 +30,12 @@ $(document).ready(function(){
 
 	$stmt->execute();
 	$main_data = $stmt->fetch();
-	$url = 'edit_log.php?name='.$main_data['latin_name'].'&date='.$main_data['date'].'&stage='.$main_data['stage'];
+  $type = get_type($main_data['latin_name']);
+  if ($type == 'Lepidopteran') $type = 'lep';
+  else if ($type == 'Bee') $type = 'bee';
+  else $type = 'other';
+
+	$url = 'logs.php?type='.$type.'&name='.$main_data['latin_name'].'&date='.$main_data['date'].'&stage='.$main_data['stage'];
 	?>
 
 	<h1 class="text-center">Edit log entry</h1>
@@ -106,5 +81,4 @@ $(document).ready(function(){
 	</form>
 	<div>&nbsp;</div>
 </div>
-
-<?php include 'footer.html'; ?>
+<?php include_once 'footer.html'; ?>
