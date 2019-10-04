@@ -132,27 +132,27 @@ function table($query, $bound_var, $table_settings) {
 		// Make uppercase and remove underscores
 		$hname = ucfirst($meta['name']);
 		if ($hname != 'Img_url') {
-			$hname = str_replace("_", " ", $hname);
-			echo "<th>" . $hname . "</th>";
+			$hname = str_replace('_', ' ', $hname);
+			echo '<th>' . $hname . '</th>';
 		}
 		else echo '<th></th>'; // If it's a thumbnail column, leave the header cell empty
 	}
 	echo '</thead>';
 
-	echo '<tbody' . ($table_settings['tbody_id'] ? 'id="'.$table_settings['tbody_id'].'"' : '') . '>';
+	echo '<tbody' . (isset($table_settings['tbody_id']) ? ' id="'.$table_settings['tbody_id'].'"' : '') . '>';
 	// Print data rows
 	while ($row = $stmt->fetch()) {
 		echo '<tr>';
 		for ($i = 0; $i < $num_col; $i++) {
 			$meta = $stmt->getColumnMeta($i);
-			$db_table = $meta['table'];
-			$link = false;
+			if ($meta['table'] == 'Plant') $url = 'view_plant.php';
+			else $url = 'view.php';
 
 			echo '<td>';
 			// A few types of cells get special formatting, as follows:
 			// Thumbnails
 			if ($meta['name'] == 'img_url') {
-				thumbnail($row['img_url'], $row['latin_name'], "2rem", "view_plant.php");
+				thumbnail($row['img_url'], $row['latin_name'], '2rem', $url);
 			}
 			// Boolean values (have, want): convert to check mark or dash
 			else if ($meta['native_type'] == 'TINY') {
@@ -160,7 +160,7 @@ function table($query, $bound_var, $table_settings) {
 			}
 			// Latin names: italicize
 			else if ($meta['name'] == "latin_name") {
-				echo '<a href="view' . ($db_table == 'Plant' ? '_plant' : '') . '.php?spp=' . $row[$i] . '">';
+				echo '<a href="' . $url . '?spp=' . $row[$i] . '">';
 				echo '<em>' . $row[$i] . '</em>';
 				echo '</a>';
 			}
@@ -169,7 +169,7 @@ function table($query, $bound_var, $table_settings) {
 
 			echo '</td>';
 		}
-		echo "</tr>";
+		echo '</tr>';
 	}
 	echo '</tbody></table>';
 }

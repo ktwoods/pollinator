@@ -20,7 +20,7 @@ function print_specialists($query) {
   $specialists = $stmt->fetchAll(PDO::FETCH_ASSOC);
 	echo '<ul>';
   foreach ($specialists as $spp) {
-    echo '<li>' . $spp['common_name'] . ' (<em><a href="view.php?spp=' . $spp['latin_name'] . '">' . $spp['latin_name'] . '</a></em>)' . ($spp['specialization'] ? ' &mdash; ' . $spp['specialization'] : '') . '</li>';
+    echo '<li>' . $spp['common_name'] . ' (<em><a href="view.php?spp=' . $spp['latin_name'] . '">' . $spp['latin_name'] . '</a></em>)' . (isset($spp['specialization']) ? ' &mdash; ' . $spp['specialization'] : '') . '</li>';
   }
   if (!$specialists) echo 'n/a';
 	echo '</ul>';
