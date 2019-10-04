@@ -26,11 +26,8 @@ if (!$editing) {
     $stmt->bindParam(':stage', $_POST['stage']);
     $stmt->bindParam(':notes',  $_POST['notes']);
 
-    if ($stmt->execute() && $stmt->rowCount() != 0)
-    {
-      echo "<div class='alert alert-success alert-dismissable text-center'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>New log added for {$_POST['stage']} <em>{$_POST['name']}</em>, {$_POST['date']}!</div>";
-    }
-    else echo "<div class='alert alert-warning alert-dismissable text-center'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Error: unable to add entry for {$_POST['stage']} <em>{$_POST['name']}</em>, {$_POST['date']} to the database.</div>";
+    $success = ($stmt->execute() && $stmt->rowCount() != 0);
+    success_fail_message($success, "New log added for {$_POST['stage']} <em>{$_POST['name']}</em>, {$_POST['date']}!");
   }
 }
 else {

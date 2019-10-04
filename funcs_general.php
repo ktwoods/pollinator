@@ -50,6 +50,14 @@ function template_vals($type) {
 /* FUNCTIONS THAT PRINT FULL ELEMENTS */
 /*******************************************************/
 
+/* Prints message indicating whether changes were successfully made to the database. */
+function success_fail_message($is_success, $on_success, $on_fail='No changes made.') {
+	echo '<div class="alert alert-success alert-dismissible text-center" role="alert">';
+	if ($is_success) echo $on_success;
+	else echo $on_fail;
+	echo '<button type="button" class="close" data-dismiss="alert" aria-label="close"><span aria-hidden="true">&times;</span></button></div>';
+}
+
 /* Builds tiny thumbnail for species tables. If there's no image, it substitutes
    a gray box of the same size. In either case, the thumbnail links to the species page. */
 function thumbnail($img_url, $latin, $size, $page='view.php', $tooltip='') {

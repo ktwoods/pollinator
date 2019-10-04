@@ -20,36 +20,22 @@ if (isset($_POST['latin'])) {
 	$stmt->bindValue(':notes', $notes);
 	$stmt->bindValue(':img', $img);
 
-	$changed = false;
-	if ($stmt->execute())
-	{
-		if ($stmt->rowCount() != 0) $changed = true;
-	}
+	$changed = ($stmt->execute() && $stmt->rowCount() != 0);
 
 	if ($template['type'] == 'lepidop') {
 		$stmt = $conn->prepare("UPDATE Lepidopteran SET host_prefs=:gen_host, nect_prefs=:gen_nect WHERE latin_name=:name");
 		$stmt->bindValue(':name', $name);
 		$stmt->bindValue(':gen_host', $gen_host);
 		$stmt->bindValue(':gen_nect', $gen_nect);
-		if ($stmt->execute())
-		{
-			if ($stmt->rowCount() != 0) $changed = true;
-		}
+		if ($stmt->execute() && $stmt->rowCount() != 0) $changed = true;
 	}
 	else if ($template['type'] == 'bee') {
 		$stmt = $conn->prepare("UPDATE Bee SET specialization=:spec WHERE latin_name=:name");
 		$stmt->bindValue(':name', $name);
 		$stmt->bindValue(':spec', $spec);
-		if ($stmt->execute())
-		{
-			if ($stmt->rowCount() != 0) $changed = true;
-		}
+		if ($stmt->execute() && $stmt->rowCount() != 0) $changed = true;
 	}
 
-  // Display message — either "Species record updated" or "No changes made" if edit failed
-	echo '<div class="alert alert-success alert-dismissible text-center" role="alert">';
-	if ($changed) echo "Species record updated!";
-	else echo "No changes made.";
-	echo '<button type="button" class="close" data-dismiss="alert" aria-label="close"><span aria-hidden="true">&times;</span></button></div>';
+	success_fail_message($changed, 'Species record updated!');
 }
 ?>

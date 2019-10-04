@@ -66,14 +66,8 @@ function submit_edits() {
 	$stmt->bindParam(':new_stage', $_POST['stage']);
 	$stmt->bindParam(':new_notes', $_POST['notes']);
 
-	if ($stmt->execute() && $stmt->rowCount() != 0)
-	{
-		echo "<div class='alert alert-success alert-dismissable text-center'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>Log entry for {$_POST['stage']} {$_POST['name']}, {$_POST['date']} updated</div>";
-	}
-	else
-	{
-		echo "<div class='alert alert-success alert-dismissable text-center'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a>No changes made</div>";
-	}
+	$success = ($stmt->execute() && $stmt->rowCount() != 0);
+	success_fail_message($success, "Log entry for {$_POST['stage']}  {$_POST['name']}, {$_POST['date']} updated.");
 }
 ?>
 

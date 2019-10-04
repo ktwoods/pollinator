@@ -25,14 +25,7 @@ if (isset($_POST['latin'])) {
 	$stmt->bindValue(':obs', $obs);
 	$stmt->bindValue(':img', $img);
 
-	$changed = false;
-	if ($stmt->execute()) {
-		if ($stmt->rowCount() != 0) $changed = true;
-	}
-
-	echo '<div class="alert alert-success alert-dismissible text-center" role="alert">';
-	if ($changed) echo "Species record updated!";
-	else echo "No changes made.";
-	echo '<button type="button" class="close" data-dismiss="alert" aria-label="close"><span aria-hidden="true">&times;</span></button></div>';
+	$success = ($stmt->execute() && $stmt->rowCount() != 0);
+	success_fail_message($success, 'Species record updated!');
 }
 ?>
