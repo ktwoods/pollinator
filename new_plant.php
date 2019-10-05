@@ -5,7 +5,9 @@ include_once 'header.html';
 ?>
 
 <div class="container-fluid">
+	<h1 class="text-center">New plant species</h1>
 	<?php
+	// If coming back after submitting new species data, attempt to update and print message
 	if (isset($_POST['latin'])) {
 		$latin = $_POST['latin'];
 		$common = $_POST['common'];
@@ -18,7 +20,6 @@ include_once 'header.html';
 		$obs = $_POST['obs'];
 		$img = $_POST['img'];
 
-		echo '<h1 class="text-center">New plant species</h1><p>&nbsp;</p>';
 		$stmt = $conn->prepare("INSERT INTO Plant (latin_name, family, common_name, have, want, bloom_length, tags, research_notes, observations, img_url) VALUES (:latin, :fam, :common, :have, :want, :blen, :tags, :notes, :obs, :img)");
 		$stmt->bindParam(':latin', $latin);
 		$stmt->bindParam(':fam', $fam);
@@ -31,39 +32,34 @@ include_once 'header.html';
 		$stmt->bindParam(':obs', $obs);
 		$stmt->bindParam(':img', $img);
 
-		if ($stmt->execute())
+		echo '<p>&nbsp;</p><p class="text-center">';
+		if ($stmt->execute() && $stmt->rowCount() != 0)
 		{
-			$rows_affected = $stmt->rowCount();
-			if ($rows_affected != 0)
-			{
-				$url = str_replace(' ', '%20', $latin);
-				echo "<p class='text-center'>Species <em>$latin</em> ($common) was added! <a href='view_plant.php?spp=$url'>[View species profile]</a></p>";
-			}
-			else echo "<p class='text-center'>Error: failed to add species <em>$latin</em> ($common) to the database.</p>";
+			echo "Species <em>$latin</em> ($common) was added! <a href='view_plant.php?spp=$latin'>[View species profile]</a>";
 		}
+		else echo "Error: failed to add species <em>$latin</em> ($common) to the database.";
+		echo '</p>';
 	}
+	// Otherwise, show the form for creating a new species
 	else { ?>
-
-	<h1 class="text-center">New plant species</h1>
 	<form action="new_plant.php" method="post">
 		<div class="row justify-content-center">
 			<div class="col-lg-6 sec-p">
 				<div>&nbsp;</div>
+				<!-- Basic fields: common name, Latin name, family -->
 				<div class="form-group">
 					<label for="latin">Latin name</label>
 					<input type="text" class="form-control" id="latin" name="latin">
 				</div>
-
 				<div class="form-group">
 					<label for="common">Common name</label>
 					<input type="text" class="form-control" id="common" name="common">
 				</div>
-
 				<div class="form-group">
 					<label for="fam">Family</label>
 					<input type="text" class="form-control" id="fam" name="fam">
 				</div>
-
+				<!-- Radio toggle for haves/wants -->
 				<div style="margin-bottom: 10px">
 					<div class="form-check checkbox-inline">
 						<input class="form-check-input" type="radio" name="have" value="1" id="have"><label class="form-check-label" for="have" style="margin-left: 10px">have</label>
@@ -78,27 +74,25 @@ include_once 'header.html';
 						<input class="form-check-input" type="radio" name="want" value="0" id="dwant"><label class="form-check-label" for="dwant" style="margin-left: 10px">don't want</label>
 					</div>
 				</div>
-
+				<!-- Tags, approximate length of bloom period -->
 				<div class="form-group">
 					<label for="fam">Tags</label>
 					<input type="text" class="form-control" id="tags" name="tags" placeholder="shade, ephemeral, rabbit-proof, etc">
 				</div>
-
 				<div class="form-group">
 					<label for="blen">Bloom length</label>
 					<input type="text" class="form-control" id="blen" name="blen" placeholder="1 week, 3 days, 2+ months, etc">
 				</div>
-
+				<!-- Characteristics from research, notes from experience -->
 				<div class="form-group">
 					<label for="notes">Characteristics</label>
 					<textarea class="form-control" id="notes" name="notes" placeholder="Sun/water/soil needs, size, other reported characteristics"></textarea>
 				</div>
-
 				<div class="form-group">
 					<label for="obs">Notes</label>
 					<textarea class="form-control" id="obs" name="obs" placeholder="Cultivar names, observations, and personal notes"></textarea>
 				</div>
-
+				<!-- Image url -->
 				<div class="form-group">
 					<label for="img">Image URL</label>
 					<input type="text" class="form-control" id="img" name="img" placeholder="Link to a photo of this species">
@@ -112,5 +106,4 @@ include_once 'header.html';
 	<div>&nbsp;</div>
 	<?php } ?>
 </div>
-
 <?php include_once 'footer.html'; ?>

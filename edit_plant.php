@@ -17,9 +17,9 @@ $name = $main_data['latin_name'];
 	<h1 class="text-center">Edit plant profile</h1>
 	<form action="view_plant.php?spp=<?php echo $name ?>" method="post">
 		<div class="row justify-content-center">
-			<!-- Basic fields: name, Latin name, family -->
 			<div class="col-lg-6 sec-p">
 				<div>&nbsp;</div>
+				<!-- Basic fields: common name, Latin name, family -->
 				<div class="form-group">
 					<label for="common">Common name</label>
 					<input type="text" class="form-control" id="common" name="common" value="<?php echo $main_data['common_name'] ?>">

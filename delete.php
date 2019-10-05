@@ -21,7 +21,7 @@ else {
 			$stmt->bindValue(1, $_GET['spp']);
 			if ($stmt->execute()) $rows_affected = $stmt->rowCount();
 			?>
-			<h1 class="text-center">Delete <?php echo $spp ?></h1>
+			<h1 class="text-center">Delete <?php echo $_GET['spp'] ?></h1>
 			<div>&nbsp;</div>
 			<div class="text-center"><?php echo $rows_affected ?> species deleted.</div>
 			<div class="text-center"><a href="<?php echo $ret_url ?>">[Return to main page]</a></div>
