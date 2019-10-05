@@ -55,16 +55,11 @@ function submit_edits() {
 	global $conn;
 
 	$stmt = $conn->prepare("UPDATE Log SET latin_name=:new_name, date=:new_date, notes=:new_notes, stage=:new_stage WHERE latin_name=:name AND date=:date AND stage=:stage");
-	$stmt->bindParam(':name', $_GET['on']);
-	$stmt->bindParam(':date', $_GET['od']);
-	$stmt->bindParam(':stage', $_GET['os']);
-	$stmt->bindParam(':new_name', $_POST['name']);
-	$stmt->bindParam(':new_date', $_POST['date']);
-	$stmt->bindParam(':new_stage', $_POST['stage']);
-	$stmt->bindParam(':new_notes', $_POST['notes']);
 
-	$success = ($stmt->execute() && $stmt->rowCount() != 0);
-	success_fail_message($success, "Log entry for {$_POST['stage']}  {$_POST['name']}, {$_POST['date']} updated.");
+	$bindVars = array(':name' => $_GET['on'], ':date' => $_GET['od'], ':stage' => $_GET['os'], ':new_name' => $_POST['name'], ':new_date' => $_POST['date'], ':new_stage' => $_POST['stage'], ':new_notes' => $_POST['notes']);
+
+	$success = ($stmt->execute($bindVars) && $stmt->rowCount() != 0);
+	success_fail_message($success, "Log entry for {$_POST['stage']}  <em>{$_POST['name']}</em> ({$_POST['date']}) updated.");
 }
 ?>
 

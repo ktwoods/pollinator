@@ -310,10 +310,8 @@ function build_tab_tables($category, $type) {
 	 compromise in the meantime. */
 function display_months($table, $name) {
 	global $conn;
-	$query = "Select * from $table natural join Month where latin_name = ? order by month_num";
-	$stmt = $conn->prepare($query);
-	$stmt->bindValue(1, $name);
-	$stmt->execute();
+	$stmt = $conn->prepare("SELECT * FROM $table NATURAL JOIN Month WHERE latin_name = ? ORDER BY month_num");
+	$stmt->execute(array($name));
 
 	$all_months = '';
 	while ($month = $stmt->fetch())

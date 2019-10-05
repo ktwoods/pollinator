@@ -9,31 +9,13 @@ include_once 'header.html';
 	<?php
 	// If coming back after submitting new species data, attempt to update and print message
 	if (isset($_POST['latin'])) {
-		$latin = $_POST['latin'];
-		$common = $_POST['common'];
-		$fam = $_POST['fam'];
-		$have = $_POST['have'];
-		$want = $_POST['want'];
-		$tags = $_POST['tags'];
-		$blen = $_POST['blen'];
-		$notes = $_POST['notes'];
-		$obs = $_POST['obs'];
-		$img = $_POST['img'];
-
-		$stmt = $conn->prepare("INSERT INTO Plant (latin_name, family, common_name, have, want, bloom_length, tags, research_notes, observations, img_url) VALUES (:latin, :fam, :common, :have, :want, :blen, :tags, :notes, :obs, :img)");
-		$stmt->bindParam(':latin', $latin);
-		$stmt->bindParam(':fam', $fam);
-		$stmt->bindParam(':common', $common);
-		$stmt->bindParam(':have', $have);
-		$stmt->bindParam(':want', $want);
-		$stmt->bindParam(':blen', $blen);
-		$stmt->bindParam(':tags', $tags);
-		$stmt->bindParam(':notes', $notes);
-		$stmt->bindParam(':obs', $obs);
-		$stmt->bindParam(':img', $img);
+		$stmt = $conn->prepare("INSERT INTO Plant (latin_name, family, common_name, have, want, bloom_length, tags, research_notes, observations, img_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		
+		$exec = $stmt->execute(array($_POST['latin'], $_POST['fam'], $_POST['common'], $_POST['have'], $_POST['want'], $_POST['blen'], $_POST['tags'], $_POST['notes'], $_POST['obs'], $_POST['img']));
 
 		echo '<p>&nbsp;</p><p class="text-center">';
-		if ($stmt->execute() && $stmt->rowCount() != 0)
+
+		if ($exec && $stmt->rowCount() != 0)
 		{
 			echo "Species <em>$latin</em> ($common) was added! <a href='view_plant.php?spp=$latin'>[View species profile]</a>";
 		}

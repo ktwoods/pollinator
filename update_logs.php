@@ -19,13 +19,9 @@ if (!$editing) {
 
   // Attempt to submit log, and print success/fail alert
   if (isset($_POST['name'])) { // Submitting data
-    $stmt = $conn->prepare("INSERT INTO Log VALUES (:name, :date, :notes, :stage)");
-    $stmt->bindParam(':name', $_POST['name']);
-    $stmt->bindParam(':date', $_POST['date']);
-    $stmt->bindParam(':stage', $_POST['stage']);
-    $stmt->bindParam(':notes',  $_POST['notes']);
+    $stmt = $conn->prepare("INSERT INTO Log VALUES (?, ?, ?, ?)");
 
-    $success = ($stmt->execute() && $stmt->rowCount() != 0);
+    $success = $stmt->execute(array($_POST['name'], $_POST['date'], $_POST['notes'], $_POST['stage'])) && $stmt->rowCount() != 0;
     success_fail_message($success, "New log added for {$_POST['stage']} <em>{$_POST['name']}</em>, {$_POST['date']}!");
   }
 }
@@ -34,11 +30,8 @@ else {
   $date = $_GET['d'];
   $stage = $_GET['s'];
   // Get notes field
-  $stmt = $conn->prepare("SELECT notes FROM Log WHERE latin_name=:name AND date=:date AND stage=:stage");
-  $stmt->bindParam(':name', $name);
-  $stmt->bindParam(':date', $date);
-  $stmt->bindParam(':stage', $stage);
-  $stmt->execute();
+  $stmt = $conn->prepare("SELECT notes FROM Log WHERE latin_name=? AND date=? AND stage=?");
+  $stmt->execute(array($name, $date, $stage));
   $notes = $stmt->fetch()['notes'];
 
   // Get type for rerouting to correct url

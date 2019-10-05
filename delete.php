@@ -18,8 +18,7 @@ else {
 		<div class="col-sm">
 			<?php
 			$stmt = $conn->prepare("DELETE FROM $type WHERE latin_name = ?");
-			$stmt->bindValue(1, $_GET['spp']);
-			if ($stmt->execute()) $rows_affected = $stmt->rowCount();
+			if ($stmt->execute(array($_GET['spp']))) $rows_affected = $stmt->rowCount();
 			?>
 			<h1 class="text-center">Delete <?php echo $_GET['spp'] ?></h1>
 			<div>&nbsp;</div>

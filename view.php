@@ -20,29 +20,16 @@ function submit_edits() {
 	$notes = $_POST['notes'];
 	$img = $_POST['img'];
 
-	$stmt = $conn->prepare("UPDATE Creature SET latin_name=:latin, common_name=:common, family_name=:fam, identification=:id, notes=:notes, img_url=:img WHERE latin_name=:name");
-	$stmt->bindValue(':name', $name);
-	$stmt->bindValue(':latin', $latin);
-	$stmt->bindValue(':common', $common);
-	$stmt->bindValue(':fam', $fam);
-	$stmt->bindValue(':id', $id);
-	$stmt->bindValue(':notes', $notes);
-	$stmt->bindValue(':img', $img);
-
-	$changed = ($stmt->execute() && $stmt->rowCount() != 0);
+	$stmt = $conn->prepare("UPDATE Creature SET latin_name=?, common_name=?, family_name=?, identification=?, notes=?, img_url=? WHERE latin_name=?");
+	$changed = $stmt->execute(array($_POST['latin'], $_POST['common'], $_POST['fam'], $_POST['id'], $_POST['notes'], $_POST['img'], $_GET['spp'])) && $stmt->rowCount() != 0;
 
 	if ($template['type'] == 'lepidop') {
-		$stmt = $conn->prepare("UPDATE Lepidopteran SET host_prefs=:gen_host, nect_prefs=:gen_nect WHERE latin_name=:name");
-		$stmt->bindValue(':name', $name);
-		$stmt->bindValue(':gen_host', $gen_host);
-		$stmt->bindValue(':gen_nect', $gen_nect);
-		if ($stmt->execute() && $stmt->rowCount() != 0) $changed = true;
+		$stmt = $conn->prepare("UPDATE Lepidopteran SET host_prefs=?, nect_prefs=? WHERE latin_name=?");
+		if ($stmt->execute(array($_POST['gen_host'], $_POST['gen_nect'], $_GET['spp'])) && $stmt->rowCount() != 0) $changed = true;
 	}
 	else if ($template['type'] == 'bee') {
-		$stmt = $conn->prepare("UPDATE Bee SET specialization=:spec WHERE latin_name=:name");
-		$stmt->bindValue(':name', $name);
-		$stmt->bindValue(':spec', $spec);
-		if ($stmt->execute() && $stmt->rowCount() != 0) $changed = true;
+		$stmt = $conn->prepare("UPDATE Bee SET specialization=? WHERE latin_name=?");
+		if ($stmt->execute(array($spec, $name)) && $stmt->rowCount() != 0) $changed = true;
 	}
 
 	success_fail_message($changed, 'Species record updated!');
@@ -51,24 +38,21 @@ function submit_edits() {
 /* Get all of the data that's going to be needed on this page */
 // $main_data = attributes for this species
 $stmt = $conn->prepare("SELECT * FROM ".$template['table']." WHERE latin_name = ?");
-$stmt->bindValue(1, $name);
-$stmt->execute();
+$stmt->execute(array($name));
 $main_data = $stmt->fetch();
 
 // $logs = all logged sightings of this species
 $stmt = $conn->prepare("SELECT date, stage, notes FROM Log WHERE latin_name = ? ORDER BY date DESC");
-$stmt->bindValue(1, $name);
-$stmt->execute();
+$stmt->execute(array($name));
 $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // $larval_food_spp and $adult_food_spp = all plants that this species should interact or has interacted with as larva and adult respectively
 $stmt = $conn->prepare("SELECT latin_name, common_name, have, Feeds.notes FROM Plant JOIN Feeds ON (latin_name=plant_name) WHERE creature_name=? AND stage='larva' ORDER BY latin_name ASC");
-$stmt->bindValue(1, $name);
-$stmt->execute();
+$stmt->execute(array($name));
 $larval_food_spp = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 $stmt = $conn->prepare("SELECT latin_name, common_name, have, bloom_length, Feeds.notes FROM (Plant NATURAL JOIN Blooms NATURAL JOIN Month) JOIN Feeds ON (latin_name=plant_name) WHERE creature_name=? AND stage='adult' GROUP BY latin_name ORDER BY MIN(month_num) ASC, latin_name ASC");
-$stmt->bindValue(1, $name);
-$stmt->execute();
+$stmt->execute(array($name));
 $adult_food_spp = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // $larval_food_logs and $adult_food_logs store all logs sorted by plant species
@@ -100,8 +84,10 @@ unset($plant);
 
 /* Builds badge and popover that are used in the first column of the plant lists */
 function build_popover($food_logs, $plant) {
+	global $template;
+
 	echo '<td style="text-align: center">';
-	// Build popover and table (if there's actually data to put in it)
+	// Build popover and table (if there's actually data to put in it, i.e. there's at least one log)
 	if (isset($food_logs) && array_key_exists($plant['latin_name'], $food_logs)) {
 		echo '<a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-placement="top" '
 				 . 'data-content="<table class=&quot;spp spp-' . $template['class'] . '&quot;>'
@@ -225,12 +211,12 @@ function build_popover($food_logs, $plant) {
 			<!-- The "Nectar plants" table for butterflies/moths and the "Plant interactions" table
 			for everything else use the same template; they just need different headers -->
 				<!-- Start the butterfly/moth version before exiting "if ($template['type'] == 'lepidop')"-->
-				<table class="spp spp-l" style="width: auto">
+				<table class="spp spp-l" style="width: 100%">
 					<tr><th colspan="6" style="font-size: 1.5em">Nectar plants</th></tr>
 					<tr><th colspan="2">General preferences</th><td colspan="4"><?php echo $main_data['nect_prefs'] ?></td></tr>
 			<!-- Else it's not a lepidopteran, so just start the regular version -->
 			<?php else: ?>
-				<table class="spp spp-<?php echo $template['class'] ?>" style="width: auto">
+				<table class="spp spp-<?php echo $template['class'] ?>" style="width: 100%">
 					<tr><th colspan="6" style="font-size: 1.5em">Plant interactions</th></tr>
 			<!-- Continue building the rest of the table -->
 			<?php endif ?>

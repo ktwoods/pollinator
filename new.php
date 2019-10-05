@@ -4,33 +4,26 @@ include_once 'funcs_general.php';
 include_once 'header.html';
 
 $spp_type = $cur_page;
-$spp_type_full = 'creature';
+$page_title = 'New creature species';
 $spp_class = 'o';
 
 if ($spp_type == 'lepidop') {
-	$spp_type_full = 'butterfly/moth';
+	$page_title = 'New butterfly/moth species';
 	$spp_class = 'l';
 }
 else if ($spp_type == 'bee') {
-	$spp_type_full = 'bee';
+	$page_title = 'New bee species';
 	$spp_class = 'b';
 }
 ?>
 
 <div class="container-fluid">
-	<h1 class="text-center">New <?php echo $spp_type_full ?> species</h1>
+	<h1 class="text-center"><?php echo $page_title ?></h1>
 	<?php
 	// If coming back after submitting new species data, attempt to update and print message
 	if (isset($_POST['latin'])) {
 		$latin = $_POST['latin'];
 		$common = $_POST['common'];
-		$fam = $_POST['fam'];
-		$id = $_POST['id'];
-		$notes = $_POST['notes'];
-		$img = $_POST['img'];
-		if (isset($_POST['gen_host'])) $gen_host = $_POST['gen_host'];
-		if (isset($_POST['gen_nect'])) $gen_nect = $_POST['gen_nect'];
-		if (isset($_POST['spec'])) $spec = $_POST['spec'];
 
 		$query = "START TRANSACTION; INSERT INTO Creature (latin_name, common_name, family_name, identification, notes, img_url) VALUES (:latin, :common, :fam, :id, :notes, :img);";
 
@@ -41,26 +34,20 @@ else if ($spp_type == 'bee') {
 			$query .= " INSERT INTO Bee (latin_name, specialization) VALUES (:latin, :spec);";
 		}
 		$query .= " COMMIT;";
-		$stmt = $conn->prepare($query);
-		$stmt->bindParam(':latin', $latin);
-		$stmt->bindParam(':common', $common);
-		$stmt->bindParam(':fam', $fam);
-		$stmt->bindParam(':id', $id);
-		$stmt->bindParam(':notes', $notes);
-		$stmt->bindParam(':img', $img);
 		
+		$stmt = $conn->prepare($query);
+		$bindVars = array(':latin' => $latin, ':common' => $common, ':fam' => $_POST['fam'], ':id' => $_POST['id'], ':notes' => $_POST['notes'], ':img' => $_POST['img']);
+
 		if ($spp_type == 'lepidop') {
-			$stmt->bindValue(':latin', $latin);
-			$stmt->bindValue(':gen_host', $gen_host);
-			$stmt->bindValue(':gen_nect', $gen_nect);
+			$bindVars[':gen_host'] = $_POST['gen_host'];
+			$bindVars[':gen_nect'] = $_POST['gen_nect'];
 		}
 		else if ($spp_type == 'bee') {
-			$stmt->bindValue(':latin', $latin);
-			$stmt->bindValue(':spec', $spec);
+			$bindVars[':spec'] = $_POST['spec'];
 		}
 
 		echo '<p>&nbsp;</p><p class="text-center">';
-		if (!$stmt->execute())
+		if (!$stmt->execute($bindVars))
 		{
 			echo "Error: failed to add species <em>$latin</em> ($common) to the database.</p>";
 		}

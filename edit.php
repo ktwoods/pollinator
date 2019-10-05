@@ -10,8 +10,7 @@ include_once 'header.html';
 
 // Get current species attributes to populate edit form
 $stmt = $conn->prepare("SELECT * FROM {$template['table']} WHERE latin_name = ?");
-$stmt->bindValue(1, $name);
-$stmt->execute();
+$stmt->execute(array($name));
 $main_data = $stmt->fetch();
 ?>
 <div class="container-fluid">
