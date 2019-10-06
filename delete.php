@@ -1,12 +1,8 @@
 <?php
-include 'header.html';
-include_once 'connect.php';
 include_once 'funcs_general.php';
+include_once 'header.html';
 
-global $conn;
-if (isset($_POST['spp'])) $spp = $_POST['spp'];
-else $spp = $_GET['spp'];
-$type = get_type($spp);
+$type = get_type($_GET['spp']);
 
 if ($type == 'Plant') $ret_url = 'plants.php';
 else {
@@ -22,10 +18,9 @@ else {
 		<div class="col-sm">
 			<?php
 			$stmt = $conn->prepare("DELETE FROM $type WHERE latin_name = ?");
-			$stmt->bindValue(1, $spp);
-			if ($stmt->execute()) $rows_affected = $stmt->rowCount();
+			if ($stmt->execute(array($_GET['spp']))) $rows_affected = $stmt->rowCount();
 			?>
-			<h1 class="text-center">Delete <?php echo $spp ?></h1>
+			<h1 class="text-center">Delete <?php echo $_GET['spp'] ?></h1>
 			<div>&nbsp;</div>
 			<div class="text-center"><?php echo $rows_affected ?> species deleted.</div>
 			<div class="text-center"><a href="<?php echo $ret_url ?>">[Return to main page]</a></div>
@@ -34,4 +29,4 @@ else {
 	</div>
 </div>
 
-<?php include 'footer.html' ?>
+<?php include_once 'footer.html' ?>

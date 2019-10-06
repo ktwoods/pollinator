@@ -1,11 +1,7 @@
 <?php
-/* Setup */
-include_once 'connect.php';
 include_once 'funcs_general.php';
-global $conn;
-if (isset($_POST['spp'])) $name = $_POST['spp'];
-else $name = $_GET['spp'];
 
+$name = $_GET['spp'];
 // Determine what kind of species template is needed for this page (lepid, bee, or the general template)
 $template = template_vals(get_type($name));
 $cur_page = $template['type'];
@@ -14,8 +10,7 @@ include_once 'header.html';
 
 // Get current species attributes to populate edit form
 $stmt = $conn->prepare("SELECT * FROM {$template['table']} WHERE latin_name = ?");
-$stmt->bindValue(1, $name);
-$stmt->execute();
+$stmt->execute(array($name));
 $main_data = $stmt->fetch();
 ?>
 <div class="container-fluid">

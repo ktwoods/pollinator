@@ -1,16 +1,14 @@
 <?php
 $cur_page = 'plants';
-include_once 'header.html';
-include_once 'connect.php';
 include_once 'funcs_general.php';
-global $conn;
+include_once 'header.html';
+
 if (isset($_POST['name'])) $name = $_POST['name'];
 else $name = $_GET['name'];
 
 // Get current species attributes to populate edit form
 $stmt = $conn->prepare("SELECT * FROM Plant WHERE latin_name = ?");
-$stmt->bindValue(1, $name);
-$stmt->execute();
+$stmt->execute(array($name));
 $main_data = $stmt->fetch();
 $name = $main_data['latin_name'];
 ?>
@@ -18,9 +16,9 @@ $name = $main_data['latin_name'];
 	<h1 class="text-center">Edit plant profile</h1>
 	<form action="view_plant.php?spp=<?php echo $name ?>" method="post">
 		<div class="row justify-content-center">
-			<!-- Basic fields: name, Latin name, family -->
 			<div class="col-lg-6 sec-p">
 				<div>&nbsp;</div>
+				<!-- Basic fields: common name, Latin name, family -->
 				<div class="form-group">
 					<label for="common">Common name</label>
 					<input type="text" class="form-control" id="common" name="common" value="<?php echo $main_data['common_name'] ?>">

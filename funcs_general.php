@@ -4,6 +4,8 @@
 </script>
 
 <?php
+include_once 'connect.php';
+
 /*******************************************************/
 /* FUNCTIONS THAT RETURN METADATA */
 /*******************************************************/
@@ -50,15 +52,44 @@ function template_vals($type) {
 /* FUNCTIONS THAT PRINT FULL ELEMENTS */
 /*******************************************************/
 
+/* Prints message indicating whether changes were successfully made to the database. */
+function success_fail_message($is_success, $on_success, $on_fail='No changes made.') {
+	echo '<div class="alert alert-success alert-dismissible text-center" role="alert">';
+	if ($is_success) echo $on_success;
+	else echo $on_fail;
+	echo '<button type="button" class="close" data-dismiss="alert" aria-label="close"><span aria-hidden="true">&times;</span></button></div>';
+}
+
 /* Builds tiny thumbnail for species tables. If there's no image, it substitutes
    a gray box of the same size. In either case, the thumbnail links to the species page. */
-function thumbnail($img_url, $latin, $size, $page='view.php') {
+function thumbnail($img_url, $latin, $size, $page='view.php', $tooltip='') {
 	// Imgur uses multiple urls per image, making it convenient to reduce sizes for faster loading times
 	if (strpos($img_url, 'https://i.imgur.com/') !== false ) $img_url = str_replace('l.', 't.', $img_url);
 
-	echo '<a href="'.$page.'?spp='.$latin.'"><div style="width:'.$size.'; height:'.$size.'; background-color:#e9ecef">';
+	echo '<a href="'.$page.'?spp='.$latin.'"';
+	if ($tooltip) echo ' data-toggle="tooltip" data-placement="right" title="'.$tooltip.'"';
+	echo '><div style="width:'.$size.'; height:'.$size.'; background-color:#e9ecef; display:inline-block; vertical-align:middle">';
 	if ($img_url) echo '<img src="'.$img_url.'" style="max-width:100%; max-height:100%">';
 	echo '</div></a>';
+}
+
+/* Builds _and returns_ badge that produces popover on hover. Does not print the element. */
+function popover_badge($logs_table, $species_index, $table_class) {
+	// Build popover and table (if there's actually data to put in it, i.e. there's at least one log)
+	if (isset($logs_table) && array_key_exists($species_index, $logs_table)) {
+		$badge = '<a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-placement="top" '
+					 . 'data-content="<table class=&quot;spp spp-'.$table_class.'&quot;><tr><th>Date</th><th>Notes</th></tr>';
+
+		foreach ($logs_table[$species_index] as $log) {
+			$badge .= '<tr><td>'.$log['date'].'</td><td>'.$log['notes'].'</td></tr>';
+		}
+		$badge .= '</table>">';
+		// Build badge and close out table cell
+		$badge .= '<span class="badge badge-dark">'.count($logs_table[$species_index]).'</span></a></td>';
+		return $badge;
+	}
+	// Otherwise just build badge, with no popover
+	return '<span class="badge badge-light">0</span></td>';
 }
 
 /* Builds logbook.
@@ -110,7 +141,10 @@ function delete_button($name, $class) {
 	 start experimenting with formatting properly, there might end up being a lot
 	 of such tweaks, temporarily, so I wanted maximum flexibility. */
 function table($query, $bound_var, $table_settings) {
-	if (!isset($table_settings['width'])) $table_settings['width'] = 'auto';
+	if (isset($table_settings['width'])) $width = $table_settings['width'];
+	else $width = 'auto';
+	if (isset($table_settings['class'])) $class = 'class="' . $table_settings['class'] . '" ';
+	else $class = '';
 
 	global $conn;
 	$stmt = $conn->prepare($query);
@@ -118,7 +152,7 @@ function table($query, $bound_var, $table_settings) {
 	$stmt->execute();
 	$num_col = $stmt->columnCount();
 
-	echo '<table'.(isset($table_settings['class']) ? ' class="'.$table_settings['class'].'"' : '').' style="width: '.$table_settings['width'].'">';
+	echo '<table '.$class.'style="width: '.$width.'">';
 
 	// Print header row by iterating through results to get each column's name
 	echo '<thead>';
@@ -211,12 +245,13 @@ function build_tabs($header, $type, $query) {
   // Builds each tab
   for ($i = 0; $i < count($category_list); $i++) {
     $category = $category_list[$i][0];
-    $desc = $category_list[$i][1];
+    if ($type != 'Other') $desc = ' (' . $category_list[$i][1] . ')';
+		else $desc = '';
     // Opening div tag
     echo '<div id="' . $category . '" class="tab-pane fade ' . ($i == 0 ? 'show active' : '')
          . '" role="tabpanel" aria-labelledby="' . $category . '-tab">';
     // Tab header
-    echo '<h3 class="text-center">' . $category . ($type != 'Other' ? ' (' . $desc . ')' : '') . '</h3>';
+    echo '<h3 class="text-center">' . $category . $desc . '</h3>';
     build_tab_tables($category, $type);
     echo '</div>';
   }
@@ -294,24 +329,22 @@ function build_tab_tables($category, $type) {
 	 compromise in the meantime. */
 function display_months($table, $name) {
 	global $conn;
-	$query = "Select * from $table natural join Month where latin_name = ? order by month_num";
-	$stmt = $conn->prepare($query);
-	$stmt->bindValue(1, $name);
-	$stmt->execute();
+	$stmt = $conn->prepare("SELECT * FROM $table NATURAL JOIN Month WHERE latin_name = ? ORDER BY month_num");
+	$stmt->execute(array($name));
 
 	$all_months = '';
 	while ($month = $stmt->fetch())
 	{
 		if ($month['verified'] == 0)
 		{
-			$all_months = $all_months.'<a href="#" data-toggle="tooltip" title="Unverified. '.$month['notes'].'" data-placement="top"><em>'.substr($month['month'], 0, 3).'</em></a>*';
+			$all_months .= '<a href="#" data-toggle="tooltip" title="Unverified. '.$month['notes'].'" data-placement="top"><em>'.substr($month['month'], 0, 3).'</em></a>*';
 		}
 		else
 		{
-			$all_months = $all_months.'<a href="#" data-toggle="tooltip" title="'.$month['notes'].'" data-placement="top">'.substr($month['month'], 0, 3).'</a>*';
+			$all_months .= '<a href="#" data-toggle="tooltip" title="'.($month['notes'] != '' ? $month['notes'] : 'n/a').'" data-placement="top">'.substr($month['month'], 0, 3).'</a>*';
 		}
 	}
-	$all_months = rtrim(str_replace('*', ' - ', $all_months), ' -');
+	$all_months = rtrim(str_replace('*', ' – ', $all_months), ' –');
 	if ($all_months != '') echo $all_months;
 	else echo 'n/a';
 }

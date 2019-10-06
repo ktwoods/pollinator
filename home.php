@@ -1,10 +1,16 @@
 <?php
 $cur_page = 'home';
-include 'header.html';
-include_once 'connect.php';
 include_once 'funcs_general.php';
+include 'header.html';
 
-function build_category_card($table) {
+/* Builds card to represent a species category (plants, butterflies & moths,
+   bees, everything else). Each card has three elements:
+   -- Card header, with button linking to category page
+   -- Randomly selected image of a species in that section, which links to its page
+   -- Caption for the image with its common name and Latin name
+
+   $table = name of the SQL table corresponding to that category ('Plant', 'Lepidopteran', 'Bee', or 'Creature') */
+function category_card($table) {
   global $conn;
   $stmt = $conn->prepare("SELECT latin_name, common_name, img_url FROM $table WHERE img_url != ''");
   $stmt->execute();
@@ -39,71 +45,125 @@ function build_category_card($table) {
     echo '</div></div>';
 }
 
-function print_thumbnails($query) {
+/* Builds card indicating number of species seen out of total number of species
+   known in each major category (butterflies, moths, bees) and for families
+   within butterfly and bee. Moth families are not listed for space reasons:
+   according to BAMONA, my county has 96 butterfly species within 5 families,
+   and 750 moth species within 40 families. Since I'm not interested in tracking
+   all 750, the usual "checklist" stats have relatively little meaning.
+
+   $category = value of either 'bee' or 'bfly', to indicate which of the two cards should be built */
+function category_stats_card($category) {
+  global $stats;
+  $full_list = $category . '_all_fams';
+  $seen_list = $category . '_seen_fams';
+  if ($category == 'bfly') {
+    $class = 'sec-l';
+    $title = 'Butterflies';
+  }
+  else {
+    $class = 'sec-b';
+    $title = 'Bees';
+  }
+
+  // Print header list item for category
+  echo '<div class="card"><ul class="list-group list-group-flush">'
+       . '<li class="'.$class.' list-group-item d-flex justify-content-between" data-toggle="collapse" data-target="#'.$category.'famlist">'
+       . '<span><i class="fas fa-caret-down"></i> <strong>'.$title.'</strong></span>'
+       . '<span>'.$stats[$category.'_seen'].' / '.$stats[$category.'_total'].' spp</span>'
+       . '</li>';
+
+  // Print list item for each family
+  echo '<span class="collapse" id="' . $category . 'famlist">';
+  for ($i = 0; $i < count($stats[$full_list]); $i++) {
+    $family = $stats[$full_list][$i]['family_name'];
+    $num_total = $stats[$full_list][$i]['num_spp'];
+    if (isset($stats[$seen_list][$family])) $num_seen = $stats[$seen_list][$family][0];
+    else $num_seen = 0;
+    echo '<li class="list-group-item d-flex justify-content-between">'.$family.' </span><span>'.$num_seen.' / '.$num_total.' spp</span></li>';
+  }
+  echo '</span>';
+  // Print final list item for moth category
+  if ($category == 'bfly') {
+    echo '<li class="sec-l list-group-item d-flex justify-content-between"><strong>Moths</strong> <span> '. $stats['moth_seen'].' / '.$stats['moth_total'].' spp</span></li>';
+  }
+
+  echo '</ul></div>';
+}
+
+/* Builds card containing image thumbnails of recently seen species.
+
+   $card_title = header text for the card
+   $query = SQL query used to generate the set of thumbnails */
+function thumbnails_card($card_title, $query) {
   global $conn;
   $stmt = $conn->prepare($query);
   $stmt->execute();
   $thumbs = $stmt->fetchAll(PDO::FETCH_ASSOC);
-  $curline = -1;
+
+  echo '<div class="card"><div class="card-header">'.$card_title.'</div><div class="card-body" style="padding:0px">';
   for ($i = 0; $i < count($thumbs); $i++) {
-    if (strpos($thumbs[$i]['img_url'], 'https://i.imgur.com/') !== false ) $url = str_replace('l.', 't.', $thumbs[$i]['img_url']);
-    echo '<a href="view.php?spp='.$thumbs[$i]['latin_name'].'" data-toggle="tooltip" data-placement="right" title="'.$thumbs[$i]['common_name'].'">';
-    if ($url != '') echo '<div style="width:4rem; display:inline-block; vertical-align:middle"><img src="'.$url.'" style="max-width:100%; max-height:100%"></div></a>';
-    else echo '<div style="width:4rem; height:4rem; display:inline-block; background-color:#e9ecef; vertical-align: middle">&nbsp;</div></a>';
+    thumbnail($thumbs[$i]['img_url'], $thumbs[$i]['latin_name'], '4rem', 'view.php', $thumbs[$i]['common_name']);
   }
+  echo '</div></div>';
 }
 
-# Putting all this inside a function so it can be collapsed easily
+/* Generates the stats used to populate this page, and returns them as an associative array. Array keys are:
+   -- 'today' (integer count)
+   -- 'seven_day', 'thirty_day', 'year', 'all' (associative arrays with keys 'num_spp' and 'num_logs')
+   -- 'bfly_seen_fams', 'bfly_all_fams', 'bee_seen_fams', 'bee_all_fams' (indexed array of family stats, where each item is an associative array with keys 'family_name' and 'num_spp')
+   -- 'moth_seen', 'bfly_seen', 'bee_seen', 'moth_total', 'bfly_total', 'bee_total' (integer count) */
 function getStats() {
   global $conn;
-  # Stats by time period:
-  # Today
+
+  /* Stats by time period: */
+  // Today
   $stmt = $conn->prepare("SELECT COUNT(latin_name) AS num_spp FROM Log WHERE TIMESTAMPDIFF(DAY, date, CURDATE()) = 0");
   $stmt->execute();
   $stats['today'] = $stmt->fetch(PDO::FETCH_ASSOC)['num_spp'];
-  # Last 7 days
+  // Last 7 days
   $stmt = $conn->prepare("SELECT COUNT(DISTINCT latin_name) AS num_spp, COUNT(latin_name) AS num_logs FROM Log WHERE TIMESTAMPDIFF(DAY, date, CURDATE()) <= 7");
   $stmt->execute();
   $stats['seven_day'] = $stmt->fetch(PDO::FETCH_ASSOC);
-  # Last 30 days
+  // Last 30 days
   $stmt = $conn->prepare("SELECT COUNT(DISTINCT latin_name) AS num_spp, COUNT(latin_name) AS num_logs FROM Log WHERE TIMESTAMPDIFF(DAY, date, CURDATE()) <= 30");
   $stmt->execute();
   $stats['thirty_day'] = $stmt->fetch(PDO::FETCH_ASSOC);
-  # Since start of year
+  // Since start of year
   $stmt = $conn->prepare("SELECT COUNT(distinct latin_name) AS num_spp, COUNT(latin_name) AS num_logs FROM Log WHERE date LIKE CONCAT(YEAR(CURDATE()),'%')");
   $stmt->execute();
   $stats['year'] = $stmt->fetch(PDO::FETCH_ASSOC);
-  # All logs
+  // All logs
   $stmt = $conn->prepare("SELECT COUNT(distinct latin_name) AS num_spp, COUNT(latin_name) AS num_logs FROM Log");
   $stmt->execute();
   $stats['all'] = $stmt->fetch(PDO::FETCH_ASSOC);
 
-  # Stats by family and type:
-  # Counts for (seen) butterfly species by family
+  /* Stats by family and type: */
+  // Counts for (seen) butterfly species by family
   $stmt = $conn->prepare("SELECT family_name, COUNT(latin_name) AS num_spp FROM Lep_full WHERE latin_name IN (SELECT latin_name FROM Log) AND subtype = 'Butterfly' AND latin_name NOT LIKE '% spp' GROUP BY family_name");
   $stmt->execute();
-  $stats['bfly_seen_list'] = $stmt->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
-  # Counts for (all) butterfly species by family
+  $stats['bfly_seen_fams'] = $stmt->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
+  // Counts for (all) butterfly species by family
   $stmt = $conn->prepare("SELECT family_name, COUNT(latin_name) AS num_spp FROM Lep_full WHERE subtype = 'Butterfly' AND latin_name NOT LIKE '% spp' GROUP BY family_name");
   $stmt->execute();
-  $stats['bfly_full_list'] = $stmt->fetchAll();
-  # Counts for (seen) bee species by family
+  $stats['bfly_all_fams'] = $stmt->fetchAll();
+  // Counts for (seen) bee species by family
   $stmt = $conn->prepare("SELECT family_name, COUNT(latin_name) AS num_spp FROM Bee_full WHERE latin_name IN (SELECT latin_name FROM Log) AND latin_name NOT LIKE '% spp' GROUP BY family_name");
   $stmt->execute();
-  $stats['bee_seen_list'] = $stmt->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
-  # Counts for (all) bee species by family
+  $stats['bee_seen_fams'] = $stmt->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
+  // Counts for (all) bee species by family
   $stmt = $conn->prepare("SELECT family_name, COUNT(latin_name) AS num_spp FROM Bee_full WHERE latin_name NOT LIKE '% spp' GROUP BY family_name");
   $stmt->execute();
-  $stats['bee_full_list'] = $stmt->fetchAll();
+  $stats['bee_all_fams'] = $stmt->fetchAll();
 
-  # Counts for (seen) species grouped by subtype
+  // Counts for (seen) species grouped by subtype
   $stmt = $conn->prepare("SELECT subtype, COUNT(DISTINCT latin_name) AS num_spp FROM Log JOIN Creature_full USING (latin_name) WHERE latin_name NOT LIKE '% spp' GROUP BY subtype");
   $stmt->execute();
   $groups = $stmt->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
   $stats['moth_seen'] = $groups['Moth'][0];
   $stats['bfly_seen'] = $groups['Butterfly'][0];
   $stats['bee_seen'] = $groups['Bee (long-tongued)'][0] + $groups['Bee (short-tongued)'][0];
-  # Counts for (all) species grouped by subtype
+  // Counts for (all) species grouped by subtype
   $stmt = $conn->prepare("SELECT subtype, COUNT(latin_name) AS num_spp FROM Creature_full WHERE latin_name NOT LIKE '% spp' GROUP BY subtype");
   $stmt->execute();
   $groups = $stmt->fetchAll(PDO::FETCH_COLUMN|PDO::FETCH_GROUP);
@@ -113,9 +173,12 @@ function getStats() {
 
   return $stats;
 }
+
 $stats = getStats();
 ?>
+
 <div class="container">
+  <!-- Top half of page: Links to main category pages -->
   <div class="jumbotron">
     <div class="col">
       <h1 class="display-4">Species profiles</h1>
@@ -124,22 +187,24 @@ $stats = getStats();
   </div>
   <div class="row">
       <?php
-      build_category_card("Plant");
-      build_category_card("Lep_full");
-      build_category_card("Bee_full");
-      build_category_card("Other");
+      category_card("Plant");
+      category_card("Lep_full");
+      category_card("Bee_full");
+      category_card("Other");
       ?>
   </div>
   <div>&nbsp;</div>
+  <!-- Bottom half of page: Log stats -->
   <div class="jumbotron">
     <div class="col">
       <h1 class="display-4">Wildlife logs</h1>
       <p class="lead">A summary of recent and lifetime sightings.</p>
-      <p><a href="new_log.php" class="btn btn-d btn-lg" style="color: white">New log</a></p>
+      <p><a href="update_logs.php?do=add" class="btn btn-d btn-lg" style="color: white">New log</a></p>
     </div>
   </div>
   <div class="row">
     <div class="col">
+      <!-- Card with stats breakdown by time period -->
       <div class="card">
         <div class="card-header d-flex justify-content-between"><strong>Today</strong> <span><?php echo $stats['today'] ?> spp</span></div>
         <ul class="list-group list-group-flush">
@@ -150,57 +215,20 @@ $stats = getStats();
         </ul>
       </div>
       <div>&nbsp;</div>
-      <div class="card">
-        <ul class="list-group list-group-flush">
-          <li class="sec-l list-group-item d-flex justify-content-between"  data-toggle="collapse" data-target="#lepfamlist"><span><i class="fas fa-caret-down"></i> <strong>Butterflies</strong></span><span> <?php echo $stats['bfly_seen'] ?> / <?php echo $stats['bfly_total'] ?> spp</span></li>
-          <span class="collapse" id="lepfamlist">
-            <?php
-            for ($i = 0; $i < count($stats['bfly_full_list']); $i++) {
-              $family = $stats['bfly_full_list'][$i]['family_name'];
-              $num_total = $stats['bfly_full_list'][$i]['num_spp'];
-              $num_seen = $stats['bfly_seen_list'][$family][0];
-              echo '<li class="list-group-item d-flex justify-content-between">'.$family.' </span><span>'.$num_seen.' / '.$num_total.' spp</span></li>';
-            }
-            ?>
-          </span>
-          <li class="sec-l list-group-item d-flex justify-content-between"><strong>Moths</strong> <span> <?php echo $stats['moth_seen'] ?> / <?php echo $stats['moth_total'] ?> spp</span></li>
-        </ul>
-      </div>
+      <!-- Cards with stats breakdown by species category (butterfly/moth and bee, with further breakdowns by butterfly/bee family) -->
+      <?php category_stats_card('bfly'); ?>
       <div>&nbsp;</div>
-      <div class="card">
-        <ul class="list-group list-group-flush">
-          <li class="sec-b list-group-item d-flex justify-content-between" data-toggle="collapse" data-target="#beefamlist"><span><i class="fas fa-caret-down"></i> <strong>Bees</strong></span><span> <?php echo $stats['bee_seen'] ?> / <?php echo $stats['bee_total'] ?> spp</span></li>
-          <span class="collapse" id="beefamlist">
-            <?php
-            for ($i = 0; $i < count($stats['bee_full_list']); $i++) {
-              $family = $stats['bee_full_list'][$i]['family_name'];
-              $num_total = $stats['bee_full_list'][$i]['num_spp'];
-              $num_seen = $stats['bee_seen_list'][$family][0];
-              echo '<li class="list-group-item d-flex justify-content-between">'.$family.' </span><span>'.$num_seen.' / '.$num_total.' spp</span></li>';
-            }
-            ?>
-          </span>
-        </ul>
-      </div>
+      <?php category_stats_card('bee'); ?>
     </div>
+    <!-- Cards with thumbnail links for species from today and the last 30 days (max 40 species) -->
     <div class="col-md-auto" style="max-width: 42rem">
-      <div class="card">
-        <div class="card-header">Today's species</div>
-        <div class="card-body" style="padding:0px">
-          <?php
-          print_thumbnails("SELECT latin_name, common_name, img_url FROM Log JOIN Creature_full USING (latin_name) WHERE TIMESTAMPDIFF(DAY, date, CURDATE()) = 0 ORDER BY type, subtype, family_name, latin_name");
-          ?>
-        </div>
-      </div>
+      <?php
+      thumbnails_card('Today\'s species', "SELECT latin_name, common_name, img_url FROM Log JOIN Creature_full USING (latin_name) WHERE TIMESTAMPDIFF(DAY, date, CURDATE()) = 0 ORDER BY type, subtype, family_name, latin_name");
+      ?>
       <div>&nbsp;</div>
-      <div class="card">
-        <div class="card-header">Recent species</div>
-        <div class="card-body" style="padding:0px">
-            <?php
-            print_thumbnails("SELECT DISTINCT latin_name, common_name, img_url FROM (SELECT latin_name, common_name, img_url, date FROM Log JOIN Creature_full USING (latin_name) WHERE TIMESTAMPDIFF(DAY, date, CURDATE()) <= 30 ORDER BY date DESC, type, subtype, family_name, latin_name) Past_logs LIMIT 40");
-            ?>
-        </div>
-      </div>
+      <?php
+      thumbnails_card('Recent species', "SELECT DISTINCT latin_name, common_name, img_url FROM (SELECT latin_name, common_name, img_url, date FROM Log JOIN Creature_full USING (latin_name) WHERE TIMESTAMPDIFF(DAY, date, CURDATE()) <= 30 ORDER BY date DESC, type, subtype, family_name, latin_name) Past_logs LIMIT 40");
+      ?>
     </div>
   </div>
 </div>
