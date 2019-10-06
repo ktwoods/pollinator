@@ -1,12 +1,3 @@
-<script>
-$(document).ready(function(){
-  $("#searchSpp").on("keyup", function() {
-    var value = $(this).val().toLowerCase();
-    $("#latin-list option").filter(function() { $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1); });
-  });
-});
-</script>
-
 <?php
 $cur_page = 'update_logs';
 include_once 'funcs_general.php';
@@ -66,7 +57,7 @@ else {
 				<!-- Species name selector -->
 				<div class="form-group">
 					<label for="latin">Species</label>
-					<input class="form-control" id="searchSpp" type="text" placeholder="<?php if ($editing) echo $name ?>">
+					<input class="form-control" id="searchSpp" type="text" placeholder="<?php echo ($editing ? $name : 'Search species') ?>">
 					<select class="form-control" id="latin-list" name="name" size="10">
 						<?php
 						$stmt = $conn->prepare("SELECT latin_name, common_name FROM Creature");
@@ -99,4 +90,12 @@ else {
 	</form>
 	<div>&nbsp;</div>
 </div>
+<script>
+$(document).ready(function(){
+  $("#searchSpp").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#latin-list option").filter(function() { $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1); });
+  });
+});
+</script>
 <?php include_once 'footer.html'; ?>

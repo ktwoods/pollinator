@@ -23,14 +23,17 @@ $stmt->execute(array($_GET['spp']));
 $main_data = $stmt->fetch(PDO::FETCH_ASSOC);
 $name = $main_data['latin_name'];
 
+// $logs = Array of all logs that mention this plant
 $stmt = $conn->prepare("SELECT * FROM Log WHERE notes LIKE CONCAT('%',?,'%')");
 $stmt->execute(array($name));
 $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$stmt = $conn->prepare("SELECT creature_name AS latin_name, common_name, stage, Feeds.notes, family_name, type, subtype FROM Feeds JOIN Creature_full ON creature_name=Creature_full.latin_name WHERE plant_name=? AND stage='adult' ORDER BY subtype, type, family_name, latin_name");
+// $full_spp_list = Array of all species known or suspected to feed on this plant
+$stmt = $conn->prepare("SELECT creature_name AS latin_name, common_name, stage, Feeds.notes, family_name, type, subtype FROM Feeds JOIN Creature_full ON creature_name=Creature_full.latin_name WHERE plant_name=? ORDER BY subtype, type, stage DESC, family_name, latin_name");
 $stmt->execute(array($name));
 $full_spp_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+// $logs_by_spp = Array of all logs that mention this plant, grouped by creature species
 $logs_by_spp = array();
 foreach ($full_spp_list as $creature) {
 	// $rel_logs stores the subset of logs that are associated with that plant
@@ -188,6 +191,7 @@ if (isset($_POST['latin'])) {
 			<div class="tab-content" id="type-tabsContent">
 				<?php
 				foreach ($tabs_content as $type => $tab) {
+					// Remove spaces and punctuation so it can be used as a div id
 					$url = str_replace(' ', '-', $type);
 					$url = str_replace('(', '', $url);
 					$url = str_replace(')', '', $url);
