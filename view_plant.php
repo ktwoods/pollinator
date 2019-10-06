@@ -169,19 +169,8 @@ if (isset($_POST['latin'])) {
 
 					// First cell: logs badge and associated popover
 					$tabs_content[$type] .= '<td style="text-align: center">';
-					if (isset($logs_by_spp) && array_key_exists($spp['latin_name'], $logs_by_spp)) {
-						$tabs_content[$type] .= '<a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-placement="top" data-content="';
-						$tabs_content[$type] .= '<table class=&quot;spp spp-p&quot;><tr><th>Date</th><th>Notes</th></tr>';
-						foreach ($logs_by_spp[$spp['latin_name']] as $log) {
-							$tabs_content[$type] .= '<tr>';
-							$tabs_content[$type] .= '<td>'.$log['date'].'</td>';
-							$tabs_content[$type] .= '<td>'.$log['notes'].'</td>';
-							$tabs_content[$type] .= '</tr>';
-						}
-						$tabs_content[$type] .= '</table>"><span class="badge badge-dark">'.count($logs_by_spp[$spp['latin_name']]).'</span></a></td>';
-					}
-					else $tabs_content[$type] .= '<span class="badge badge-light">0</span></td>';
-
+					$tabs_content[$type] .= popover_badge($logs_by_spp, $spp['latin_name'], 'p');
+					$tabs_content[$type] .= '</td>';
 					// Rest of cells: species name, family, stage, notes
 					$tabs_content[$type] .= '<td>'.$spp['common_name'].'<br/>(<em><a href="view.php?spp='.$spp['latin_name'].'">'.$spp['latin_name'].'</a></em>)</td>';
 					$tabs_content[$type] .= '<td>'.$spp['family_name'].'</td>';

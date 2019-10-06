@@ -73,6 +73,25 @@ function thumbnail($img_url, $latin, $size, $page='view.php', $tooltip='') {
 	echo '</div></a>';
 }
 
+/* Builds _and returns_ badge that produces popover on hover. Does not print the element. */
+function popover_badge($logs_table, $species_index, $table_class) {
+	// Build popover and table (if there's actually data to put in it, i.e. there's at least one log)
+	if (isset($logs_table) && array_key_exists($species_index, $logs_table)) {
+		$badge = '<a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-placement="top" '
+					 . 'data-content="<table class=&quot;spp spp-'.$table_class.'&quot;><tr><th>Date</th><th>Notes</th></tr>';
+
+		foreach ($logs_table[$species_index] as $log) {
+			$badge .= '<tr><td>'.$log['date'].'</td><td>'.$log['notes'].'</td></tr>';
+		}
+		$badge .= '</table>">';
+		// Build badge and close out table cell
+		$badge .= '<span class="badge badge-dark">'.count($logs_table[$species_index]).'</span></a></td>';
+		return $badge;
+	}
+	// Otherwise just build badge, with no popover
+	return '<span class="badge badge-light">0</span></td>';
+}
+
 /* Builds logbook.
 		 $query = query string that will generate the logbook data; contains up to one "?" (see $bound_var)
 		 $bound_var = value that will be bound to the query string, or '' if not applicable
@@ -318,14 +337,14 @@ function display_months($table, $name) {
 	{
 		if ($month['verified'] == 0)
 		{
-			$all_months = $all_months.'<a href="#" data-toggle="tooltip" title="Unverified. '.$month['notes'].'" data-placement="top"><em>'.substr($month['month'], 0, 3).'</em></a>*';
+			$all_months .= '<a href="#" data-toggle="tooltip" title="Unverified. '.$month['notes'].'" data-placement="top"><em>'.substr($month['month'], 0, 3).'</em></a>*';
 		}
 		else
 		{
-			$all_months = $all_months.'<a href="#" data-toggle="tooltip" title="'.$month['notes'].'" data-placement="top">'.substr($month['month'], 0, 3).'</a>*';
+			$all_months .= '<a href="#" data-toggle="tooltip" title="'.($month['notes'] != '' ? $month['notes'] : 'n/a').'" data-placement="top">'.substr($month['month'], 0, 3).'</a>*';
 		}
 	}
-	$all_months = rtrim(str_replace('*', ' - ', $all_months), ' -');
+	$all_months = rtrim(str_replace('*', ' – ', $all_months), ' –');
 	if ($all_months != '') echo $all_months;
 	else echo 'n/a';
 }

@@ -1,25 +1,14 @@
 <?php
-include_once 'funcs_general.php';
-
 $name = $_GET['spp'];
 // Determine what kind of species template is needed for this page (lepid, bee, or the general template)
 $template = template_vals(get_type($name));
 $cur_page = $template['type'];
 
+include_once 'funcs_general.php';
 include_once 'header.html';
 
-/* Handles submitting edits, if returning from edit.php */
-function submit_edits() {
-	$latin = $_POST['latin'];
-	$common = $_POST['common'];
-	$fam = $_POST['fam'];
-	if (isset($_POST['gen_host'])) $gen_host = $_POST['gen_host'];
-	if (isset($_POST['gen_nect'])) $gen_nect = $_POST['gen_nect'];
-	if (isset($_POST['spec'])) $spec = $_POST['spec'];
-	$id = $_POST['id'];
-	$notes = $_POST['notes'];
-	$img = $_POST['img'];
-
+// Handles submitting edits, if returning from edit.php
+if (isset($_POST['latin'])) {
 	$stmt = $conn->prepare("UPDATE Creature SET latin_name=?, common_name=?, family_name=?, identification=?, notes=?, img_url=? WHERE latin_name=?");
 	$changed = $stmt->execute(array($_POST['latin'], $_POST['common'], $_POST['fam'], $_POST['id'], $_POST['notes'], $_POST['img'], $_GET['spp'])) && $stmt->rowCount() != 0;
 
@@ -56,11 +45,10 @@ $stmt->execute(array($name));
 $adult_food_spp = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // $larval_food_logs and $adult_food_logs store all logs sorted by plant species
-$larval_food_logs;
 foreach ($larval_food_spp as $plant) {
 	// $rel_logs stores the subset of logs that are associated with that plant
 	foreach($logs as $l) {
-		if (strpos($l['notes'], $plant['latin_name']) !== FALSE) {
+		if (strpos($l['notes'], $plant['latin_name']) !== FALSE && $l['stage'] == 'larva') {
 			$rel_logs[] = $l;
 		}
 	}
@@ -68,12 +56,9 @@ foreach ($larval_food_spp as $plant) {
 	unset($l, $rel_logs);
 }
 unset($plant);
-$adult_food_logs;
 foreach ($adult_food_spp as $plant) {
-	// $rel_logs stores the subset of logs that are associated with that plant
-	$rel_logs;
 	foreach ($logs as $l) {
-		if (strpos($l['notes'], $plant['latin_name']) !== FALSE) {
+		if (strpos($l['notes'], $plant['latin_name']) !== FALSE && $l['stage'] == 'adult') {
 			$rel_logs[] = $l;
 		}
 	}
@@ -81,32 +66,6 @@ foreach ($adult_food_spp as $plant) {
 	unset($l, $rel_logs);
 }
 unset($plant);
-
-/* Builds badge and popover that are used in the first column of the plant lists */
-function build_popover($food_logs, $plant) {
-	global $template;
-
-	echo '<td style="text-align: center">';
-	// Build popover and table (if there's actually data to put in it, i.e. there's at least one log)
-	if (isset($food_logs) && array_key_exists($plant['latin_name'], $food_logs)) {
-		echo '<a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-placement="top" '
-				 . 'data-content="<table class=&quot;spp spp-' . $template['class'] . '&quot;>'
-				 . '<tr><th>Date</th><th>Notes</th></tr>';
-		foreach ($food_logs[$plant['latin_name']] as $log) {
-			echo '<tr>';
-			echo '<td>' . $log['date'] . '</td>';
-			echo '<td>' . $log['notes'] . '</td>';
-			echo '</tr>';
-		}
-		echo '</table>">';
-		// Build badge and close out table cell
-		echo '<span class="badge badge-dark">'
-				 . count($food_logs[$plant['latin_name']])
-				 . '</span></a></td>';
-	}
-	// Otherwise just build badge, with no popover
-	else echo '<span class="badge badge-light">0</span></td>';
-}
 ?>
 
 <div class="container-fluid">
@@ -189,7 +148,9 @@ function build_popover($food_logs, $plant) {
 					foreach ($larval_food_spp as $plant) {
 						echo '<tr>';
 						// First cell: logs button (indicates count, and clicking brings up the associated table in a popover)
-						build_popover($larval_food_logs, $plant);
+						echo '<td style="text-align: center">';
+						echo popover_badge($larval_food_logs, $plant['latin_name'], $template['class']);
+						echo '</td>';
 
 						// Second cell: check mark or em-dash indicating if plant is owned
 						if ($plant['have'] != 0) echo '<td style="text-align: center">&#x2713;</td>';
@@ -225,7 +186,9 @@ function build_popover($food_logs, $plant) {
 					foreach ($adult_food_spp as $plant) {
 						echo '<tr>';
 						// First cell: logs button (indicates count, and clicking brings up the associated table in a popover)
-						build_popover($adult_food_logs, $plant);
+						echo '<td style="text-align: center">';
+						echo popover_badge($adult_food_logs, $plant['latin_name'], $template['class']);
+						echo '</td>';
 
 						// Second cell: check mark or em-dash indicating if plant is owned
 						if ($plant['have'] != 0) echo '<td style="text-align: center">&#x2713;</td>';

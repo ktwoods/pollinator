@@ -75,7 +75,7 @@ else {
 						foreach ($all_rows as $row) {
 							echo '<option value="'.$row['latin_name'].'"';
 							if ($editing && $name == $row['latin_name']) echo ' selected="selected"';
-							echo '><em>'.$row['latin_name'].'</em> ('.$row['common_name'].')</option>';
+							echo '>'.$row['latin_name'].' ('.$row['common_name'].')</option>';
 						}
 						?>
 					</select>
