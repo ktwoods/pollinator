@@ -1,10 +1,11 @@
 <?php
+include_once 'funcs_general.php';
+
 $name = $_GET['spp'];
 // Determine what kind of species template is needed for this page (lepid, bee, or the general template)
 $template = template_vals(get_type($name));
 $cur_page = $template['type'];
 
-include_once 'funcs_general.php';
 include_once 'header.html';
 
 // Handles submitting edits, if returning from edit.php

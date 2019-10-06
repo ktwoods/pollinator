@@ -4,22 +4,6 @@ include_once 'header.html';
 include_once 'connect.php';
 include_once 'funcs_general.php';
 ?>
-<script>
-$(document).ready(function(){
-  $("#searchHerb").on("keyup", function() {
-    var value = $(this).val().toLowerCase();
-    $("#herb-list tr").filter(function() { $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1); });
-  });
-});
-
-$(document).ready(function(){
-  $("#searchWood").on("keyup", function() {
-    var value = $(this).val().toLowerCase();
-    $("#wood-list tr").filter(function() { $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1); });
-  });
-});
-</script>
-
 <a href="new_plant.php" class="btn btn-p" style="margin-top: 15px; position: fixed;"><i class="fas fa-plus"></i> Add species</a>
 
 <div class="container-fluid">
@@ -46,4 +30,19 @@ $(document).ready(function(){
 		</div>
 	</div>
 </div>
+<script>
+$(document).ready(function(){
+  $("#searchHerb").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#herb-list tr").filter(function() { $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1); });
+  });
+});
+
+$(document).ready(function(){
+  $("#searchWood").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#wood-list tr").filter(function() { $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1); });
+  });
+});
+</script>
 <?php include_once 'footer.html'; ?>

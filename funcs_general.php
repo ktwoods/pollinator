@@ -1,11 +1,4 @@
-<script>
-	$(document).ready(function() { $('[data-toggle="tooltip"]').tooltip(); });
-	$(document).ready(function(){ $('[data-toggle="popover"]').popover(); });
-</script>
-
-<?php
-include_once 'connect.php';
-
+<?php include_once 'connect.php';
 /*******************************************************/
 /* FUNCTIONS THAT RETURN METADATA */
 /*******************************************************/
@@ -77,13 +70,13 @@ function thumbnail($img_url, $latin, $size, $page='view.php', $tooltip='') {
 function popover_badge($logs_table, $species_index, $table_class) {
 	// Build popover and table (if there's actually data to put in it, i.e. there's at least one log)
 	if (isset($logs_table) && array_key_exists($species_index, $logs_table)) {
-		$badge = '<a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-placement="top" '
-					 . 'data-content="<table class=&quot;spp spp-'.$table_class.'&quot;><tr><th>Date</th><th>Notes</th></tr>';
-
+		$badge = '<a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-placement="left" '
+					 . 'data-content="';
 		foreach ($logs_table[$species_index] as $log) {
-			$badge .= '<tr><td>'.$log['date'].'</td><td>'.$log['notes'].'</td></tr>';
+			$badge .= '<div><strong>'.$log['date'].':</strong> '.$log['notes'].'</div>';
 		}
-		$badge .= '</table>">';
+		$badge .= '">';
+
 		// Build badge and close out table cell
 		$badge .= '<span class="badge badge-dark">'.count($logs_table[$species_index]).'</span></a></td>';
 		return $badge;
