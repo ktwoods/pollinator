@@ -11,15 +11,15 @@ include_once 'header.html';
 // Handles submitting edits, if returning from edit.php
 if (isset($_POST['latin'])) {
 	$stmt = $conn->prepare("UPDATE Creature SET latin_name=?, common_name=?, family_name=?, identification=?, notes=?, img_url=? WHERE latin_name=?");
-	$changed = $stmt->execute(array($_POST['latin'], $_POST['common'], $_POST['fam'], $_POST['id'], $_POST['notes'], $_POST['img'], $_GET['spp'])) && $stmt->rowCount() != 0;
+	$changed = $stmt->execute(array($_POST['latin'], $_POST['common'], $_POST['fam'], $_POST['id'], $_POST['notes'], $_POST['img'], $name)) && $stmt->rowCount() != 0;
 
 	if ($template['type'] == 'lepidop') {
 		$stmt = $conn->prepare("UPDATE Lepidopteran SET host_prefs=?, nect_prefs=? WHERE latin_name=?");
-		if ($stmt->execute(array($_POST['gen_host'], $_POST['gen_nect'], $_GET['spp'])) && $stmt->rowCount() != 0) $changed = true;
+		if ($stmt->execute(array($_POST['gen_host'], $_POST['gen_nect'], $name)) && $stmt->rowCount() != 0) $changed = true;
 	}
 	else if ($template['type'] == 'bee') {
 		$stmt = $conn->prepare("UPDATE Bee SET specialization=? WHERE latin_name=?");
-		if ($stmt->execute(array($spec, $name)) && $stmt->rowCount() != 0) $changed = true;
+		if ($stmt->execute(array($_POST['spec'], $name)) && $stmt->rowCount() != 0) $changed = true;
 	}
 
 	success_fail_message($changed, 'Species record updated!');

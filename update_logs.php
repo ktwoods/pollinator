@@ -51,8 +51,7 @@ else {
   					$datestring = $today['year'].'-'.($mon < 10? '0'.$mon : $mon).'-'.($day < 10? '0'.$day : $day);
           }
 					?>
-					<input type="text" class="form-control" id="date" name="date" value="<?php echo ($editing ? $date : $datestring) ?>">
-          <small id="dateHelp" class="form-text text-muted">YYYY-MM-DD</small>
+					<input type="date" class="form-control" id="date" name="date" value="<?php echo ($editing ? $date : $datestring) ?>">
 				</div>
 				<!-- Species name selector -->
 				<div class="form-group">
@@ -97,5 +96,7 @@ $(document).ready(function(){
     $("#latin-list option").filter(function() { $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1); });
   });
 });
+
+
 </script>
 <?php include_once 'footer.html'; ?>
