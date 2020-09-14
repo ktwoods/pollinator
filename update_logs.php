@@ -3,100 +3,139 @@ $cur_page = 'update_logs';
 include_once 'funcs_general.php';
 include_once 'header.html';
 
-$editing = ($_GET['do'] == 'edit');
+$is_new_log = !isset($_GET['n']);
 
-if (!$editing) {
-  $url = 'update_logs.php?do=add';
-
-  // Attempt to submit log, and print success/fail alert
-  if (isset($_POST['name'])) { // Submitting data
+if ($is_new_log) {
+  // If a value for 'latin' exists, this is a new log being submitted
+  if (isset($_POST['latin'])) {
+    // Attempt to submit log, and print success/fail alert
     $stmt = $conn->prepare("INSERT INTO Log VALUES (?, ?, ?, ?)");
-
-    $success = $stmt->execute(array($_POST['name'], $_POST['date'], $_POST['notes'], $_POST['stage'])) && $stmt->rowCount() != 0;
-    success_fail_message($success, "New log added for {$_POST['stage']} <em>{$_POST['name']}</em>, {$_POST['date']}!");
+    $success = $stmt->execute(array($_POST['latin'], $_POST['date'], $_POST['notes'], $_POST['stage'])) && $stmt->rowCount() != 0;
+    success_fail_message($success, "New log added for {$_POST['stage']} <em>{$_POST['latin']}</em>, {$_POST['date']}!");
   }
 }
-else {
-  $name = $_GET['n'];
-  $date = $_GET['d'];
-  $stage = $_GET['s'];
-  // Get notes field
-  $stmt = $conn->prepare("SELECT notes FROM Log WHERE latin_name=? AND date=? AND stage=?");
-  $stmt->execute(array($name, $date, $stage));
-  $notes = $stmt->fetch()['notes'];
-
-  // Get type for rerouting to correct url
-  $type = get_type($name);
-  if ($type == 'Lepidopteran') $type = 'lep';
-  else if ($type == 'Bee') $type = 'bee';
-  else $type = 'other';
-  $url = 'logs.php?type='.$type.'&on='.$name.'&od='.$date.'&os='.$stage;
+else { // Is an existing log being edited, so fetch the full log
+  $stmt = $conn->prepare("SELECT * FROM Log WHERE latin_name=? AND date=? AND stage=?");
+  $stmt->execute(array($_GET['n'], $_GET['d'], $_GET['s']));
+  $cur_log = $stmt->fetch(PDO::FETCH_ASSOC);
 }
+
+$stmt = $conn->prepare("SELECT latin_name, common_name FROM Creature");
+$stmt->execute();
+$all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container-fluid">
-	<h1 class="text-center"><?php echo ($editing ? 'Edit' : 'New') ?> log entry</h1>
-	<form action="<?php echo $url ?>" method="post">
+	<h1 class="text-center" id="logTitle"></h1>
+	<form id="logForm" method="post">
 		<div class="row justify-content-center">
 			<div class="col-sm-6">
         <!-- Date -->
 				<div class="form-group" style="margin-top: 10px">
 					<label for="date">Date</label>
-          <?php
-          if (!$editing)
-					{
-            $today = getdate();
-  					$mon = $today['mon'];
-  					$day = $today['mday'];
-  					$datestring = $today['year'].'-'.($mon < 10? '0'.$mon : $mon).'-'.($day < 10? '0'.$day : $day);
-          }
-					?>
-					<input type="date" class="form-control" id="date" name="date" value="<?php echo ($editing ? $date : $datestring) ?>">
+					<input type="date" class="form-control" name="date" pattern="\d{4}-\d{2}-\d{2}" required>
 				</div>
-				<!-- Species name selector -->
+				<!-- Species name -->
 				<div class="form-group">
-					<label for="latin">Species</label>
-					<input class="form-control" id="searchSpp" type="text" placeholder="<?php echo ($editing ? $name : 'Search species') ?>">
-					<select class="form-control" id="latin-list" name="name" size="10">
-						<?php
-						$stmt = $conn->prepare("SELECT latin_name, common_name FROM Creature");
-						$stmt->execute();
-						$all_rows = $stmt->fetchAll();
-						foreach ($all_rows as $row) {
-							echo '<option value="'.$row['latin_name'].'"';
-							if ($editing && $name == $row['latin_name']) echo ' selected="selected"';
-							echo '>'.$row['latin_name'].' ('.$row['common_name'].')</option>';
-						}
-						?>
-					</select>
+					<label for="latinName">Species</label>
+					<input class="form-control" name="latin" id="latinName" type="text" list="nameList" autocomplete="off" required>
+          <datalist id="nameList">
+					</datalist>
 				</div>
-        <!-- Stage ('adult' selected by default, if new log) -->
-				<div class="form-check checkbox-inline" id="stage">
-					<input class="form-check-input" type="radio" name="stage" value="larva" id="larva" <?php if ($editing && $stage == 'larva') echo 'checked' ?>><label class="form-check-label" for="larva" style="margin-left: 10px">Larva</label>
-				</div>
-				<div class="form-check checkbox-inline">
-					<input class="form-check-input" type="radio" name="stage" value="adult" id="adult" <?php if (($editing && $stage == 'adult') || !$editing) echo 'checked' ?>><label class="form-check-label" for="adult" style="margin-left: 10px">Adult</label>
-				</div>
+        <!-- Stage -->
+        <div id="stageRadios">
+  				<div class="form-check checkbox-inline">
+  					<input class="form-check-input" type="radio" name="stage" value="larva" id="larva" required>
+            <label class="form-check-label" for="larva" style="margin-left: 10px">Larva</label>
+  				</div>
+  				<div class="form-check checkbox-inline">
+  					<input class="form-check-input" type="radio" name="stage" value="adult" id="adult" required>
+            <label class="form-check-label" for="adult" style="margin-left: 10px">Adult</label>
+  				</div>
+        </div>
         <!-- Notes -->
 				<div class="form-group">
 					<label for="notes" style="margin-top: 1em">Notes</label>
-					<textarea class="form-control" id="notes" name="notes"><?php if ($editing) echo $notes ?></textarea>
+					<textarea class="form-control" id="notes" name="notes"></textarea>
 				</div>
 			</div>
 		</div>
     <!-- 'Save' button -->
-		<div class="row justify-content-center"><div class="col-1"><button type="Submit" class="btn btn-d" style="color: white">Save</button></div></div>
+		<div class="row justify-content-center">
+      <div class="col-1">
+        <button type="Submit" id="submitButton" class="btn btn-d" style="color: white">Save</button>
+      </div>
+    </div>
 	</form>
 	<div>&nbsp;</div>
 </div>
 <script>
-$(document).ready(function(){
-  $("#searchSpp").on("keyup", function() {
-    var value = $(this).val().toLowerCase();
-    $("#latin-list option").filter(function() { $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1); });
-  });
-});
+  /* 1. PHP fetch */
+  const isNewLog = <?=json_encode($is_new_log)?>;
+  const log = <?=json_encode($cur_log)?>;
+  let type = <?=json_encode(get_type($cur_log['latin_name']))?>;
+  const allCreatures = <?=json_encode($all_creatures)?>;
 
+  /* 2. JavaScript page build */
+
+  //    Get elements from DOM
+  const title = document.getElementById('logTitle');
+  const logForm = document.getElementById('logForm');
+  const logDate = logForm.elements.date;
+  const logSpecies = logForm.elements.latin;
+  const nameList = document.getElementById('nameList');
+  const logNotes = logForm.elements.notes;
+  const submitButton = logForm.elements.submitButton;
+
+  //    Generate species options
+  for (let species of allCreatures) {
+    let speciesOption = document.createElement('option');
+    speciesOption.value = `${species['latin_name']} (${species['common_name']})`;
+    speciesOption.setAttribute('data-latin-name', species['latin_name']);
+    nameList.append(speciesOption);
+  }
+  //    Build today's date in YYYY-MM-DD format and use for date validation
+  let today = new Date();
+  let month = today.getMonth() + 1;
+  let day = today.getDate();
+  today = `${today.getFullYear()}-${(month < 10 ? '0' : '') + month}-${(day < 10 ? '0' : '') + day}`;
+  logDate.setAttribute('max', today);
+
+  //    Set up for a new log, or prefill with existing log
+  if (isNewLog) {
+    title.textContent = 'New log entry';
+
+    logDate.value = today;
+    logSpecies.setAttribute('placeholder', 'Search species by Latin or common name');
+    logForm.elements.adult.toggleAttribute('checked');
+
+    logForm.setAttribute('action', 'home.php');
+  }
+  else {
+    title.textContent = 'Edit log entry';
+
+    logDate.value = log['date'];
+    logSpecies.value = log['latin_name'];
+    logForm.elements[log['stage']].toggleAttribute('checked');
+    logNotes.textContent = log['notes'];
+
+    logForm.setAttribute('action', `logs.php?type=${type}&on=${log['latin_name']}&od=${log['date']}&os=${log['stage']}`);
+  }
+
+  // Make sure user has entered a valid species
+  function validateSpecies() {
+    let creatureInput = logSpecies.value;
+    for (let creature of allCreatures) {
+      if (creatureInput.includes(creature['latin_name'])) {
+        logSpecies.value = creature['latin_name'];
+        logSpecies.setCustomValidity('');
+        return;
+      }
+    }
+    logSpecies.setCustomValidity('Please enter a known species name.');
+  }
+  submitButton.addEventListener('click', validateSpecies);
 
 </script>
+
 <?php include_once 'footer.html'; ?>

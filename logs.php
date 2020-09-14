@@ -56,10 +56,10 @@ function submit_edits() {
 
 	$stmt = $conn->prepare("UPDATE Log SET latin_name=:new_name, date=:new_date, notes=:new_notes, stage=:new_stage WHERE latin_name=:name AND date=:date AND stage=:stage");
 
-	$bindVars = array(':name' => $_GET['on'], ':date' => $_GET['od'], ':stage' => $_GET['os'], ':new_name' => $_POST['name'], ':new_date' => $_POST['date'], ':new_stage' => $_POST['stage'], ':new_notes' => $_POST['notes']);
+	$bindVars = array(':name' => $_GET['on'], ':date' => $_GET['od'], ':stage' => $_GET['os'], ':new_name' => $_POST['latin'], ':new_date' => $_POST['date'], ':new_stage' => $_POST['stage'], ':new_notes' => $_POST['notes']);
 
 	$success = ($stmt->execute($bindVars) && $stmt->rowCount() != 0);
-	success_fail_message($success, "Log entry for {$_POST['stage']}  <em>{$_POST['name']}</em> ({$_POST['date']}) updated.");
+	success_fail_message($success, "Log entry for {$_POST['stage']}  <em>{$_POST['latin']}</em> ({$_POST['date']}) updated.");
 }
 ?>
 
@@ -93,7 +93,7 @@ function submit_edits() {
 				} ?>
 				<tr>
 					<!-- Edit button -->
-					<td><a href="update_logs.php?do=edit&n=<?php echo $log['latin_name'] ?>&d=<?php echo $log['date'] ?>&s=<?php echo $log['stage'] ?>" class="btn btn-<?php echo $btn_class ?>">
+					<td><a href="update_logs.php?n=<?php echo $log['latin_name'] ?>&d=<?php echo $log['date'] ?>&s=<?php echo $log['stage'] ?>" class="btn btn-<?php echo $btn_class ?>">
 						<i class="fas fa-edit"></i>
 					</a></td>
 					<!-- Thumbnail -->
