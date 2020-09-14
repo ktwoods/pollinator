@@ -10,7 +10,7 @@ include_once 'header.html';
 	// If coming back after submitting new species data, attempt to update and print message
 	if (isset($_POST['latin'])) {
 		$stmt = $conn->prepare("INSERT INTO Plant (latin_name, family, common_name, have, want, bloom_length, tags, research_notes, observations, img_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-		
+
 		$exec = $stmt->execute(array($_POST['latin'], $_POST['fam'], $_POST['common'], $_POST['have'], $_POST['want'], $_POST['blen'], $_POST['tags'], $_POST['notes'], $_POST['obs'], $_POST['img']));
 
 		echo '<p>&nbsp;</p><p class="text-center">';
@@ -88,4 +88,5 @@ include_once 'header.html';
 	<div>&nbsp;</div>
 	<?php } ?>
 </div>
+<script src="validate.js"></script>
 <?php include_once 'footer.html'; ?>

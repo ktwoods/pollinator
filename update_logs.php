@@ -33,7 +33,7 @@ $all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <!-- Date -->
 				<div class="form-group" style="margin-top: 10px">
 					<label for="date">Date</label>
-					<input type="date" class="form-control" name="date" pattern="\d{4}-\d{2}-\d{2}" required>
+					<input type="date" class="form-control" name="date" pattern="(?:19|20)\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])" required>
 				</div>
 				<!-- Species name -->
 				<div class="form-group">
@@ -69,11 +69,15 @@ $all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
 	</form>
 	<div>&nbsp;</div>
 </div>
+
 <script>
   /* 1. PHP fetch */
   const isNewLog = <?=json_encode($is_new_log)?>;
+  const previousLogDate = <?=json_encode($_POST['date'])?>;
   const log = <?=json_encode($cur_log)?>;
   let type = <?=json_encode(get_type($cur_log['latin_name']))?>;
+  if (type == 'Lepidopteran') type = 'lep';
+  else if (type != 'Bee') type = 'other';
   const allCreatures = <?=json_encode($all_creatures)?>;
 
   /* 2. JavaScript page build */
@@ -105,11 +109,11 @@ $all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
   if (isNewLog) {
     title.textContent = 'New log entry';
 
-    logDate.value = today;
+    logDate.value = previousLogDate || today;
     logSpecies.setAttribute('placeholder', 'Search species by Latin or common name');
     logForm.elements.adult.toggleAttribute('checked');
 
-    logForm.setAttribute('action', 'home.php');
+    logForm.setAttribute('action', 'update_logs.php');
   }
   else {
     title.textContent = 'Edit log entry';
