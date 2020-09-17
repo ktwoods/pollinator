@@ -86,8 +86,10 @@ function speciesTable(speciesList, tableClass) {
   table.style.width = '80%';
 
   // header row
+  let head = document.createElement('thead');
+  table.append(head);
   let row = document.createElement('tr');
-  table.append(row);
+  head.append(row);
   for (let key in speciesList[0]) {
     let h = document.createElement('th');
     if (key !== 'img_url') h.textContent = formatPHPKey(key);
@@ -95,21 +97,36 @@ function speciesTable(speciesList, tableClass) {
   }
 
   // data rows
+  let body = document.createElement('tbody');
+  table.append(body);
   for (let species of speciesList) {
     row = document.createElement('tr');
-    table.append(row);
+    body.append(row);
 
-    // color coding
+    // row color coding
     if (species['sightings'] > 0) {
       if (species['latin_name'].split(' ')[1] === 'spp') row.className = `seen-${tableClass}-genus`;
       else row.className = 'seen-' + tableClass;
     }
 
+    // cells
     for (let key in species) {
       let cell = document.createElement('td');
-
-      if (key === 'img_url') cell.append(thumbnail(species[key], species['latin_name']));
-      else if (key === 'latin_name') cell.innerHTML = `<a href="view.php?spp=${species[key]}"><i>${species[key]}</i></a>`;
+      // make image a thumbnaiil
+      if (key === 'img_url') {
+        if (tableClass === 'p') cell.append(thumbnail(species[key], species['latin_name'], undefined, 'view_plant.php'));
+        else cell.append(thumbnail(species[key], species['latin_name']));
+      }
+      // make latin name italicized (but not <em>, as it's not semantic emphasis)
+      else if (key === 'latin_name') {
+        if (tableClass === 'p') cell.innerHTML = `<a href="view_plant.php?spp=${species[key]}"><i>${species[key]}</i></a>`;
+        else cell.innerHTML = `<a href="view.php?spp=${species[key]}"><i>${species[key]}</i></a>`;
+      }
+      // display booleans as check mark or dash
+      else if (key === 'have' || key === 'want') {
+        cell.className = 'text-center';
+        cell.innerHTML = (+species[key] ? '&#x2713' : '&mdash;');
+      }
       else cell.textContent = species[key];
       row.append(cell);
     }
