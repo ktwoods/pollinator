@@ -1,19 +1,18 @@
 <?php
 $cur_page = 'lepidop';
-include_once 'funcs_general.php';
 include_once 'header.html';
 
 $stmt = $conn->prepare('SELECT family_name, family_desc FROM Family WHERE subtype="Butterfly"');
 $stmt->execute();
 $b_families = $stmt->fetchAll(PDO::FETCH_ASSOC);
-$stmt = $conn->prepare ('SELECT img_url, latin_name, common_name, family_name, type FROM Lep_full WHERE subtype="Butterfly" ORDER BY family_name, latin_name');
+$stmt = $conn->prepare ('SELECT img_url, latin_name, common_name, family_name FROM Lep_full WHERE subtype="Butterfly" ORDER BY family_name, latin_name');
 $stmt->execute();
 $b_species = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $stmt = $conn->prepare ('SELECT family_name, family_desc FROM Family WHERE subtype="Moth"');
 $stmt->execute();
 $m_families = $stmt->fetchAll(PDO::FETCH_ASSOC);
-$stmt = $conn->prepare ('SELECT img_url, latin_name, common_name, family_name, type FROM Lep_full WHERE subtype="Moth" ORDER BY family_name, latin_name');
+$stmt = $conn->prepare ('SELECT img_url, latin_name, common_name, family_name FROM Lep_full WHERE subtype="Moth" ORDER BY family_name, latin_name');
 $stmt->execute();
 $m_species = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -61,7 +60,7 @@ foreach ($m_species as $sp) {
 	butterflySpecies.forEach(appendCounts);
 	mothSpecies.forEach(appendCounts);
 
-	buildTabsByFamily(bContainer, <?=json_encode($b_families)?>, butterflySpecies, 'l');
-	buildTabsByFamily(mContainer, <?=json_encode($m_families)?>, mothSpecies, 'l');
+	buildTabsByCategory(bContainer, <?=json_encode($b_families)?>, butterflySpecies, 'l');
+	buildTabsByCategory(mContainer, <?=json_encode($m_families)?>, mothSpecies, 'l');
 </script>
 <?php include_once 'footer.html'; ?>

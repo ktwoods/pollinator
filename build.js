@@ -1,6 +1,13 @@
 
-function buildTabsByFamily(container, familyList, speciesList, tableClass) {
-  familyList.push({'family_name': 'All'});
+
+/* Builds the contents for the main wildlife category pages. Currently, this
+   breaks the category apart into tabs separated by family (bee, butterfly/moth)
+   or type (everything else, a broad enough category that division by family is
+   far too granular), and lists the members of each family/type in a simple
+   table for each tab.
+*/
+function buildTabsByCategory(container, categoryList, speciesList, tableClass) {
+  categoryList.push({'family_name': 'All'});
 
   let pillList = document.createElement('ul');
   $(pillList).attr({
@@ -16,10 +23,10 @@ function buildTabsByFamily(container, familyList, speciesList, tableClass) {
   container.append(allTabContent);
 
   // build pills
-  for (let i = 0; i < familyList.length; i++) {
-    let name = familyList[i]['family_name'];
-    let desc = familyList[i]['family_desc'];
-    let id = (name === 'All' ? container.id : name);
+  for (let i = 0; i < categoryList.length; i++) {
+    let categoryName = categoryList[i]['family_name'] || categoryList[i]['type'];
+    let categoryDesc = categoryList[i]['family_desc'];
+    let id = (categoryName === 'All' ? container.id : categoryName);
 
     // build pills
     let pill = document.createElement('li');
@@ -37,7 +44,7 @@ function buildTabsByFamily(container, familyList, speciesList, tableClass) {
       'aria-controls': id + '-tab',
       'aria-selected': (i === 0)
     });
-    pillLink.textContent = (name === 'All' ? '(All)' : name);
+    pillLink.textContent = (categoryName === 'All' ? '(All)' : categoryName);
 
     // build pill tab contents
     let tabContent = document.createElement('div');
@@ -50,24 +57,27 @@ function buildTabsByFamily(container, familyList, speciesList, tableClass) {
     allTabContent.append(tabContent);
     let tabHeader = document.createElement('h3');
     tabHeader.className = 'text-center';
-    tabHeader.textContent = (name === 'All' ? 'All species' : `${name} (${desc})`);
+    if (categoryDesc) tabHeader.textContent = `${categoryName} (${categoryDesc})`;
+    else tabHeader.textContent = (categoryName === 'All' ? 'All species' : categoryName);
     tabContent.append(tabHeader);
 
     // filter species list down to creatures in that family, then go build table
-    let familySpecies = [];
+    let filteredSpecies = [];
     if (tableClass === 'o') {
-      familySpecies = speciesList.filter(sp => name === 'All' || sp['family_name'] === name);
+      filteredSpecies = speciesList.filter(sp => categoryName === 'All' || sp['type'] === categoryName);
+      for (let sp of filteredSpecies) {
+        delete sp['type'];
+      }
     }
     else {
       for (let sp of speciesList) {
-        if (name === 'All' || name === sp['family_name']) {
-          if (name !== 'All') delete sp['family_name'];
-          delete sp['type'];
-          familySpecies.push(sp);
+        if (categoryName === 'All' || categoryName === sp['family_name']) {
+          if (categoryName !== 'All') delete sp['family_name'];
+          filteredSpecies.push(sp);
         }
       }
     }
-    tabContent.append(speciesTable(familySpecies, tableClass));
+    tabContent.append(speciesTable(filteredSpecies, tableClass));
   }
 }
 
