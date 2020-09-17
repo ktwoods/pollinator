@@ -46,12 +46,12 @@ $woody_plants = $stmt->fetchAll(PDO::FETCH_ASSOC);
 	const woodSearch = document.getElementById('searchWood');
 	const woodSpecies = <?=json_encode($woody_plants)?>;
 
-	const herbTable = speciesTable(herbSpecies, 'p');
+	const herbTable = table(herbSpecies, 'p');
 	herbTable.id = 'herbList';
 	herbTable.style.width = '100%';
 	herbContainer.insertBefore(herbTable, herbSearch.nextSibling);
 
-	const woodTable = speciesTable(woodSpecies, 'p');
+	const woodTable = table(woodSpecies, 'p');
 	woodTable.id = 'woodList';
 	woodTable.style.width = '100%';
 	woodContainer.insertBefore(woodTable, woodSearch.nextSibling);

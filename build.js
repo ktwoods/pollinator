@@ -77,11 +77,14 @@ function buildTabsByCategory(container, categoryList, speciesList, tableClass) {
         }
       }
     }
-    tabContent.append(speciesTable(filteredSpecies, tableClass));
+    tabContent.append(table(filteredSpecies, tableClass));
   }
 }
 
-function speciesTable(speciesList, tableClass) {
+
+/* Builds and returns a generic table
+*/
+function table(list, tableClass) {
   let table = document.createElement('table');
   table.style.width = '80%';
 
@@ -90,7 +93,7 @@ function speciesTable(speciesList, tableClass) {
   table.append(head);
   let row = document.createElement('tr');
   head.append(row);
-  for (let key in speciesList[0]) {
+  for (let key in list[0]) {
     let h = document.createElement('th');
     if (key !== 'img_url') h.textContent = formatPHPKey(key);
     row.append(h);
@@ -99,35 +102,35 @@ function speciesTable(speciesList, tableClass) {
   // data rows
   let body = document.createElement('tbody');
   table.append(body);
-  for (let species of speciesList) {
+  for (let item of list) {
     row = document.createElement('tr');
     body.append(row);
 
     // row color coding
-    if (species['sightings'] > 0) {
-      if (species['latin_name'].split(' ')[1] === 'spp') row.className = `seen-${tableClass}-genus`;
+    if (item['sightings'] > 0) {
+      if (item['latin_name'].split(' ')[1] === 'spp') row.className = `seen-${tableClass}-genus`;
       else row.className = 'seen-' + tableClass;
     }
 
     // cells
-    for (let key in species) {
+    for (let key in item) {
       let cell = document.createElement('td');
       // make image a thumbnaiil
       if (key === 'img_url') {
-        if (tableClass === 'p') cell.append(thumbnail(species[key], species['latin_name'], undefined, 'view_plant.php'));
-        else cell.append(thumbnail(species[key], species['latin_name']));
+        if (tableClass === 'p') cell.append(thumbnail(item[key], item['latin_name'], undefined, 'view_plant.php'));
+        else cell.append(thumbnail(item[key], item['latin_name']));
       }
       // make latin name italicized (but not <em>, as it's not semantic emphasis)
       else if (key === 'latin_name') {
-        if (tableClass === 'p') cell.innerHTML = `<a href="view_plant.php?spp=${species[key]}"><i>${species[key]}</i></a>`;
-        else cell.innerHTML = `<a href="view.php?spp=${species[key]}"><i>${species[key]}</i></a>`;
+        if (tableClass === 'p') cell.innerHTML = `<a href="view_plant.php?spp=${item[key]}"><i>${item[key]}</i></a>`;
+        else cell.innerHTML = `<a href="view.php?spp=${item[key]}"><i>${item[key]}</i></a>`;
       }
       // display booleans as check mark or dash
       else if (key === 'have' || key === 'want') {
         cell.className = 'text-center';
-        cell.innerHTML = (+species[key] ? '&#x2713' : '&mdash;');
+        cell.innerHTML = (+item[key] ? '&#x2713' : '&mdash;');
       }
-      else cell.textContent = species[key];
+      else cell.textContent = item[key];
       row.append(cell);
     }
   }
@@ -139,7 +142,7 @@ function formatPHPKey(key) {
   return key.replace('_', ' ');
 }
 
-/* Builds tiny thumbnail for species tables. If there's no image, it substitutes
+/* Builds and returns tiny thumbnail for species tables. If there's no image, it substitutes
    a gray box of the same size. In either case, the thumbnail links to the species page. */
 function thumbnail(url, latinName, size='2rem', page='view.php', tooltip) {
   let thumbnail = document.createElement('a');
@@ -164,4 +167,23 @@ function thumbnail(url, latinName, size='2rem', page='view.php', tooltip) {
   if (url) defaultBox.innerHTML = `<img src="${url}" style="max-width:100%; max-height: 100%">`
 
   return thumbnail;
+}
+
+/* Builds and returns alert indicating whether changes were successfully made to the database. */
+function changeAlert(success, successMessage, failMessage='No changes made.') {
+  let alert = document.createElement('div');
+  alert.className = 'alert alert-success alert-dismissable text-center';
+  alert.role = 'alert';
+  alert.innerHTML = (success ? successMessage : failMessage);
+  let dismissButton = document.createElement('button');
+  alert.append(dismissButton);
+  $(dismissButton).attr({
+    'type': 'button',
+    'class': 'close',
+    'data-dismiss': 'alert',
+    'aria-label': 'close'
+  });
+  dismissButton.innerHTML = '<span aria-hidden="true">&times;</span>';
+
+  return alert;
 }
