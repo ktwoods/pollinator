@@ -46,6 +46,7 @@ $stmt->execute(array($name));
 $adult_food_spp = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // $larval_food_logs and $adult_food_logs store all logs sorted by plant species
+$larval_food_logs = array();
 foreach ($larval_food_spp as $plant) {
 	// $rel_logs stores the subset of logs that are associated with that plant
 	foreach($logs as $l) {
@@ -57,6 +58,7 @@ foreach ($larval_food_spp as $plant) {
 	unset($l, $rel_logs);
 }
 unset($plant);
+$adult_food_logs = array();
 foreach ($adult_food_spp as $plant) {
 	foreach ($logs as $l) {
 		if (strpos($l['notes'], $plant['latin_name']) !== FALSE && $l['stage'] == 'adult') {
