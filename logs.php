@@ -48,7 +48,7 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="container-fluid">
 	<div class="row justify-content-center">
 		<div class="col col-lg-8" id="logContainer">
-			<h1 class="text-center" id="pageHeader"></h1>
+			<h1 class="text-center"></h1>
 		</div>
 	</div>
 </div>
@@ -62,85 +62,76 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		plantNamesStr += name['latin_name'] + ' ; ';
 	}
 
-	const header = document.getElementById('pageHeader');
-	header.textContent = '<?=$header?> sightings';
-	const container = document.getElementById('logContainer');
+	const title = $('h1').first();
+	title.text('<?=$header?> sightings');
+	const container = $('#logContainer');
 
 	if (<?=json_encode(isset($_GET['on']))?>) {
-		container.insertBefore(changeAlert(<?=json_encode($success)?>, `Log entry for ${<?=json_encode($_POST['stage'])?>} <i>${<?=json_encode($_POST['latin'])?>}</i> (${<?=json_encode($_POST['date'])?>}) updated.`), header);
+		title.before(changeAlert(<?=json_encode($success)?>, `Log entry for ${<?=json_encode($_POST['stage'])?>} <i>${<?=json_encode($_POST['latin'])?>}</i> (${<?=json_encode($_POST['date'])?>}) updated.`), header);
 	}
 
 	let curYear, numLogsInYear, yearTable, yearTableHeader;
 	let speciesInYear = new Set();
 	for (let log of logs) {
-		if (curYear != +log['date'].substr(0,4)) { // reached end of results for that year
+		// if this log is a new year, start a new header and table
+		if (curYear !== +log['date'].substr(0,4)) {
 			// fill in text for previous header (if it exists, which it won't if we're at the start of the logs)
-			if (yearTableHeader) yearTableHeader.textContent = `${curYear} (${numLogsInYear} logs, ${speciesInYear.size} spp)`;
+			if (yearTableHeader) yearTableHeader.text(`${curYear} (${numLogsInYear} logs, ${speciesInYear.size} spp)`);
 			// move to new header and table
-			yearTableHeader = document.createElement('h2');
+			yearTableHeader = $('<h2/>');
 			container.append(yearTableHeader);
 
 			numLogsInYear = 0;
 			speciesInYear.clear();
-			curYear = log['date'].substr(0,4);
+			curYear = +log['date'].substr(0,4);
 
-			yearTable = document.createElement('table');
+			yearTable = $('<table><tr><th colspan="2">&nbsp;</th><th>Name</th><th>Date</th><th>Notes</th></tr></table>');
 			container.append(yearTable);
-			yearTable.style.width = '100%';
-			let thRow = document.createElement('tr');
-			yearTable.append(thRow);
-			thRow.innerHTML = '<th colspan="2">&nbsp;</th><th>Name</th><th>Date</th><th>Notes</th>';
+			yearTable.css('width', '100%');
 		}
 
-		let logRow = document.createElement('tr');
+		let logRow = $('<tr/>');
 		yearTable.append(logRow);
 
 		// edit button
-		let logCell = document.createElement('td');
+		let logCell = $('<td/>');
 		logRow.append(logCell);
-		let editButton = document.createElement('a');
-		logCell.append(editButton);
-		editButton.href = `update_logs.php?do=edit&n=${log['latin_name']}&d=${log['date']}&s=${log['stage']}`;
-		editButton.className = 'btn btn-' + buttonClass;
-		editButton.innerHTML = '<i class="fas fa-edit"></i>';
+		logCell.append($('<a/>', {
+			'href': `update_logs.php?do=edit&n=${log['latin_name']}&d=${log['date']}&s=${log['stage']}`,
+			'class': 'btn btn-' + buttonClass,
+			'html': '<i class="fas fa-edit"></i>'
+		}));
 		// thumbnail
-		logCell = document.createElement('td');
-		logRow.append(logCell);
-		logCell.append(thumbnail(log['img_url'], log['latin_name'], '3rem'));
+		logRow.append($('<td/>').append(thumbnail(log['img_url'], log['latin_name'], '3rem')));
 		// Latin and common name
-		logCell = document.createElement('td');
-		logRow.append(logCell);
-		logCell.style['white-space'] = 'nowrap';
-		logCell.innerHTML = `${log['common_name']}<br/><i>(<a href="view.php?spp=${log['latin_name']}">${log['latin_name']}</a>)</i>`;
+		logRow.append($(`<td style="white-space: nowrap">${log['common_name']}<br/><i>(<a href="view.php?spp=${log['latin_name']}">${log['latin_name']}</a>)</i></td>`));
 		// date
-		logCell = document.createElement('td');
-		logRow.append(logCell);
-		logCell.textContent = log['date'];
-		logCell.style['white-space'] = 'nowrap';
+		logRow.append('<td style="white-space: nowrap">' + log['date'] + '</td>');
 		// notes
-		logCell = document.createElement('td');
-		logRow.append(logCell);
+		let noteHTML = '';
 		let noteWords = log['notes'].split(' ');
-		if (noteWords.length === 1) logCell.textContent = log['notes'];
+		if (noteWords.length === 1) noteHTML = log['notes'];
 		else {
 			for (let i = 0; i < noteWords.length - 1; i++) {
 				let possibleNameOrig = noteWords[i] + ' ' + noteWords[i+1];
 				let possibleName = possibleNameOrig.replace(/^[^a-zA-Z ]+|[^a-zA-Z ]+$/g, '');
+
 				if (plantNamesStr.includes(possibleName)) {
 					// append both words enclosed in a hyperlink
 					possibleNameOrig = possibleNameOrig.replace(possibleName, `<a href="view_plant.php?name=${possibleName}"><i>${possibleName}</i></a>`);
-					logCell.innerHTML += possibleNameOrig + ' ';
+					noteHTML += possibleNameOrig + ' ';
 					i++;
 				}
-				else {
-					logCell.innerHTML += noteWords[i] + ' ';
-				}
-				if (i == noteWords.length - 2) logCell.innerHTML += noteWords[i+1];
+				else noteHTML += noteWords[i] + ' ';
+
+				if (i == noteWords.length - 2) noteHTML += noteWords[i+1];
 			}
 		}
+		logRow.append($('<td>' + noteHTML + '</td>'));
+
 		numLogsInYear++;
 		speciesInYear.add(log['latin_name']);
 	}
-	yearTableHeader.textContent = `${curYear} (${numLogsInYear} logs, ${speciesInYear.size} spp)`;
+	yearTableHeader.text(`${curYear} (${numLogsInYear} logs, ${speciesInYear.size} spp)`);
 </script>
 <?php include_once 'footer.html'; ?>

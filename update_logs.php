@@ -5,16 +5,13 @@ include_once 'header.html';
 
 $is_new_log = !isset($_GET['n']);
 
-if ($is_new_log) {
-  // If a value for 'latin' exists, this is a new log being submitted
-  if (isset($_POST['latin'])) {
-    // Attempt to submit log, and print success/fail alert
-    $stmt = $conn->prepare("INSERT INTO Log VALUES (?, ?, ?, ?)");
-    $success = $stmt->execute(array($_POST['latin'], $_POST['date'], $_POST['notes'], $_POST['stage'])) && $stmt->rowCount() != 0;
-    success_fail_message($success, "New log added for {$_POST['stage']} <em>{$_POST['latin']}</em>, {$_POST['date']}!");
-  }
+if ($is_new_log && isset($_POST['latin'])) {
+  // If a value for 'latin' exists, this is a new log to submit
+  $stmt = $conn->prepare("INSERT INTO Log VALUES (?, ?, ?, ?)");
+  $success = $stmt->execute(array($_POST['latin'], $_POST['date'], $_POST['notes'], $_POST['stage'])) && $stmt->rowCount() != 0;
 }
-else { // Is an existing log being edited, so fetch the full log
+else {
+  // Is an existing log being edited, so fetch the full log
   $stmt = $conn->prepare("SELECT * FROM Log WHERE latin_name=? AND date=? AND stage=?");
   $stmt->execute(array($_GET['n'], $_GET['d'], $_GET['s']));
   $cur_log = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -26,8 +23,8 @@ $all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container-fluid">
-	<h1 class="text-center" id="logTitle"></h1>
-	<form id="logForm" method="post">
+	<h1 class="text-center"></h1>
+	<form method="post">
 		<div class="row justify-content-center">
 			<div class="col-sm-6">
         <!-- Date -->
@@ -39,8 +36,7 @@ $all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
 				<div class="form-group">
 					<label for="latinName">Species</label>
 					<input class="form-control" name="latin" id="latinName" type="text" list="nameList" autocomplete="off" required>
-          <datalist id="nameList">
-					</datalist>
+          <datalist id="nameList"></datalist>
 				</div>
         <!-- Stage -->
         <div id="stageRadios">
@@ -71,7 +67,6 @@ $all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 <script>
-  /* 1. PHP fetch */
   const isNewLog = <?=json_encode($is_new_log)?>;
   const previousLogDate = <?=json_encode($_POST['date'])?>;
   const log = <?=json_encode($cur_log)?>;
@@ -80,23 +75,18 @@ $all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
   else if (type != 'Bee') type = 'other';
   const allCreatures = <?=json_encode($all_creatures)?>;
 
-  /* 2. JavaScript page build */
-
   //    Get elements from DOM
-  const title = document.getElementById('logTitle');
-  const logForm = document.getElementById('logForm');
+  const title = $('h1').first();
+  const logForm = document.getElementsByTagName('form')[0];
   const logDate = logForm.elements.date;
   const logSpecies = logForm.elements.latin;
-  const nameList = document.getElementById('nameList');
+  const nameList = $('#nameList');
   const logNotes = logForm.elements.notes;
   const submitButton = logForm.elements.submitButton;
 
   //    Generate species options
   for (let species of allCreatures) {
-    let speciesOption = document.createElement('option');
-    speciesOption.value = `${species['latin_name']} (${species['common_name']})`;
-    speciesOption.setAttribute('data-latin-name', species['latin_name']);
-    nameList.append(speciesOption);
+    nameList.append($(`<option data-latin-name="${species['latin_name']}">${species['latin_name']} (${species['common_name']})</option>`));
   }
   //    Build today's date in YYYY-MM-DD format and use for date validation
   let today = new Date();
@@ -105,9 +95,14 @@ $all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
   today = `${today.getFullYear()}-${(month < 10 ? '0' : '') + month}-${(day < 10 ? '0' : '') + day}`;
   logDate.setAttribute('max', today);
 
-  //    Set up for a new log, or prefill with existing log
+  // Print results if a new log has just been submitted
+  if (<?=json_encode($success)?>) {
+  		title.before(changeAlert(true, `New log added for ${<?=json_encode($_POST['stage'])?>} <em>${<?=json_encode($_POST['latin'])?>}</em>, ${<?=json_encode($_POST['date'])?>}!`));
+  }
+
+  // Set up for a new log, or prefill with existing log
   if (isNewLog) {
-    title.textContent = 'New log entry';
+    title.text('New log entry');
 
     logDate.value = previousLogDate || today;
     logSpecies.setAttribute('placeholder', 'Search species by Latin or common name');
@@ -116,7 +111,7 @@ $all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
     logForm.setAttribute('action', 'update_logs.php');
   }
   else {
-    title.textContent = 'Edit log entry';
+    title.text('Edit log entry');
 
     logDate.value = log['date'];
     logSpecies.value = log['latin_name'];
@@ -139,7 +134,5 @@ $all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
     logSpecies.setCustomValidity('Please enter a known species name.');
   }
   submitButton.addEventListener('click', validateSpecies);
-
 </script>
-
 <?php include_once 'footer.html'; ?>

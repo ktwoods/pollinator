@@ -1,10 +1,8 @@
-<?php include_once 'connect.php';
-/*******************************************************/
-/* FUNCTIONS THAT RETURN METADATA */
-/*******************************************************/
-
+<?php
 /* Determines what type of species is referred to by $latin_name, and returns
    the name of its most specific table. */
+
+// PAGES THAT STILL USE: view, edit, delete, update_logs
 function get_type($latin_name) {
 	global $conn;
 	// Get list of all species in Bee, Lepidopteran, and Plant, and mark them by table of origin
@@ -23,6 +21,8 @@ function get_type($latin_name) {
 
 /* Returns an array containing some values used to customize view.php and
    edit.php with styling and content. */
+
+// PAGES THAT STILL USE: edit, view
 function template_vals($type) {
 	$template['type'] = 'other'; // Tells the header which part of the menu should be marked as active
 	$template['table'] = 'Creature_full'; // Table name for the query
@@ -41,20 +41,10 @@ function template_vals($type) {
 	return $template;
 }
 
-/*******************************************************/
-/* FUNCTIONS THAT PRINT FULL ELEMENTS */
-/*******************************************************/
-
-/* Prints message indicating whether changes were successfully made to the database. */
-function success_fail_message($is_success, $on_success, $on_fail='No changes made.') {
-	echo '<div class="alert alert-success alert-dismissible text-center" role="alert">';
-	if ($is_success) echo $on_success;
-	else echo $on_fail;
-	echo '<button type="button" class="close" data-dismiss="alert" aria-label="close"><span aria-hidden="true">&times;</span></button></div>';
-}
-
 /* Builds tiny thumbnail for species tables. If there's no image, it substitutes
    a gray box of the same size. In either case, the thumbnail links to the species page. */
+
+// PAGES THAT STILL USE: home
 function thumbnail($img_url, $latin, $size, $page='view.php', $tooltip='') {
 	// Imgur uses multiple urls per image, making it convenient to reduce sizes for faster loading times
 	if (strpos($img_url, 'https://i.imgur.com/') !== false ) $img_url = str_replace('l.', 't.', $img_url);
@@ -64,183 +54,5 @@ function thumbnail($img_url, $latin, $size, $page='view.php', $tooltip='') {
 	echo '><div style="width:'.$size.'; height:'.$size.'; background-color:#e9ecef; display:inline-block; vertical-align:middle">';
 	if ($img_url) echo '<img src="'.$img_url.'" style="max-width:100%; max-height:100%">';
 	echo '</div></a>';
-}
-
-/* Builds _and returns_ badge that produces popover on hover. Does not print the element. */
-function popover_badge($logs_table, $species_index, $table_class) {
-	// Build popover and table (if there's actually data to put in it, i.e. there's at least one log)
-	if (isset($logs_table) && array_key_exists($species_index, $logs_table)) {
-		$badge = '<a href="#" data-toggle="popover" data-trigger="hover" data-html="true" data-placement="top" '
-					 . 'data-content="';
-		foreach ($logs_table[$species_index] as $log) {
-			$badge .= '<div><strong>'.$log['date'].':</strong> '.$log['notes'].'</div>';
-		}
-		$badge .= '">';
-
-		// Build badge and close out table cell
-		$badge .= '<span class="badge badge-dark">'.count($logs_table[$species_index]).'</span></a></td>';
-		return $badge;
-	}
-	// Otherwise just build badge, with no popover
-	return '<span class="badge badge-light">0</span></td>';
-}
-
-/* Builds logbook.
-		 $query = query string that will generate the logbook data; contains up to one "?" (see $bound_var)
-		 $bound_var = value that will be bound to the query string, or '' if not applicable
-		 $num_logs = number of entries in logbook
-		 $class = class suffix for table styling ('p' for plants, 'b' for bees, 'l' for lepidopterans, 'o' for other creatures) */
-function logbook($query, $bound_var, $num_logs, $class) {
-		echo '<div class="card">';
-		// Logbook header: Downward caret + badge indicating number of logs + "Logbook"
-		echo '<div class= "card-header prim-' . $class . '" id="logbookHeader">'
-		 		 . '<div class="mb-0" data-toggle="collapse" data-target="#logs">'
-				 . '<i class="fas fa-caret-down"></i> '
-			 	 . '<span class="badge badge-' . ($num_logs == 0 ? 'light' : 'dark') . '">'
-				 . $num_logs . '</span> <strong>Logbook</strong>'
-				 . '</div></div>';
-		// Logbook body: Simple table of logs from most to least recent
-		echo '<div id="logs" class="collapse" aria-labelledby="logbookHeader">';
-		echo '<div class="card-body">';
-		if ($num_logs != 0) {
-				table($query, $bound_var, array('class' => 'spp spp-'.$class));
-		}
-		echo '</div></div></div>';
-}
-
-/* Builds delete button and dialog */
-function delete_button($name, $class) {
-	echo '<a href="#" class="btn btn-' . $class . ' btn-del" data-toggle="modal" data-target="#delModal"><i class="fas fa-trash-alt"></i></a>';
-	echo '<div class="modal fade" id="delModal" tabindex="-1" role="dialog">'
-			 . '<div class="modal-dialog" role="document">'
-			 . '<div class="modal-content">'
-			 . '<div class="modal-header"><h3 class="modal-title" id="delLabel">Delete species</h3></div>'
-			 . '<div class="modal-body">Are you sure you want to delete all data for this species?</div>'
-			 . '<div class="modal-footer">'
-			 . '<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>'
-			 . '<a href="delete.php?spp=' . $name . '" target="_blank" class="btn btn-primary">Delete</a>'
-			 . '</div>'
-			 . '</div>'
-			 . '</div>'
-			 . '</div>';
-}
-
-/* Builds a table.
-		 $query = query string that will generate the logbook data; contains up to one "?" (see $bound_var)
-	 	 $bound_var = value that will be bound to the query string, or '' if not applicable
-		 $table_settings = associative array allowing for some style customization; current supported keys are 'class', 'width', and 'tbody_id' */
-/* Note: The $table_settings array for customization is a bit clunky, but seemed
-   like the simplest way to accommodate a bit of style fiddling, for now. Once I
-	 start experimenting with formatting properly, there might end up being a lot
-	 of such tweaks, temporarily, so I wanted maximum flexibility. */
-function table($query, $bound_var, $table_settings) {
-	if (isset($table_settings['width'])) $width = $table_settings['width'];
-	else $width = 'auto';
-	if (isset($table_settings['class'])) $class = 'class="' . $table_settings['class'] . '" ';
-	else $class = '';
-
-	global $conn;
-	$stmt = $conn->prepare($query);
-	if ($bound_var) $stmt->bindValue(1, $bound_var);
-	$stmt->execute();
-	$num_col = $stmt->columnCount();
-
-	echo '<table '.$class.'style="width: '.$width.'">';
-
-	// Print header row by iterating through results to get each column's name
-	echo '<thead>';
-	for ($i = 0; $i < $num_col; $i++) {
-		$meta = $stmt->getColumnMeta($i);
-		// Make uppercase and remove underscores
-		$hname = ucfirst($meta['name']);
-		if ($hname != 'Img_url') {
-			$hname = str_replace('_', ' ', $hname);
-			echo '<th>' . $hname . '</th>';
-		}
-		else echo '<th></th>'; // If it's a thumbnail column, leave the header cell empty
-	}
-	echo '</thead>';
-
-	echo '<tbody' . (isset($table_settings['tbody_id']) ? ' id="'.$table_settings['tbody_id'].'"' : '') . '>';
-	// Print data rows
-	while ($row = $stmt->fetch()) {
-		echo '<tr>';
-		for ($i = 0; $i < $num_col; $i++) {
-			$meta = $stmt->getColumnMeta($i);
-			if ($meta['table'] == 'Plant') $url = 'view_plant.php';
-			else $url = 'view.php';
-
-			echo '<td>';
-			// A few types of cells get special formatting, as follows:
-			// Thumbnails
-			if ($meta['name'] == 'img_url') {
-				thumbnail($row['img_url'], $row['latin_name'], '2rem', $url);
-			}
-			// Boolean values (have, want): convert to check mark or dash
-			else if ($meta['native_type'] == 'TINY') {
-				echo '<div style="text-align: center">' . ($row[$i] != 0 ? '&#x2713' : '&mdash;') . '</div>';
-			}
-			// Latin names: italicize
-			else if ($meta['name'] == "latin_name") {
-				echo '<a href="' . $url . '?spp=' . $row[$i] . '">';
-				echo '<em>' . $row[$i] . '</em>';
-				echo '</a>';
-			}
-			// General case
-			else echo ucfirst($row[$i]);
-
-			echo '</td>';
-		}
-		echo '</tr>';
-	}
-	echo '</tbody></table>';
-}
-
-/*******************************************************/
-/* FUNCTIONS THAT PRINT THINGS WITHIN ELEMENTS */
-/*******************************************************/
-
-/* Builds a list of months (e.g. months a plant is in bloom) with tooltips */
-/* Note: Eventually the bloom data will be converted to more precise date-based
-   logging, which will probably render this defunct; the tooltips are the
-	 compromise in the meantime. */
-function display_months($table, $name) {
-	global $conn;
-	$stmt = $conn->prepare("SELECT * FROM $table NATURAL JOIN Month WHERE latin_name = ? ORDER BY month_num");
-	$stmt->execute(array($name));
-
-	$all_months = '';
-	while ($month = $stmt->fetch())
-	{
-		if ($month['verified'] == 0)
-		{
-			$all_months .= '<a href="#" data-toggle="tooltip" title="Unverified. '.$month['notes'].'" data-placement="top"><em>'.substr($month['month'], 0, 3).'</em></a>*';
-		}
-		else
-		{
-			$all_months .= '<a href="#" data-toggle="tooltip" title="'.($month['notes'] != '' ? $month['notes'] : 'n/a').'" data-placement="top">'.substr($month['month'], 0, 3).'</a>*';
-		}
-	}
-	$all_months = rtrim(str_replace('*', ' – ', $all_months), ' –');
-	if ($all_months != '') echo $all_months;
-	else echo 'n/a';
-}
-
-/* Breaks a notes field apart into a bulleted list. Uses periods as the delimiter,
-   so each sentence ends up on a different line; will probably edit data later
-	 to use a different delimiter for more flexibility. */
-function display_list($notes) {
-	if ($notes == '') echo '&nbsp;';
-	else
-	{
-		echo '<ul>';
-		$items = explode(". ", $notes);
-		foreach($items as $li)
-		{
-			$li = rtrim($li, '.');
-			echo '<li>'.$li.'</li>';
-		}
-		echo '</ul>';
-	}
 }
 ?>

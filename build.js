@@ -1,42 +1,27 @@
-
-
 /* Builds the contents for the main wildlife category pages. Currently, this
    breaks the category apart into tabs separated by family (bee, butterfly/moth)
    or type (everything else, a broad enough category that division by family is
    far too granular), and lists the members of each family/type in a simple
-   table for each tab.
-*/
-function buildTabsByCategory(container, categoryList, speciesList, tableClass) {
-  categoryList.push({'family_name': 'All'});
-
-  let pillList = document.createElement('ul');
-  $(pillList).attr({
+   table for each tab. */
+function buildTabsByCategory(categoryAttr, categoryList, speciesList, viewURL='view.php') {
+  let pillList = $('<ul/>', {
     'class': 'nav nav-pills justify-content-center',
     'id': 'pills-tab',
     'role': 'tablist'
   });
-  container.append(pillList);
-
-  let allTabContent = document.createElement('div');
-  allTabContent.className = 'tab-content';
-  allTabContent.id =  'tabContent';
-  container.append(allTabContent);
+  let allTabContent = $('<div/>', {'class': 'tab-content', 'id': 'tabContent'});
 
   // build pills
   for (let i = 0; i < categoryList.length; i++) {
-    let categoryName = categoryList[i]['family_name'] || categoryList[i]['type'];
-    let categoryDesc = categoryList[i]['family_desc'];
-    let id = (categoryName === 'All' ? container.id : categoryName);
+    let categoryName = categoryList[i][categoryAttr];
+    let categoryDesc = categoryList[i]['family_desc'] || null;
+    let id = (categoryName === 'All' ? categoryDesc : categoryName).replace(/[^\w]/g, '');
 
     // build pills
-    let pill = document.createElement('li');
-    pill.className = 'nav-item';
+    let pill = $('<li/>', {'class': 'nav-item'});
     pillList.append(pill);
 
-    let pillLink = document.createElement('a');
-    pill.append(pillLink);
-    if (i === 0) pillLink.toggleAttribute('active');
-    $(pillLink).attr({
+    let pillLink = $('<a/>', {
       'class': 'nav-link' + (i === 0 ? ' active' : ''),
       'data-toggle': 'pill',
       'id': id + 'Tab',
@@ -44,129 +29,109 @@ function buildTabsByCategory(container, categoryList, speciesList, tableClass) {
       'aria-controls': id + '-tab',
       'aria-selected': (i === 0)
     });
-    pillLink.textContent = (categoryName === 'All' ? '(All)' : categoryName);
+    pillLink.append(categoryName === 'All' ? '(All)' : categoryName);
+    pill.append(pillLink);
 
     // build pill tab contents
-    let tabContent = document.createElement('div');
-    $(tabContent).attr({
+    let tabContent = $('<div/>', {
       'class': 'tab-pane fade' + (i === 0 ? ' show active' : ''),
       'id': id + 'Content',
       'role': 'tabpanel',
       'aria-labelledby': id + '-tab'
     });
     allTabContent.append(tabContent);
-    let tabHeader = document.createElement('h3');
-    tabHeader.className = 'text-center';
-    if (categoryDesc) tabHeader.textContent = `${categoryName} (${categoryDesc})`;
-    else tabHeader.textContent = (categoryName === 'All' ? 'All species' : categoryName);
+
+    let tabHeader = $('<h3/>', {'class': 'text-center'});
+    if (categoryName === 'All') tabHeader.append('All species');
+    else if (categoryDesc) tabHeader.append(`${categoryName} (${categoryDesc})`);
+    else tabHeader.append(categoryName);
     tabContent.append(tabHeader);
 
-    // filter species list down to creatures in that family, then go build table
+    // filter species list down to creatures in that category, then go build table
     let filteredSpecies = [];
-    if (tableClass === 'o') {
-      filteredSpecies = speciesList.filter(sp => categoryName === 'All' || sp['type'] === categoryName);
-      for (let sp of filteredSpecies) {
-        delete sp['type'];
+
+    for (let sp of speciesList) {
+      if (categoryName === 'All' || categoryName === sp[categoryAttr]) {
+        filteredSpecies.push(sp);
+        if (categoryName !== 'All') delete filteredSpecies[filteredSpecies.length - 1][categoryAttr];
       }
     }
-    else {
-      for (let sp of speciesList) {
-        if (categoryName === 'All' || categoryName === sp['family_name']) {
-          if (categoryName !== 'All') delete sp['family_name'];
-          filteredSpecies.push(sp);
-        }
-      }
-    }
-    tabContent.append(table(filteredSpecies, tableClass));
+    tabContent.append(table(filteredSpecies, viewURL));
   }
+  return $('<div/>').append(pillList, allTabContent);
 }
 
-
-/* Builds and returns a generic table
-*/
-function table(list, tableClass) {
-  let table = document.createElement('table');
-  table.style.width = '80%';
-
+/* Builds and returns a generic table */
+function table(list, viewURL='view.php') {
+  let table = $('<table/>');
   // header row
-  let head = document.createElement('thead');
-  table.append(head);
-  let row = document.createElement('tr');
-  head.append(row);
+  let rowString = '';
   for (let key in list[0]) {
-    let h = document.createElement('th');
-    if (key !== 'img_url') h.textContent = formatPHPKey(key);
-    row.append(h);
+    rowString += '<th>';
+    if (key !== 'img_url') rowString += key.charAt(0).toUpperCase() + key.replace('_', ' ').slice(1);
+    rowString += '</th>';
   }
+  table.append('<thead>' + rowString + '</thead>');
 
   // data rows
-  let body = document.createElement('tbody');
-  table.append(body);
+  let body = $('<tbody/>');
   for (let item of list) {
-    row = document.createElement('tr');
+    row = $('<tr/>');
     body.append(row);
-
     // row color coding
     if (item['sightings'] > 0) {
-      if (item['latin_name'].split(' ')[1] === 'spp') row.className = `seen-${tableClass}-genus`;
-      else row.className = 'seen-' + tableClass;
+      if (item['latin_name'].split(' ')[1] === 'spp') row.addClass('seen-genus');
+      else row.addClass('seen');
     }
-
     // cells
     for (let key in item) {
-      let cell = document.createElement('td');
-      // make image a thumbnaiil
-      if (key === 'img_url') {
-        if (tableClass === 'p') cell.append(thumbnail(item[key], item['latin_name'], undefined, 'view_plant.php'));
-        else cell.append(thumbnail(item[key], item['latin_name']));
+      let cell = item[key];
+      switch (key) {
+        // make image a thumbnaiil
+        case ('img_url'): cell = thumbnail(item[key], item['latin_name'], undefined, viewURL); break;
+        // make latin name italicized (but not <em>, as it's not semantic emphasis)
+        case ('latin_name'): cell = `<a href="${viewURL}?spp=${item[key]}"><i>${item[key]}</i></a>`; break;
+        // display booleans as check mark or dash
+        case ('have'):
+        case ('want'): cell = '<span class="text-center">' + (+item[key] ? '&#x2713' : '&mdash;') + '</span>'; break;
       }
-      // make latin name italicized (but not <em>, as it's not semantic emphasis)
-      else if (key === 'latin_name') {
-        if (tableClass === 'p') cell.innerHTML = `<a href="view_plant.php?spp=${item[key]}"><i>${item[key]}</i></a>`;
-        else cell.innerHTML = `<a href="view.php?spp=${item[key]}"><i>${item[key]}</i></a>`;
-      }
-      // display booleans as check mark or dash
-      else if (key === 'have' || key === 'want') {
-        cell.className = 'text-center';
-        cell.innerHTML = (+item[key] ? '&#x2713' : '&mdash;');
-      }
-      else cell.textContent = item[key];
-      row.append(cell);
+      row.append($('<td/>').append(cell));
     }
   }
+  table.append(body);
   return table;
-}
-
-function formatPHPKey(key) {
-  key = key.charAt(0).toUpperCase() + key.slice(1);
-  return key.replace('_', ' ');
 }
 
 /* Builds and returns tiny thumbnail for species tables. If there's no image, it substitutes
    a gray box of the same size. In either case, the thumbnail links to the species page. */
-function thumbnail(url, latinName, size='2rem', page='view.php', tooltip) {
-  let thumbnail = document.createElement('a');
-
-  // Imgur uses multiple urls per image, making it convenient to reduce sizes for faster loading times
-  if (url && url.includes('i.imgur.com')) url = url.replace('l.', 't.');
-
-  thumbnail.href = `${page}?spp=${latinName}`;
+function thumbnail(imageURL, latinName, size='2rem', pageURL='view.php', tooltip) {
+  let thumbnail = $('<a/>', {'href': `${pageURL}?spp=${latinName}`});
   if (tooltip) {
-    thumbnail.setAttribute('data-toggle') = 'tooltip';
-    thumbnail.setAttribute('data-placement') = 'right';
-    thumbnail.title = tooltip;
+    thumbnail.attr({'data-toggle': 'tooltip', 'data-placement': 'right', 'title': tooltip});
   }
+  // Imgur uses multiple urls per image, making it convenient to reduce sizes for faster loading times
+  if (imageURL && imageURL.includes('i.imgur.com')) imageURL = imageURL.replace('l.', 't.');
 
-  let defaultBox = document.createElement('div');
-  thumbnail.append(defaultBox);
-  defaultBox.style.width = defaultBox.style.height = size;
-  defaultBox.style.backgroundColor = '#e9ecef';
-  defaultBox.style.display = 'inline-block';
-  defaultBox.style.verticalAlign = 'middle';
-
-  if (url) defaultBox.innerHTML = `<img src="${url}" style="max-width:100%; max-height: 100%">`
-
+  thumbnail.append(`<div style="width: ${size}; height: ${size}; background-color: #e9ecef; display: inline-block; vertical-align: middle">` + (imageURL ? `<img src="${imageURL}" style="max-width:100%; max-height: 100%">` : '') + '</div>');
   return thumbnail;
+}
+
+/* Returns jQuery object containing a badge that produces a popover on hover */
+function countBadgePopover(logs) {
+  if (logs.length === 0) return '<span class="badge badge-light">0</span></td>';
+
+  const badge = $('<a/>', {
+    'href': '#',
+    'data-toggle': 'popover',
+    'data-trigger': 'hover',
+    'data-html': 'true',
+    'data-placement': 'top',
+    'data-content': logs.reduce((acc, cur) =>
+      acc + '<div><strong>' + cur['date'] + ':</strong> ' + cur['notes'] + '</div>'
+    , '')
+  });
+  badge.html('<span class="badge badge-dark">' + logs.length + '</span>');
+  return badge;
 }
 
 /* Builds and returns alert indicating whether changes were successfully made to the database. */
@@ -186,4 +151,33 @@ function changeAlert(success, successMessage, failMessage='No changes made.') {
   dismissButton.innerHTML = '<span aria-hidden="true">&times;</span>';
 
   return alert;
+}
+
+/* Builds logbook */
+function logbook(logs) {
+  let header = $('<div/>', {'class':'card-header mb-0', 'id':'logHeader', 'data-toggle':'collapse', 'data-target':'#logs'});
+  header.html(`<i class="fas fa-caret-down"></i> <span class="badge badge-${logs.length ? 'dark' : 'light'}">${logs.length}</span> <strong>Logbook</strong>`);
+  let body = $('<div id="logs" class="collapse card-body" aria-labelledby="logHeader"></div>');
+  if (logs.length) body.append(table(logs));
+
+  return $('<div class="card"></div>').append(header, body);
+}
+
+/* Builds a list of months (e.g. months a plant is in bloom) with tooltips and returns as a string */
+function monthTooltips(months) {
+  console.log(months);
+  if (months.length === 0) return 'n/a';
+  let monthHTML = '';
+  for (let i = 0; i < months.length; i++) {
+    let m = months[i];
+    monthHTML += '<a href="#" data-toggle="tooltip" title="';
+    if (+m['verified']) {
+      monthHTML += (m.notes ? m.notes : 'n/a') + '" data-placement="top">' + m.month.substr(0, 3) + '</a>';
+    }
+    else {
+      monthHTML += '[Unverified] ' + m.notes + '" data-placement="top"><em>' + m.month.substr(0, 3) + '</em></a>';
+    }
+    if (i != months.length - 1) monthHTML += ' – ';
+  }
+  return monthHTML;
 }

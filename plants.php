@@ -11,7 +11,7 @@ $stmt->execute();
 $woody_plants = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!-- "Add species" button -->
-<a href="new_plant.php" class="btn btn-p" style="margin-top: 15px; position: fixed;"><i class="fas fa-plus"></i> Add species</a>
+<a href="update_plants.php" class="btn btn-p" style="margin-top: 15px; position: fixed;"><i class="fas fa-plus"></i> Add species</a>
 
 <!-- Main container -->
 <div class="container-fluid">
@@ -26,36 +26,29 @@ $woody_plants = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			<div class="tab-content" id="pills-tabContent">
 				<div id="herb" class="tab-pane fade show active" role="tabpanel" aria-labelledby="pills-herb">
 					<input class="form-control" id="searchHerb" type="text" placeholder="Search species">
-					<p>&nbsp;</p>
 				</div>
 				<div id="woody" class="tab-pane fade" role="tabpanel" aria-labelledby="pills-woody">
 					<input class="form-control" id="searchWood" type="text" placeholder="Search species">
-					<p>&nbsp;</p>
 				</div>
+				<p>&nbsp;</p>
 			</div>
 		</div>
 	</div>
 </div>
 
 <script>
-	const herbContainer = document.getElementById('herb');
-	const herbSearch = document.getElementById('searchHerb');
 	const herbSpecies = <?=json_encode($herb_plants)?>;
-
-	const woodContainer = document.getElementById('woody');
-	const woodSearch = document.getElementById('searchWood');
 	const woodSpecies = <?=json_encode($woody_plants)?>;
 
-	const herbTable = table(herbSpecies, 'p');
-	herbTable.id = 'herbList';
-	herbTable.style.width = '100%';
-	herbContainer.insertBefore(herbTable, herbSearch.nextSibling);
+	const herbTable = $(table(herbSpecies, 'view_plant.php'));
+	herbTable.attr('id', 'herbList');
+	herbTable.css('width', '100%');
+	$('#herb').append(herbTable);
 
-	const woodTable = table(woodSpecies, 'p');
-	woodTable.id = 'woodList';
-	woodTable.style.width = '100%';
-	woodContainer.insertBefore(woodTable, woodSearch.nextSibling);
-
+	const woodTable = $(table(woodSpecies, 'view_plant.php'));
+	woodTable.attr('id', 'woodList');
+	woodTable.css('width', '100%');
+	$('#woody').append(woodTable);
 
 	$(document).ready(function(){
 	  $("#searchHerb").on("keyup", function() {

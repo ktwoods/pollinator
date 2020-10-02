@@ -50,17 +50,21 @@ foreach ($m_species as $sp) {
 <p>&nbsp;</p>
 
 <script>
-	const bContainer = document.getElementById('butterflyList');
-	const mContainer = document.getElementById('mothList');
-
 	const butterflySpecies = <?=json_encode($b_species)?>;
+	const butterflyFamilies = <?=json_encode($b_families)?>;
+	butterflyFamilies.push({'family_name': 'All', 'family_desc': 'Butterfly'});
 	const mothSpecies = <?=json_encode($m_species)?>;
+	const mothFamilies = <?=json_encode($m_families)?>;
+	mothFamilies.push({'family_name': 'All', 'family_desc': 'Moth'});
 	const counts = <?=json_encode($log_counts)?>;
 	const appendCounts = spp => { spp['sightings'] = +counts[spp['latin_name']] };
 	butterflySpecies.forEach(appendCounts);
 	mothSpecies.forEach(appendCounts);
 
-	buildTabsByCategory(bContainer, <?=json_encode($b_families)?>, butterflySpecies, 'l');
-	buildTabsByCategory(mContainer, <?=json_encode($m_families)?>, mothSpecies, 'l');
+	$('#butterflyList').append(buildTabsByCategory('family_name', butterflyFamilies, butterflySpecies));
+	$('#mothList').append(buildTabsByCategory('family_name', mothFamilies, mothSpecies));
+	$('table').css('width', '80%');
+	$('.seen').addClass('lep-color-3');
+	$('.seen-genus').addClass('lep-color-2');
 </script>
 <?php include_once 'footer.html'; ?>

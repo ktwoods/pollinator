@@ -25,8 +25,8 @@ else if (isset($_GET['name'])) {
 ?>
 
 <div class="container-fluid">
-	<h1 class="text-center" id="pageTitle">New plant species</h1>
-	<div class="text-center" id="submitMessage" style="display: none">
+	<h1 class="text-center">New plant species</h1>
+	<div class="text-center" id="submitMessage" hidden>
 		<p>&nbsp;</p>
 	</div>
 	<form action="update_plants.php" method="post" id="plantForm">
@@ -98,7 +98,6 @@ else if (isset($_GET['name'])) {
 </div>
 <script>
 	const form = document.getElementById('plantForm');
-	const messageDiv = document.getElementById('submitMessage');
 
 	const contentType = <?=json_encode($content)?>;
 	const submitSuccessful = <?=json_encode($submit_successful)?>;
@@ -107,30 +106,25 @@ else if (isset($_GET['name'])) {
 	const speciesData = <?=json_encode($species_data)?>;
 
 	if (contentType === 'submission') {
-		form.style.display = 'none';
-		messageDiv.style.display = 'block';
+		form.setAttribute('hidden', '');
+		let messageDiv = $('#submitMessage');
+		messageDiv.removeAttr('hidden');
 
-		const message = document.createElement('div');
-		messageDiv.append(message);
-
-		if (submitSuccessful) message.innerHTML = `Species <i>${latinName}</i> (${commonName}) was added! <a href="view_plant.php?spp=${latinName}">[View species profile]</a>`;
-		else message.innerHTML = `Error: unable to add species <i>${latinName}</i> (${commonName}) to the database.`;
+		if (submitSuccessful) messageDiv.append(`Species <i>${latinName}</i> (${commonName}) was added! <a href="view_plant.php?spp=${latinName}">[View species profile]</a>`);
+		else messageDiv.append(`Error: unable to add species <i>${latinName}</i> (${commonName}) to the database.`);
 	}
 	else if (contentType === 'edit') {
-		const title = document.getElementById('pageTitle');
-		title.innerHTML = 'Edit plant species: <i>' + speciesData['latin_name'] + '</i>';
-
+		$('h1').first().html('Edit plant species: <i>' + speciesData['latin_name'] + '</i>');
 
 		form.action = 'view_plant.php?spp=' + speciesData['latin_name'];
-
 		// populate fields
 		form.elements.latinName.value = speciesData['latin_name'];
 		form.elements.commonName.value = speciesData['common_name'];
 		form.elements.family.value = speciesData['family'];
-		if (+speciesData['have']) document.getElementById('have').toggleAttribute('checked');
-		else document.getElementById('dhave').toggleAttribute('checked');
-		if (+speciesData['want']) document.getElementById('want').toggleAttribute('checked');
-		else document.getElementById('dwant').toggleAttribute('checked');
+		if (+speciesData['have']) $('#have').attr('checked', '');
+		else $('#dhave').attr('checked', '');
+		if (+speciesData['want']) $('#want').attr('checked', '');
+		else $('#dwant').attr('checked', '');
 		form.elements.tags.value = speciesData['tags'];
 		form.elements.blen.value = speciesData['bloom_length'];
 		form.elements.notes.value = speciesData['research_notes'];
