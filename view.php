@@ -2,7 +2,7 @@
 include_once 'funcs_general.php';
 include_once 'header.html';
 
-$name = $_GET['spp'];
+$name = $_GET['sp'];
 // Determine what kind of species template is needed for this page (lepid, bee, or the general template)
 $template = template_vals(get_type($name));
 $cur_page = $template['type'];
@@ -14,7 +14,7 @@ if (isset($_POST['latin'])) {
 	$stmt = $conn->prepare("UPDATE Creature SET latin_name=?, common_name=?, family_name=?, identification=?, notes=?, img_url=? WHERE latin_name=?");
 	$changed = $stmt->execute(array($_POST['latin'], $_POST['common'], $_POST['fam'], $_POST['id'], $_POST['notes'], $_POST['img'], $name)) && $stmt->rowCount() != 0;
 
-	if ($template['type'] == 'lepidop') {
+	if ($template['type'] == 'lep') {
 		$stmt = $conn->prepare("UPDATE Lepidopteran SET host_prefs=?, nect_prefs=? WHERE latin_name=?");
 		if ($stmt->execute(array($_POST['gen_host'], $_POST['gen_nect'], $name)) && $stmt->rowCount() != 0) $changed = true;
 	}
@@ -134,12 +134,12 @@ foreach ($adult_food_spp as $sp) {
 
 	// Buttons
 	$('#deleteURL').attr('href', 'delete.php?spp=' + creature['latin_name']);
-	$('#editURL').attr('href', 'edit.php?spp=' + creature['latin_name']);
+	$('#editURL').attr('href', 'update_species.php?sp=' + creature['latin_name']);
 	if (creature['latin_name'].split(' ')[1] !== 'spp') {
 		let btn = $('#refURL');
 		// If this page is for a butterfly/moth and describes a species,
 		// not a genus, link to its BAMONA profile
-		if (pageType === 'lepidop') {
+		if (pageType === 'lep') {
 			btn.attr('href', 'https://www.butterfliesandmoths.org/species/' + creature['latin_name'].replace(' ', '-'));
 			btn.append(' BAMONA');
 			btn.removeAttr('hidden');
@@ -195,7 +195,7 @@ foreach ($adult_food_spp as $sp) {
 		}
 	}
 
-	if (pageType === 'lepidop') {
+	if (pageType === 'lep') {
 		$('#generalPlants').attr('hidden', '');
 		const hostTable = $('#lepHosts');
 		const nectarTable = $('#lepNectar');
@@ -205,24 +205,23 @@ foreach ($adult_food_spp as $sp) {
 		$('#nectarPrefs>td').text(creature['nect_prefs']);
 		tableRows($('#lepHosts>tbody').children().last(), larvalPlants);
 		tableRows($('#lepNectar>tbody').children().last(), adultPlants);
+
+		$('.btn').not('.modal-footer>.btn').addClass('btn-l');
+		$('table').addClass('spp spp-l');
+		$('#logbook .card-header').addClass('lep-color-1');
 	}
 	else {
 		tableRows($('#generalPlants>tbody').children().last(), adultPlants);
 	}
 
 	// Styling
-	if (pageType === 'lepidop') {
-		$('.btn').not('.modal-footer>.btn').addClass('btn-l');
-		$('table').addClass('spp spp-l');
-		$('#logbook .card-header').addClass('lep-color-1');
-	}
-	else if (pageType === 'bee') {
+	if (pageType === 'bee') {
 		$('.btn').not('.modal-footer>.btn').addClass('btn-b');
 		$('table').addClass('spp spp-b');
 		$('#logbook .card-header').addClass('bee-color-1');
 	}
-	else {
-		$('.btn').not('.modal-footer>.btn').addClass('btn-o');
+	else if (pageType !== 'lep') {
+		$('.btn').not('.modal-footer>.btn').addClass('btn-m');
 		$('table').addClass('spp spp-o');
 		$('#logbook .card-header').addClass('misc-color-1');
 	}

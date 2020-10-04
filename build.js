@@ -90,7 +90,7 @@ function table(list, viewURL='view.php') {
         // make image a thumbnaiil
         case ('img_url'): cell = thumbnail(item[key], item['latin_name'], undefined, viewURL); break;
         // make latin name italicized (but not <em>, as it's not semantic emphasis)
-        case ('latin_name'): cell = `<a href="${viewURL}?spp=${item[key]}"><i>${item[key]}</i></a>`; break;
+        case ('latin_name'): cell = `<a href="${viewURL}?sp=${item[key]}"><i>${item[key]}</i></a>`; break;
         // display booleans as check mark or dash
         case ('have'):
         case ('want'): cell = '<span class="text-center">' + (+item[key] ? '&#x2713' : '&mdash;') + '</span>'; break;
@@ -105,7 +105,7 @@ function table(list, viewURL='view.php') {
 /* Builds and returns tiny thumbnail for species tables. If there's no image, it substitutes
    a gray box of the same size. In either case, the thumbnail links to the species page. */
 function thumbnail(imageURL, latinName, size='2rem', pageURL='view.php', tooltip) {
-  let thumbnail = $('<a/>', {'href': `${pageURL}?spp=${latinName}`});
+  let thumbnail = $('<a/>', {'href': `${pageURL}?sp=${latinName}`});
   if (tooltip) {
     thumbnail.attr({'data-toggle': 'tooltip', 'data-placement': 'right', 'title': tooltip});
   }

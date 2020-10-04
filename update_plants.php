@@ -2,13 +2,13 @@
 $cur_page = 'plants';
 include_once 'header.html';
 
-$content = 'new';
+$action = 'new';
 $submit_successful = false;
 $species_data;
 
 // This is a new species being submitted
 if (isset($_POST['latin'])) {
-	$content = 'submission';
+	$action = 'submit';
 	// If coming back after submitting new species data, attempt to update
 	$stmt = $conn->prepare("INSERT INTO Plant (latin_name, family, common_name, have, want, bloom_length, tags, research_notes, observations, img_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 	$exec = $stmt->execute(array($_POST['latin'], $_POST['fam'], $_POST['common'], $_POST['have'], $_POST['want'], $_POST['blen'], $_POST['tags'], $_POST['notes'], $_POST['obs'], $_POST['img']));
@@ -17,7 +17,7 @@ if (isset($_POST['latin'])) {
 }
 // This is an existing species being edited
 else if (isset($_GET['name'])) {
-	$content = 'edit';
+	$action = 'edit';
 	$stmt = $conn->prepare("SELECT * FROM Plant WHERE latin_name = ?");
 	$stmt->execute(array($_GET['name']));
 	$species_data = $stmt->fetch();
@@ -99,13 +99,13 @@ else if (isset($_GET['name'])) {
 <script>
 	const form = document.getElementById('plantForm');
 
-	const contentType = <?=json_encode($content)?>;
+	const action = <?=json_encode($action)?>;
 	const submitSuccessful = <?=json_encode($submit_successful)?>;
 	const latinName = <?=json_encode($_POST['latin'])?>;
 	const commonName = <?=json_encode($_POST['common'])?>;
 	const speciesData = <?=json_encode($species_data)?>;
 
-	if (contentType === 'submission') {
+	if (action === 'submit') {
 		form.setAttribute('hidden', '');
 		let messageDiv = $('#submitMessage');
 		messageDiv.removeAttr('hidden');
@@ -113,8 +113,9 @@ else if (isset($_GET['name'])) {
 		if (submitSuccessful) messageDiv.append(`Species <i>${latinName}</i> (${commonName}) was added! <a href="view_plant.php?spp=${latinName}">[View species profile]</a>`);
 		else messageDiv.append(`Error: unable to add species <i>${latinName}</i> (${commonName}) to the database.`);
 	}
-	else if (contentType === 'edit') {
+	else if (action === 'edit') {
 		$('h1').first().html('Edit plant species: <i>' + speciesData['latin_name'] + '</i>');
+		$('.btn').text('Update');
 
 		form.action = 'view_plant.php?spp=' + speciesData['latin_name'];
 		// populate fields

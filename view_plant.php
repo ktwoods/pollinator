@@ -10,7 +10,7 @@ if (isset($_POST['latin'])) {
 }
 
 $stmt = $conn->prepare("SELECT * FROM Plant WHERE latin_name = ?");
-$stmt->execute(array($_GET['spp']));
+$stmt->execute(array($_GET['sp']));
 $main_data = $stmt->fetch(PDO::FETCH_ASSOC);
 $name = $main_data['latin_name'];
 
