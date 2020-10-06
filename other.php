@@ -1,5 +1,5 @@
 <?php
-$cur_page = 'other';
+$cur_page = 'misc';
 include_once 'header.html';
 
 $stmt = $conn->prepare('SELECT DISTINCT type FROM Creature_full WHERE family_name NOT IN (SELECT family_name FROM Bee_full) AND family_name NOT IN (SELECT family_name FROM Lep_full)');

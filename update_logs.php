@@ -1,5 +1,5 @@
 <?php
-$cur_page = 'update_logs';
+$cur_page = 'updateLogs';
 include_once 'funcs_general.php';
 include_once 'header.html';
 

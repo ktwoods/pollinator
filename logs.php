@@ -1,24 +1,24 @@
 <?php
 $type = $_GET['type'];
-$cur_page = 'all_logs';
+$cur_page = 'allLogs';
 $header = 'All';
 $table = 'Log JOIN Creature USING (latin_name)';
 $btn_class = 'o';
 
 if ($type == 'lep') {
-	$cur_page = 'lep_logs';
+	$cur_page = 'lepLogs';
 	$header = 'Butterfly & moth';
 	$table = 'Log JOIN Lep_full USING (latin_name)';
 	$btn_class = 'l';
 }
 else if ($type == 'bee') {
-	$cur_page = 'bee_logs';
+	$cur_page = 'beeLogs';
 	$header = 'Bee';
 	$table = 'Log JOIN Bee_full USING (latin_name)';
 	$btn_class = 'b';
 }
 else if ($type == 'other') {
-	$cur_page = 'other_logs';
+	$cur_page = 'miscLogs';
 	$header = 'Other creature';
 	$table = 'Log JOIN Creature USING (latin_name) WHERE Log.latin_name NOT IN (SELECT latin_name FROM Bee UNION SELECT latin_name FROM Lepidopteran)';
 	$btn_class = 'o';
