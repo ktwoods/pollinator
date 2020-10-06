@@ -36,19 +36,4 @@ function template_vals($type) {
 	}
 	return $template;
 }
-
-/* Builds tiny thumbnail for species tables. If there's no image, it substitutes
-   a gray box of the same size. In either case, the thumbnail links to the species page. */
-
-// PAGES THAT STILL USE: home
-function thumbnail($img_url, $latin, $size, $page='view.php', $tooltip='') {
-	// Imgur uses multiple urls per image, making it convenient to reduce sizes for faster loading times
-	if (strpos($img_url, 'https://i.imgur.com/') !== false ) $img_url = str_replace('l.', 't.', $img_url);
-
-	echo '<a href="'.$page.'?spp='.$latin.'"';
-	if ($tooltip) echo ' data-toggle="tooltip" data-placement="right" title="'.$tooltip.'"';
-	echo '><div style="width:'.$size.'; height:'.$size.'; background-color:#e9ecef; display:inline-block; vertical-align:middle">';
-	if ($img_url) echo '<img src="'.$img_url.'" style="max-width:100%; max-height:100%">';
-	echo '</div></a>';
-}
 ?>
