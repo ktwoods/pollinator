@@ -14,8 +14,10 @@
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/fontawesome.css" integrity="sha384-jLuaxTTBR42U2qJ/pm4JRouHkEDHkVqH0T1nyQXn1mZ7Snycpf6Rl25VBNthU4z0" crossorigin="anonymous">
 	<!-- Personal stylesheet mods -->
 	<link rel="stylesheet" type="text/css" href="ppstyle.css">
+  <!-- General functions-->
+  <script src="build.js"></script>
 </head>
-
+<?php include_once 'connect.php'; ?>
 <body>
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 			<a class="navbar-brand" href="home.php">Pollinator Planner</a>
@@ -25,35 +27,39 @@
 
 			<div class="collapse navbar-collapse" id="navbarFull">
 				<ul class="navbar-nav">
-
           <!-- HOME -->
-					<li class="nav-item <?php if ($cur_page == 'home') echo 'active' ?>"><a class="nav-link" href="home.php">Home</a></li>
-
+					<li id="home" class="nav-item"><a class="nav-link" href="home.php">Home</a></li>
           <!-- PLANTS -->
-					<li class="nav-item <?php if ($cur_page == 'plants') echo 'active' ?>"><a class="nav-link" href="plants.php">Plants</a></li>
-
+					<li id="plants" class="nav-item"><a class="nav-link" href="plants.php">Plants</a></li>
           <!-- WILDLIFE (dropdown: Butterflies & moths, Bees, Other) -->
-					<li class="nav-item dropdown <?php if ($cur_page == 'lepidop' || $cur_page == 'bees' || $cur_page == 'other') echo 'active' ?>">
+					<li id="creatureCategory" class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownWildlife" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Wildlife</a>
 						<div class="dropdown-menu" aria-labelledby="navbarDropdownWildlife">
-							<a class="dropdown-item <?php if ($cur_page == 'lepidop') echo 'active' ?>" href="lepidop.php">Butterflies & moths</a>
-							<a class="dropdown-item <?php if ($cur_page == 'bees') echo 'active' ?>" href="bees.php">Bees</a>
-							<a class="dropdown-item <?php if ($cur_page == 'other') echo 'active' ?>" href="other.php">Other</a>
+							<a id="lepidop" class="dropdown-item" href="lepidop.php">Butterflies & moths</a>
+							<a id="bees" class="dropdown-item" href="bees.php">Bees</a>
+							<a id="misc" class="dropdown-item" href="other.php">Other</a>
 						</div>
 					</li>
-
           <!-- WILDLIFE LOG (dropdown: Butterflies & moths, Bees, Other, New entry) -->
-					<li class="nav-item dropdown <?php if ($cur_page == 'lep_logs' || $cur_page == 'bee_logs' || $cur_page == 'update_logs') echo 'active' ?>"> <!-- main menu item -->
+					<li id="logCategory" class="nav-item dropdown"> <!-- main menu item -->
 						<a class="nav-link dropdown-toggle" href="#" id="navbarDropdownLog" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Wildlife log</a>
 						<div class="dropdown-menu" aria-labelledby="navbarDropdownLog">
-							<a class="dropdown-item <?php if ($cur_page == 'lep_logs') echo 'active' ?>" href="logs.php?type=lep">Butterflies & moths</a>
-							<a class="dropdown-item <?php if ($cur_page == 'bee_logs') echo 'active' ?>" href="logs.php?type=bee">Bees</a>
-              <a class="dropdown-item <?php if ($cur_page == 'other_logs') echo 'active' ?>" href="logs.php?type=other">Other</a>
-							<a class="dropdown-item <?php if ($cur_page == 'new_log') echo 'active' ?>" href="update_logs.php?do=add">New entry</a>
+							<a id="lepLogs" class="dropdown-item" href="logs.php?type=lep">Butterflies & moths</a>
+							<a id="beeLogs" class="dropdown-item" href="logs.php?type=bee">Bees</a>
+              <a id="miscLogs" class="dropdown-item" href="logs.php?type=other">Other</a>
+							<a id="updateLogs" class="dropdown-item" href="update_logs.php">New entry</a>
 						</div>
 					</li>
-
-				</ul>
+        </ul>
+        <a href="../private/home.php"><div style="padding-left: 10px; color: orange">
+          <i class="fas fa-exclamation-circle"></i> THIS IS THE DEV SITE <i class="fas fa-exclamation-circle"></i>
+        </div></a>
 			</div>
 	</nav>
+  <script>
+    const page = <?=json_encode($cur_page)?>;
+    $('#' + page).addClass('active');
+    if (['lepLogs', 'beeLogs', 'miscLogs', 'updateLogs'].includes(page)) $('#logCategory').addClass('active');
+    else if (['lepidop', 'bees', 'misc'].includes(page)) $('#creatureCategory').addClass('active');
+  </script>
 	<div class="container-fluid">

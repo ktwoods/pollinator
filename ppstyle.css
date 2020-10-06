@@ -66,6 +66,25 @@ th {
 
 .seen-o { background-color: #ffdb99; }
 
+/* Basic color styling, revised */
+.plant-color-1 { background-color: greenyellow; }
+.plant-color-2 { background-color: #ebffcc; }
+
+.lep-color-1 { background-color: #66fcff; }
+.lep-color-2 { background-color: #ccfeff; }
+.lep-color-3 { background-color: #80fdff; }
+
+.bee-color-1 { background-color: gold; }
+.bee-color-2 { background-color: #fff4b3; }
+
+.misc-color-1 { background-color: #ffa500; }
+.misc-color-2 { background-color: #ffdb99; }
+
+.btn-m { background-color: #ffdb99; border-color: #ffa500; }
+a.btn-m:hover, button.btn-m:hover { background-color: #ffa500; }
+a.btn-m { color: black; }
+
+
 /* Basic color styling */
 .prim-p { background-color: greenyellow; }
 .sec-p { background-color: #ebffcc; }
@@ -82,7 +101,6 @@ th {
 
 .spp-p { table-layout: fixed; }
 .spp-p td { background-color: #ebffcc; text-align: center; }
-#p-list { text-align: left; }
 .spp-p th { background-color: greenyellow; }
 
 .spp-l th { background-color: #66fcff; }
@@ -93,6 +111,7 @@ th {
 
 .spp-o th { background-color: #ffa500; }
 .spp-o td { background-color: #ffdb99; }
+
 
 
 /* Plant tags */
