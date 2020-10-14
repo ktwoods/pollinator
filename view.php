@@ -133,7 +133,7 @@ foreach ($adult_food_spp as $sp) {
 	}
 
 	// Buttons
-	$('#deleteURL').attr('href', 'delete.php?spp=' + creature['latin_name']);
+	$('#deleteURL').attr('href', 'delete.php?sp=' + creature['latin_name']);
 	$('#editURL').attr('href', 'update_species.php?sp=' + creature['latin_name']);
 	if (creature['latin_name'].split(' ')[1] !== 'spp') {
 		let btn = $('#refURL');
@@ -155,7 +155,7 @@ foreach ($adult_food_spp as $sp) {
 
 	// Image
 	if (creature['img_url']) {
-		$('#image').append(`<a href="${creature['img_url']}"><img src="${creature['img_url']}" class="img-fluid center-block" style="max-height: 100%"></a>`);
+		$('#image').append(`<a href="${creature['img_url']}"><img src="${creature['img_url']}" class="img-fluid center-block"></a>`);
 	}
 
 	// Basic stats

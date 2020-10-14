@@ -23,7 +23,7 @@ $all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container-fluid">
-	<h1 class="text-center"></h1>
+	<h1></h1>
 	<form method="post">
 		<div class="row justify-content-center">
 			<div class="col-sm-6">
@@ -42,11 +42,11 @@ $all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div id="stageRadios">
   				<div class="form-check checkbox-inline">
   					<input class="form-check-input" type="radio" name="stage" value="larva" id="larva" required>
-            <label class="form-check-label" for="larva" style="margin-left: 10px">Larva</label>
+            <label class="form-check-label" for="larva">Larva</label>
   				</div>
   				<div class="form-check checkbox-inline">
   					<input class="form-check-input" type="radio" name="stage" value="adult" id="adult" required>
-            <label class="form-check-label" for="adult" style="margin-left: 10px">Adult</label>
+            <label class="form-check-label" for="adult">Adult</label>
   				</div>
         </div>
         <!-- Notes -->
@@ -59,7 +59,7 @@ $all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- 'Save' button -->
 		<div class="row justify-content-center">
       <div class="col-1">
-        <button type="Submit" id="submitButton" class="btn btn-d" style="color: white">Save</button>
+        <button type="Submit" id="submitButton" class="btn">Save</button>
       </div>
     </div>
 	</form>

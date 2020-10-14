@@ -27,11 +27,11 @@ function template_vals($type) {
 	$template['table'] = 'Creature_full'; // Table name for the query
 
 	if ($type == 'Lepidopteran') {
-		$template['type'] = 'lepidop';
+		$template['type'] = 'lep';
 		$template['table'] = 'Lep_full';
 	}
 	else if ($type == 'Bee') {
-		$template['type'] = 'bees';
+		$template['type'] = 'bee';
 		$template['table'] = 'Bee_full';
 	}
 	return $template;

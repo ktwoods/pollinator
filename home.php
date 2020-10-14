@@ -119,7 +119,7 @@ $thumbs['thirty_days'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="col">
       <h1 class="display-4">Wildlife logs</h1>
       <p class="lead">A summary of recent and lifetime sightings.</p>
-      <p><a href="update_logs.php" class="btn btn-d btn-lg" style="color: white">New log</a></p>
+      <p><a href="update_logs.php" class="btn btn-lg">New log</a></p>
     </div>
   </div>
   <div class="row">

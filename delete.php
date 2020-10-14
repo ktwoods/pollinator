@@ -2,7 +2,7 @@
 include_once 'funcs_general.php';
 include_once 'header.html';
 
-$type = get_type($_GET['spp']);
+$type = get_type($_GET['sp']);
 
 if ($type == 'Plant') $ret_url = 'plants.php';
 else {
@@ -13,13 +13,13 @@ else {
 }
 
 $stmt = $conn->prepare("DELETE FROM $type WHERE latin_name = ?");
-if ($stmt->execute(array($_GET['spp']))) $rows_affected = $stmt->rowCount();
+if ($stmt->execute(array($_GET['sp']))) $rows_affected = $stmt->rowCount();
 ?>
 
 <div class="container-fluid">
 	<div class="row">
 		<div class="col-sm">
-			<h1 class="text-center">Deleting</h1>
+			<h1>Deleting</h1>
 			<div>&nbsp;</div>
 			<div id="count" class="text-center"> species deleted.</div>
 			<div class="text-center"><a id="returnLink" href="#">[Return to main page]</a></div>
@@ -29,7 +29,7 @@ if ($stmt->execute(array($_GET['spp']))) $rows_affected = $stmt->rowCount();
 </div>
 
 <script>
-	$('h1').first().append(' <i><?=$_GET['spp']?></i>');
+	$('h1').first().append(' <i><?=$_GET['sp']?></i>');
 	$('#count').prepend(<?=$rows_affected?>);
 	$('#returnLink').attr('href', <?=json_encode($ret_url)?>);
 </script>

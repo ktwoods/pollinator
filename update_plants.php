@@ -25,7 +25,7 @@ else if (isset($_GET['name'])) {
 ?>
 
 <div class="container-fluid">
-	<h1 class="text-center">New plant species</h1>
+	<h1>New plant species</h1>
 	<div class="text-center" id="submitMessage" hidden>
 		<p>&nbsp;</p>
 	</div>
@@ -49,16 +49,16 @@ else if (isset($_GET['name'])) {
 				<!-- Radio toggle for haves/wants -->
 				<div style="margin-bottom: 10px">
 					<div class="form-check checkbox-inline">
-						<input required class="form-check-input" type="radio" name="have" value="1" id="have"><label class="form-check-label" for="have" style="margin-left: 10px">have</label>
+						<input required class="form-check-input" type="radio" name="have" value="1" id="have"><label class="form-check-label" for="have">have</label>
 					</div>
 					<div required class="form-check checkbox-inline">
-						<input class="form-check-input" type="radio" name="have" value="0" id="dhave"><label class="form-check-label" for="dhave" style="margin-left: 10px">don't have</label>
+						<input class="form-check-input" type="radio" name="have" value="0" id="dhave"><label class="form-check-label" for="dhave">don't have</label>
 					</div>
 					<div class="form-check checkbox-inline">
-						<input required class="form-check-input" type="radio" name="want" value="1" id="want"><label class="form-check-label" for="want" style="margin-left: 10px">want</label>
+						<input required class="form-check-input" type="radio" name="want" value="1" id="want"><label class="form-check-label" for="want">want</label>
 					</div>
 					<div class="form-check checkbox-inline">
-						<input required class="form-check-input" type="radio" name="want" value="0" id="dwant"><label class="form-check-label" for="dwant" style="margin-left: 10px">don't want</label>
+						<input required class="form-check-input" type="radio" name="want" value="0" id="dwant"><label class="form-check-label" for="dwant">don't want</label>
 					</div>
 				</div>
 				<!-- Tags, approximate length of bloom period -->
@@ -110,14 +110,14 @@ else if (isset($_GET['name'])) {
 		let messageDiv = $('#submitMessage');
 		messageDiv.removeAttr('hidden');
 
-		if (submitSuccessful) messageDiv.append(`Species <i>${latinName}</i> (${commonName}) was added! <a href="view_plant.php?spp=${latinName}">[View species profile]</a>`);
+		if (submitSuccessful) messageDiv.append(`Species <i>${latinName}</i> (${commonName}) was added! <a href="view_plant.php?sp=${latinName}">[View species profile]</a>`);
 		else messageDiv.append(`Error: unable to add species <i>${latinName}</i> (${commonName}) to the database.`);
 	}
 	else if (action === 'edit') {
 		$('h1').first().html('Edit plant species: <i>' + speciesData['latin_name'] + '</i>');
 		$('.btn').text('Update');
 
-		form.action = 'view_plant.php?spp=' + speciesData['latin_name'];
+		form.action = 'view_plant.php?sp=' + speciesData['latin_name'];
 		// populate fields
 		form.elements.latinName.value = speciesData['latin_name'];
 		form.elements.commonName.value = speciesData['common_name'];

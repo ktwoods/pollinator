@@ -8,22 +8,16 @@ body { margin: 0; }
 
 ul { margin-bottom: 0px; }
 
-/* Change color scheme of list-group to greenyellow */
-.nav-p.active, .nav-p.active:focus, .nav-p.active:hover {
-	background-color: greenyellow;
-	border-color: greenyellow;
-	color: black;
-	font-weight: bold;
-}
-
 /* Set black background color, white text and some padding */
 footer {
   background-color: #343a40;
   color: white;
   padding: 15px;
+	overflow: auto;
 }
 
-h2 { text-align: center; }
+h1, h2 { text-align: center; }
+.jumbotron h1 { text-align: left; }
 
 /* Default table styling */
 table {
@@ -40,12 +34,21 @@ th {
 	color: white;
 	text-align: center;
 }
-
 /*td {
 	overflow-wrap: break-word;
 	word-wrap: break-word;
 	word-break: break-word;
 }*/
+
+.form-check-label { margin-left: 10px; }
+
+/* Species tables */
+.spp { margin-top: 1em; margin-left: 0px; width: 100%; }
+.spp th, .spp td { border: .5em solid white; color: black; vertical-align: top; }
+
+.spp-p { table-layout: fixed; text-align: center; }
+
+li { text-align: left; }
 
 .invis {
 	margin-left: 0px;
@@ -53,100 +56,54 @@ th {
 }
 .invis th, .invis td { border: 0px solid white; }
 
-/* Special row/cell highlighting */
-#havenot { background-color: #d9d9d9; }
+.img-fluid { max-height: 100%; }
 
-.want { background-color: greenyellow; }
+/* Generic buttons */
+.btn { background-color: #505050; border-color: black; color: white; }
+.btn:hover { background-color: black; color: white; }
 
-.seen-l { background-color: #80fdff; }
-.seen-l-genus { background-color: #ccfeff; }
+/* Color-coded buttons */
+.btn-p, .btn-l, .btn-b, .btn-m { color: black; }
 
-.seen-b { background-color: gold; }
-.seen-b-genus { background-color: #fff4b3; }
+.btn-l { background-color: #ccfeff; border-color: #66fcff; }
+.btn-l:hover { background-color: #66fcff; }
 
-.seen-o { background-color: #ffdb99; }
-
-/* Basic color styling, revised */
-.plant-color-1 { background-color: greenyellow; }
-.plant-color-2 { background-color: #ebffcc; }
-
-.lep-color-1 { background-color: #66fcff; }
-.lep-color-2 { background-color: #ccfeff; }
-.lep-color-3 { background-color: #80fdff; }
-
-.bee-color-1 { background-color: gold; }
-.bee-color-2 { background-color: #fff4b3; }
-
-.misc-color-1 { background-color: #ffa500; }
-.misc-color-2 { background-color: #ffdb99; }
+.btn-b { background-color: #fff4b3; border-color: gold; }
+.btn-b:hover { background-color: gold; }
 
 .btn-m { background-color: #ffdb99; border-color: #ffa500; }
-a.btn-m:hover, button.btn-m:hover { background-color: #ffa500; }
-a.btn-m { color: black; }
+.btn-m:hover { background-color: #ffa500; }
 
+.btn-p { background-color: #ebffcc; border-color: greenyellow; }
+.btn-p:hover { background-color: greenyellow; }
 
-/* Basic color styling */
-.prim-p { background-color: greenyellow; }
-.sec-p { background-color: #ebffcc; }
-.prim-l { background-color: #66fcff; }
-.sec-l { background-color: #ccfeff; }
-.prim-b { background-color: gold; }
-.sec-b { background-color: #fff4b3; }
-.prim-o { background-color: #ffa500 }
-.sec-o { background-color: #ffdb99 }
+.btn-new { margin-top: 15px; position: fixed; }
+.btn-del { margin-bottom: 1em; left: 1em; }
+.btn-edit { margin-top: 1em; right: 1em; position: absolute; z-index: 100; }
 
-/* Species tables */
-.spp { margin-top: 1em; margin-left: 0px; width: 100%; }
-.spp th, .spp td { border: .5em solid white; color: black; vertical-align: top; }
+/* Basic colors */
+.plant-color-1, .spp-p th { background-color: greenyellow; }
+.plant-color-2, .spp-p td { background-color: #ebffcc; }
 
-.spp-p { table-layout: fixed; }
-.spp-p td { background-color: #ebffcc; text-align: center; }
-.spp-p th { background-color: greenyellow; }
+.lep-color-1, .spp-l th { background-color: #66fcff; }
+.lep-color-2, .spp-l td { background-color: #ccfeff; }
+.lep-color-3 { background-color: #80fdff; }
 
-.spp-l th { background-color: #66fcff; }
-.spp-l td { background-color: #ccfeff; }
+.bee-color-1, .spp-b th { background-color: gold; }
+.bee-color-2, .spp-b td { background-color: #fff4b3; }
 
-.spp-b th { background-color: gold; }
-.spp-b td { background-color: #fff4b3; }
-
-.spp-o th { background-color: #ffa500; }
-.spp-o td { background-color: #ffdb99; }
-
-
+.misc-color-1, .spp-o th { background-color: #ffa500; }
+.misc-color-2, .spp-o td { background-color: #ffdb99; }
 
 /* Plant tags */
 .spp-tag {
+	background-color: greenyellow;
 	margin: 0px 10px 0px 0px;
 	padding: 5px;
 	display: inline-block;
 	border-radius: 5px;
-	background-color: greenyellow;
 }
-
-.tag-no { background-color: #ebffcc; font-style: italic; }
-
-
-/* Color-coded buttons */
-.btn-l { background-color: #ccfeff; border-color: #66fcff; }
-a.btn-l:hover, button.btn-l:hover { background-color: #66fcff; }
-a.btn-l { color: black; }
-
-.btn-b { background-color: #fff4b3; border-color: gold; }
-a.btn-b:hover, button.btn-b:hover { background-color: gold; }
-a.btn-b { color: black; }
-
-.btn-o { background-color: #ffdb99; border-color: #ffa500; }
-a.btn-o:hover, button.btn-o:hover { background-color: #ffa500; }
-a.btn-o { color: black; }
-
-.btn-p { background-color: #ebffcc; border-color: greenyellow; }
-a.btn-p:hover, button.btn-p:hover { background-color: greenyellow; }
-a.btn-p { color: black; }
-
-/* Button defaults */
-.btn-d { background-color: #505050; border-color: black; }
-a.btn-d:hover, button.btn-d:hover { background-color: black; }
-a.btn-d { color: white; }
-
-.btn-del { margin-bottom: 1em; left: 1em; }
-.btn-edit { margin-top: 1em; right: 1em; position: absolute; z-index: 100; }
+.tag-no {
+	background-color: #ebffcc;
+	font-style: italic;
+}

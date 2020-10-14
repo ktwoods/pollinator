@@ -18,13 +18,13 @@ foreach ($species as $sp) {
 }
 ?>
 <!-- "Add species" button -->
-<a href="new.php?type=other" class="btn btn-o" style="margin-top: 15px; position: fixed;"><i class="fas fa-plus"></i> Add species</a>
+<a href="new.php?type=other" class="btn btn-m btn-new"><i class="fas fa-plus"></i> Add species</a>
 
 <!-- Main container -->
 <div class="container-fluid">
 	<div class="row justify-content-center">
 		<div class="col col-lg-8" id="generalList">
-      <h1 class="text-center">Other creatures</h1>
+      <h1>Other creatures</h1>
     </div>
   </div>
 </div>

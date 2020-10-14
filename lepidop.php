@@ -31,19 +31,19 @@ foreach ($m_species as $sp) {
 }
 ?>
 <!-- "Add species" button -->
-<a href="new.php?type=lepidop" class="btn btn-l" style="margin-top: 15px; position:fixed;"><i class="fas fa-plus"></i> Add species</a>
+<a href="new.php?type=lepidop" class="btn btn-l btn-new"><i class="fas fa-plus"></i> Add species</a>
 
 <!-- Main container -->
 <div class="container-fluid">
 	<div class="row justify-content-center">
 		<div class="col col-lg-8" id="butterflyList">
-			<h1 class="text-center">Butterflies</h1>
+			<h1>Butterflies</h1>
 		</div>
 	</div>
 	<p>&nbsp;</p>
 	<div class="row justify-content-center">
 		<div class="col col-lg-8" id="mothList">
-			<h1 class="text-center">Moths</h1>
+			<h1>Moths</h1>
 		</div>
 	</div>
 </div>

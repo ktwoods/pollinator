@@ -6,7 +6,7 @@ include_once 'header.html';
 if (isset($_POST['latin'])) {
 	$stmt = $conn->prepare("UPDATE Plant SET latin_name=?, common_name=?, family=?, have=?, want=?, bloom_length=?, tags=?, research_notes=?, observations=?, img_url=? WHERE latin_name=?");
 
-	$success = $stmt->execute(array($_POST['latin'], $_POST['common'],$_POST['fam'], $_POST['have'], $_POST['want'], $_POST['blen'], $_POST['tags'], $_POST['notes'], $_POST['obs'], $_POST['img'], $_GET['spp'])) && $stmt->rowCount() != 0;
+	$success = $stmt->execute(array($_POST['latin'], $_POST['common'],$_POST['fam'], $_POST['have'], $_POST['want'], $_POST['blen'], $_POST['tags'], $_POST['notes'], $_POST['obs'], $_POST['img'], $_GET['sp'])) && $stmt->rowCount() != 0;
 }
 
 $stmt = $conn->prepare("SELECT * FROM Plant WHERE latin_name = ?");
@@ -64,7 +64,6 @@ $bees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 						<tr id="bloomMonths"><th>Blooms</th><td>&nbsp;</td></tr>
 						<tr id="bloomLength"><th>Bloom length</th><td>&nbsp;</td></tr>
 						<tr id="fruitMonths"><th>Fruits</th><td>&nbsp;</td>
-						<tr><td colspan="2" style="background-color: white">&nbsp;</td></tr>
 					</table>
 				</div>
 				<!-- Column 2: characteristics, notes -->
@@ -129,7 +128,7 @@ $bees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 	$('.btn-edit').attr('href', 'update_plants.php?name=' + plant['latin_name']);
 
 	if (plant['img_url']) {
-		$('#image').append(`<a href="${plant['img_url']}"><img src="${plant['img_url']}" class="img-fluid center-block" style="max-height: 100%"></a>`);
+		$('#image').append(`<a href="${plant['img_url']}"><img src="${plant['img_url']}" class="img-fluid center-block"></a>`);
 	}
 
 	$('h1').first().append(`${plant['common_name']}<br/><small><i>${plant['latin_name']}</i><br/>${plant['family']}</small>`);
@@ -148,12 +147,12 @@ $bees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 	// Specialists table
 	let list = '';
 	for (let cat of plant.caterpillars) {
-		list += `<li>${cat['common_name']} (<i><a href="view.php?spp=${cat['latin_name']}">${cat['latin_name']}</a></i>)</li>`;
+		list += `<li>${cat['common_name']} (<i><a href="view.php?sp=${cat['latin_name']}">${cat['latin_name']}</a></i>)</li>`;
 	}
 	if (list) $('#caterpillarList').html(list);
 	list = '';
 	for (let bee of plant.bees) {
-		list += `<li>${bee['common_name']} (<i><a href="view.php?spp=${bee['latin_name']}">${bee['latin_name']}</a></i>) — ${bee['specialization']}</li>`;
+		list += `<li>${bee['common_name']} (<i><a href="view.php?sp=${bee['latin_name']}">${bee['latin_name']}</a></i>) — ${bee['specialization']}</li>`;
 	}
 	if (list) $('#beeList').html(list);
 
@@ -178,7 +177,7 @@ $bees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 	subtypeSet.forEach(subtype => { subtypes.push({'subtype': subtype}) });
 	$('#visitorsByType').append(buildTabsByCategory('subtype', subtypes, creatureSpecies));
 
-	$('#deleteURL').attr('href', 'delete.php?spp=' + plant['latin_name']);
+	$('#deleteURL').attr('href', 'delete.php?sp=' + plant['latin_name']);
 
 	$('.btn').not('.modal-footer>.btn').addClass('btn-p');
 	$('table').addClass('spp spp-p');

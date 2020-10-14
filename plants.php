@@ -11,13 +11,13 @@ $stmt->execute();
 $woody_plants = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!-- "Add species" button -->
-<a href="update_plants.php" class="btn btn-p" style="margin-top: 15px; position: fixed;"><i class="fas fa-plus"></i> Add species</a>
+<a href="update_plants.php" class="btn btn-p btn-new"><i class="fas fa-plus"></i> Add species</a>
 
 <!-- Main container -->
 <div class="container-fluid">
 	<div class="row justify-content-center">
 		<div class="col col-lg-8">
-      <h1 class="text-center">Plants</h1>
+      <h1>Plants</h1>
 			<ul class="nav nav-pills justify-content-center" id="pills-tab" role="tablist">
 				<li class="nav-item"><a class="nav-link active" id="herb-tab" data-toggle="pill" href="#herb" role="tab" aria-controls="pills-herb" aria-selected="true">Herbaceous</a></li>
 				<li class="nav-item"><a class="nav-link" id="woody-tab" data-toggle="pill" href="#woody" role="tab" aria-controls="pills-woody" aria-selected="false">Woody</a></li>

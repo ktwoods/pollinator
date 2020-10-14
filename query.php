@@ -46,10 +46,10 @@ if (isset($_POST['query']))
 				<form action="query.php" method="post">
 					<div class="form-group">
 						<label for="query" style="margin-top: 1em">MySQL:</label>
-						<textarea class="form-control" id="query" name="query" style="width: 400px; margin-left: auto; margin-right: auto;"></textarea>
+						<textarea class="form-control" id="query" name="query" style="width: 400px; margin-left: auto; margin-right: auto"></textarea>
 					</div>
 					<br/>
-					<button type="Submit" class="btn btn-d" style="color: white">Submit</button>
+					<button type="Submit" class="btn">Submit</button>
 				</form>
 				<p>&nbsp;</p>
 				<div class="text-center" id="queryResult">

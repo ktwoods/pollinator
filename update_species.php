@@ -4,6 +4,7 @@ include_once 'funcs_general.php';
 // Determine what kind of species template is needed for this page (lepid, bee, or the general template)
 $template = template_vals(get_type($_GET['sp']));
 $cur_page = $template['type'];
+$spp_type = $template['type'];
 
 $action = 'new';
 $submit_successful = false;
@@ -45,7 +46,7 @@ else if (isset($_GET['sp'])) {
 ?>
 
 <div class="container-fluid">
-	<h1 class="text-center">New creature species</h1>
+	<h1>New creature species</h1>
 	<div class="text-center" id="submitMessage" hidden>
 		<p>&nbsp;</p>
 	</div>

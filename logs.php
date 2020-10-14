@@ -48,7 +48,7 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <div class="container-fluid">
 	<div class="row justify-content-center">
 		<div class="col col-lg-8" id="logContainer">
-			<h1 class="text-center"></h1>
+			<h1></h1>
 		</div>
 	</div>
 </div>
@@ -104,7 +104,7 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		// thumbnail
 		logRow.append($('<td/>').append(thumbnail(log['img_url'], log['latin_name'], '3rem')));
 		// Latin and common name
-		logRow.append($(`<td style="white-space: nowrap">${log['common_name']}<br/><i>(<a href="view.php?spp=${log['latin_name']}">${log['latin_name']}</a>)</i></td>`));
+		logRow.append($(`<td style="white-space: nowrap">${log['common_name']}<br/><i>(<a href="view.php?sp=${log['latin_name']}">${log['latin_name']}</a>)</i></td>`));
 		// date
 		logRow.append('<td style="white-space: nowrap">' + log['date'] + '</td>');
 		// notes
