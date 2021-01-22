@@ -98,17 +98,17 @@ $thumbs['thirty_days'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div id="plantSampleSpecies" class="card-body text-muted plant-color-2"></div>
       </div></div>
       <div class="col-md-3"><div id="lepCard" class="card text-center">
-        <div class="card-header"><a href="plants.php" class="btn btn-lg btn-l">Butterflies & moths</a></div>
+        <div class="card-header"><a href="lepidop.php" class="btn btn-lg btn-l">Butterflies & moths</a></div>
         <a  id="lepSampleImg"href="#"><img class="card-img-top" alt="Butterfly/moth species"></img></a>
         <div id="lepSampleSpecies" class="card-body text-muted lep-color-2"></div>
       </div></div>
       <div class="col-md-3"><div id="beeCard" class="card text-center">
-        <div class="card-header"><a href="plants.php" class="btn btn-lg btn-b">Bees</a></div>
+        <div class="card-header"><a href="bees.php" class="btn btn-lg btn-b">Bees</a></div>
         <a id="beeSampleImg" href="#"><img class="card-img-top" alt="Bee species"></img></a>
         <div id="beeSampleSpecies" class="card-body text-muted bee-color-2"></div>
       </div></div>
       <div class="col-md-3"><div id="miscCard" class="card text-center">
-        <div class="card-header"><a href="plants.php" class="btn btn-lg btn-m">Other species</a></div>
+        <div class="card-header"><a href="other.php" class="btn btn-lg btn-m">Other species</a></div>
         <a id="miscSampleImg" href="#"><img class="card-img-top" alt="Creature species"></img></a>
         <div id="miscSampleSpecies" class="card-body text-muted misc-color-2"></div>
       </div></div>

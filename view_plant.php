@@ -52,7 +52,7 @@ $bees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		<div id="image" class="col-sm-4"></div>
 		<div class="col-sm-8">
 			<!-- Page header (common name, Latin name, family name) -->
-			<h1></h1>
+			<h1 style="text-align: left"></h1>
 			<!-- Have/want badges -->
 			<div id="haveWant"></div>
 			<!-- Profile -->
@@ -165,7 +165,7 @@ $bees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		let sp = creatureSpecies[i];
 		creatureSpecies[i] = {
 			'logs': countBadgePopover(sp['logs']),
-			'species': `${sp['common_name']}<br/>(<i><a href="view_plant?spp=${sp['latin_name']}">${sp['latin_name']}</a></i>)`,
+			'species': `${sp['common_name']}<br/>(<i><a href="view_plant?sp=${sp['latin_name']}">${sp['latin_name']}</a></i>)`,
 			'family': sp['family_name'],
 			'stage': sp['stage'],
 			'notes': sp['notes'],

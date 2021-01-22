@@ -21,7 +21,7 @@ else if ($type == 'other') {
 	$cur_page = 'miscLogs';
 	$header = 'Other creature';
 	$table = 'Log JOIN Creature USING (latin_name) WHERE Log.latin_name NOT IN (SELECT latin_name FROM Bee UNION SELECT latin_name FROM Lepidopteran)';
-	$btn_class = 'o';
+	$btn_class = 'm';
 }
 
 include_once 'funcs_general.php';

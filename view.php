@@ -58,7 +58,7 @@ foreach ($adult_food_spp as $sp) {
 		<div class="col-sm-8">
 			<div style="margin-left: .5em">
 				<!-- Page header (common name, Latin name, family name) -->
-				<h1><a href="#" id="refURL" class="btn" style="margin-left: 2em" hidden><i class="fas fa-external-link-alt"></i></a></h1>
+				<h1 style="text-align:left"><a href="#" id="refURL" class="btn" style="margin-left: 2em" hidden><i class="fas fa-external-link-alt"></i></a></h1>
 				<!-- Column 1: Type, specialization (if bee), general notes -->
 				<div class="row">
 					<div class="col-sm-6">
@@ -184,7 +184,7 @@ foreach ($adult_food_spp as $sp) {
 				switch (val.textContent) {
 					case 'Logs': cell = $('<td/>').append(countBadgePopover(i['logs'])); break;
 					case 'Have': cell = '<td><span class="text-center">' + (+i['have'] ? '&#x2713' : '&mdash;') + '</span></td>'; break;
-					case 'Plant species': cell = `<td>${i['common_name']}<br/>(<i><a href="view_plant?spp=${i['latin_name']}">${i['latin_name']}</a></i>)</td>`; break;
+					case 'Plant species': cell = `<td>${i['common_name']}<br/>(<i><a href="view_plant?sp=${i['latin_name']}">${i['latin_name']}</a></i>)</td>`; break;
 					case 'Blooms': if (bloomMonths[i['latin_name']]) cell = '<td>' + monthTooltips(bloomMonths[i['latin_name']]) + '</td>'; break;
 					case 'Bloom length': cell = '<td>' + i['bloom_length'] + '</td>'; break;
 					case 'Feeding notes': cell = '<td>' + i['notes'] + '</td>'; break;
