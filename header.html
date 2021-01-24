@@ -56,10 +56,4 @@
         </div></a>
 			</div>
 	</nav>
-  <script>
-    const page = <?=json_encode($cur_page)?>;
-    $('#' + page).addClass('active');
-    if (['lepLogs', 'beeLogs', 'miscLogs', 'updateLogs'].includes(page)) $('#logCategory').addClass('active');
-    else if (['lepidop', 'bees', 'misc'].includes(page)) $('#creatureCategory').addClass('active');
-  </script>
 	<div class="container-fluid">

@@ -66,16 +66,16 @@ li { text-align: left; }
 .btn-p, .btn-l, .btn-b, .btn-m { color: black; }
 
 .btn-l { background-color: #ccfeff; border-color: #66fcff; }
-.btn-l:hover { background-color: #66fcff; }
+.btn-l:hover { background-color: #66fcff; color: black; }
 
 .btn-b { background-color: #fff4b3; border-color: gold; }
-.btn-b:hover { background-color: gold; }
+.btn-b:hover { background-color: gold; color: black; }
 
 .btn-m { background-color: #ffdb99; border-color: #ffa500; }
-.btn-m:hover { background-color: #ffa500; }
+.btn-m:hover { background-color: #ffa500; color: black; }
 
 .btn-p { background-color: #ebffcc; border-color: greenyellow; }
-.btn-p:hover { background-color: greenyellow; }
+.btn-p:hover { background-color: greenyellow; color: black; }
 
 .btn-new { margin-top: 15px; position: fixed; }
 .btn-del { margin-bottom: 1em; left: 1em; }

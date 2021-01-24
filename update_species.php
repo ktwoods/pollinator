@@ -2,9 +2,15 @@
 include_once 'header.html';
 include_once 'funcs_general.php';
 // Determine what kind of species template is needed for this page (lepid, bee, or the general template)
-$template = template_vals(get_type($_GET['sp']));
-$cur_page = $template['type'];
-$spp_type = $template['type'];
+if (isset($_GET['sp'])) {
+    $template = template_vals(get_type($_GET['sp']));
+    $cur_page = $template['type'];
+    $spp_type = $template['type'];
+}
+else {
+    $cur_page = $_GET['type'];
+    $spp_type = $_GET['type'];
+}
 
 $action = 'new';
 $submit_successful = false;
@@ -40,6 +46,14 @@ if (isset($_POST['latin'])) {
 else if (isset($_GET['sp'])) {
 	$action = 'edit';
 	$stmt = $conn->prepare("SELECT * FROM Creature_full WHERE latin_name = ?");
+
+	if ($spp_type == 'lep') {
+	    $stmt = $conn->prepare("SELECT * FROM Lep_full WHERE latin_name = ?");
+	}
+	else if ($spp_type == 'bee') {
+	    $stmt = $conn->prepare("SELECT * FROM Bee_full WHERE latin_name = ?");
+	}
+
 	$stmt->execute(array($_GET['sp']));
 	$species_data = $stmt->fetch();
 }
@@ -111,14 +125,21 @@ else if (isset($_GET['sp'])) {
 <script>
 	const form = document.getElementById('speciesForm');
 
-	const creatureType = <?=json_encode($template['type'])?>;
+	const creatureType = <?=json_encode($spp_type)?>;
 	const action = <?=json_encode($action)?>;
 	const submitSuccessful = <?=json_encode($submit_successful)?>;
-	const latinName = <?=json_encode($_POST['latin'])?>;
-	const commonName = <?=json_encode($_POST['common'])?>;
-	const speciesData = <?=json_encode($species_data)?>;
+	const latinName = <?=isset($_POST['latin']) ? json_encode($_POST['latin']) : 'undefined'?>;
+	const commonName = <?=isset($_POST['common']) ? json_encode($_POST['common']) : 'undefined'?>;
+	const speciesData = <?=isset($species_data) ? json_encode($species_data) : 'undefined'?>;
 
 	form.action = 'update_species.php?type=' + creatureType;
+
+	if (creatureType === 'lep') {
+	    $('#lepFields').removeAttr('hidden');
+	}
+	else if (creatureType === 'bee') {
+        $('#beeFields').removeAttr('hidden');
+	}
 
 	if (action === 'submit') {
 		form.setAttribute('hidden', '');
@@ -133,11 +154,11 @@ else if (isset($_GET['sp'])) {
 		$('.btn[type=Submit]').text('Update');
 
 		if (creatureType === 'lep') {
-			form.elements.host = speciesData['host_prefs'] || '';
-			form.elements.nect = speciesData['nect_prefs'] || '';
+			form.elements.host.value = speciesData['host_prefs'] || '';
+			form.elements.nect.value = speciesData['nect_prefs'] || '';
 		}
 		else if (creatureType === 'bee') {
-			form.elements.specialization = speciesData['specialization'];
+			form.elements.specialization.value = speciesData['specialization'];
 		}
 
 		form.action = 'view.php?sp=' + speciesData['latin_name'];

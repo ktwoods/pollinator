@@ -41,7 +41,7 @@ $stmt = $conn->prepare("SELECT latin_name, common_name, have, bloom_length, Feed
 $stmt->execute(array($name));
 $adult_food_spp = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Bloom months for each species
-$blooms;
+$blooms = array();
 foreach ($adult_food_spp as $sp) {
 	$stmt = $conn->prepare("SELECT month, verified, notes FROM Blooms NATURAL JOIN Month where latin_name=? ORDER BY month_num");
 	$stmt->execute(array($sp['latin_name']));
@@ -184,7 +184,7 @@ foreach ($adult_food_spp as $sp) {
 				switch (val.textContent) {
 					case 'Logs': cell = $('<td/>').append(countBadgePopover(i['logs'])); break;
 					case 'Have': cell = '<td><span class="text-center">' + (+i['have'] ? '&#x2713' : '&mdash;') + '</span></td>'; break;
-					case 'Plant species': cell = `<td>${i['common_name']}<br/>(<i><a href="view_plant?sp=${i['latin_name']}">${i['latin_name']}</a></i>)</td>`; break;
+					case 'Plant species': cell = `<td>${i['common_name']}<br/>(<i><a href="view_plant.php?sp=${i['latin_name']}">${i['latin_name']}</a></i>)</td>`; break;
 					case 'Blooms': if (bloomMonths[i['latin_name']]) cell = '<td>' + monthTooltips(bloomMonths[i['latin_name']]) + '</td>'; break;
 					case 'Bloom length': cell = '<td>' + i['bloom_length'] + '</td>'; break;
 					case 'Feeding notes': cell = '<td>' + i['notes'] + '</td>'; break;

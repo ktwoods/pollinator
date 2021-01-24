@@ -18,7 +18,7 @@ foreach ($species as $sp) {
 }
 ?>
 <!-- "Add species" button -->
-<a href="new.php?type=other" class="btn btn-m btn-new"><i class="fas fa-plus"></i> Add species</a>
+<a href="update_species.php?type=misc" class="btn btn-m btn-new"><i class="fas fa-plus"></i> Add species</a>
 
 <!-- Main container -->
 <div class="container-fluid">

@@ -3,6 +3,7 @@ $cur_page = 'plants';
 include_once 'header.html';
 
 // Handles submitting edits, if returning from edit_plant.php
+$success = true;
 if (isset($_POST['latin'])) {
 	$stmt = $conn->prepare("UPDATE Plant SET latin_name=?, common_name=?, family=?, have=?, want=?, bloom_length=?, tags=?, research_notes=?, observations=?, img_url=? WHERE latin_name=?");
 

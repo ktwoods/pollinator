@@ -31,7 +31,7 @@ else if (isset($_GET['name'])) {
 	</div>
 	<form action="update_plants.php" method="post" id="plantForm">
 		<div class="row justify-content-center">
-			<div class="col-lg-6 sec-p">
+			<div class="col-lg-6 plant-color-2">
 				<div>&nbsp;</div>
 				<!-- Basic fields: common name, Latin name, family -->
 				<div class="form-group">
@@ -101,9 +101,9 @@ else if (isset($_GET['name'])) {
 
 	const action = <?=json_encode($action)?>;
 	const submitSuccessful = <?=json_encode($submit_successful)?>;
-	const latinName = <?=json_encode($_POST['latin'])?>;
-	const commonName = <?=json_encode($_POST['common'])?>;
-	const speciesData = <?=json_encode($species_data)?>;
+	const latinName = <?=isset($_POST['latin']) ? json_encode($_POST['latin']) : json_encode($species_data['latin_name'])?>;
+	const commonName = <?=isset($_POST['common']) ? json_encode($_POST['common']) : json_encode($species_data['common_name'])?>;
+	const speciesData = <?=isset($species_data) ? json_encode($species_data) : 'null'?>;
 
 	if (action === 'submit') {
 		form.setAttribute('hidden', '');

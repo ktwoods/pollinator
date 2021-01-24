@@ -10,7 +10,7 @@ if ($is_new_log && isset($_POST['latin'])) {
   $stmt = $conn->prepare("INSERT INTO Log VALUES (?, ?, ?, ?)");
   $success = $stmt->execute(array($_POST['latin'], $_POST['date'], $_POST['notes'], $_POST['stage'])) && $stmt->rowCount() != 0;
 }
-else {
+else if (isset($_GET['n'])) {
   // Is an existing log being edited, so fetch the full log
   $stmt = $conn->prepare("SELECT * FROM Log WHERE latin_name=? AND date=? AND stage=?");
   $stmt->execute(array($_GET['n'], $_GET['d'], $_GET['s']));
@@ -23,7 +23,7 @@ $all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <div class="container-fluid">
-	<h1></h1>
+	<h1>&nbsp;</h1>
 	<form method="post">
 		<div class="row justify-content-center">
 			<div class="col-sm-6">

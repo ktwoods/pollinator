@@ -31,7 +31,7 @@ foreach ($m_species as $sp) {
 }
 ?>
 <!-- "Add species" button -->
-<a href="new.php?type=lepidop" class="btn btn-l btn-new"><i class="fas fa-plus"></i> Add species</a>
+<a href="update_species.php?type=lep" class="btn btn-l btn-new"><i class="fas fa-plus"></i> Add species</a>
 
 <!-- Main container -->
 <div class="container-fluid">

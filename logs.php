@@ -3,7 +3,7 @@ $type = $_GET['type'];
 $cur_page = 'allLogs';
 $header = 'All';
 $table = 'Log JOIN Creature USING (latin_name)';
-$btn_class = 'o';
+$btn_class = 'm';
 
 if ($type == 'lep') {
 	$cur_page = 'lepLogs';
@@ -67,7 +67,8 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 	const container = $('#logContainer');
 
 	if (<?=json_encode(isset($_GET['on']))?>) {
-		title.before(changeAlert(<?=json_encode($success)?>, `Log entry for ${<?=json_encode($_POST['stage'])?>} <i>${<?=json_encode($_POST['latin'])?>}</i> (${<?=json_encode($_POST['date'])?>}) updated.`), header);
+	    const err = '[unknown]';
+		title.before(changeAlert(<?=isset($success) ? json_encode($success) : 'false'?>, `Log entry for ${<?=isset($_POST['stage']) ? json_encode($_POST['stage']) : 'err'?>} <i>${<?=isset($_POST['latin']) ? json_encode($_POST['latin']) : 'err'?>}</i> (${<?=isset($_POST['date']) ? json_encode($_POST['date']) : 'err'?>}) updated.`));
 	}
 
 	let curYear, numLogsInYear, yearTable, yearTableHeader;
@@ -118,7 +119,7 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 				if (plantNamesStr.includes(possibleName)) {
 					// append both words enclosed in a hyperlink
-					possibleNameOrig = possibleNameOrig.replace(possibleName, `<a href="view_plant.php?name=${possibleName}"><i>${possibleName}</i></a>`);
+					possibleNameOrig = possibleNameOrig.replace(possibleName, `<a href="view_plant.php?sp=${possibleName}"><i>${possibleName}</i></a>`);
 					noteHTML += possibleNameOrig + ' ';
 					i++;
 				}
