@@ -7,7 +7,7 @@ $success = true;
 if (isset($_POST['latin'])) {
 	$stmt = $conn->prepare("UPDATE Plant SET latin_name=?, common_name=?, family=?, have=?, want=?, bloom_length=?, tags=?, research_notes=?, observations=?, img_url=? WHERE latin_name=?");
 
-	$success = $stmt->execute(array($_POST['latin'], $_POST['common'],$_POST['fam'], $_POST['have'], $_POST['want'], $_POST['blen'], $_POST['tags'], $_POST['notes'], $_POST['obs'], $_POST['img'], $_GET['sp'])) && $stmt->rowCount() != 0;
+	$success = $stmt->execute(array(trim($_POST['latin']), trim($_POST['common']), trim($_POST['fam']), $_POST['have'], $_POST['want'], trim($_POST['blen']), trim($_POST['tags']), trim($_POST['notes']), trim($_POST['obs']), trim($_POST['img']), trim($_GET['sp']))) && $stmt->rowCount() != 0;
 }
 
 $stmt = $conn->prepare("SELECT * FROM Plant WHERE latin_name = ?");
@@ -50,10 +50,10 @@ $bees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 	<div class="row">
 		<a href="#" class="btn btn-edit"><i class="fas fa-edit"></i></a>
 		<!-- Image -->
-		<div id="image" class="col-sm-4"></div>
+		<div id="image" class="col-sm-4">&nbsp;</div>
 		<div class="col-sm-8">
 			<!-- Page header (common name, Latin name, family name) -->
-			<h1 style="text-align: left"></h1>
+			<h1 style="text-align: left">&nbsp;</h1>
 			<!-- Have/want badges -->
 			<div id="haveWant"></div>
 			<!-- Profile -->
@@ -142,8 +142,8 @@ $bees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 	$('#bloomMonths>td').html(monthTooltips(plant.blooming));
 	$('#bloomLength>td').text((plant['bloom_length'] ? plant['bloom_length'] : 'n/a'));
 	$('#fruitMonths>td').html(monthTooltips(plant.fruiting));
-	if (plant['research_notes']) $('#characteristics>td').html('<ul><li>' + plant['research_notes'].replace(/\.[ ]*(?=.)/g, '.</li><li>') + '</li></ul>');
-	if (plant['observations']) $('#notes>td').html('<ul><li>' + plant['observations'].replace(/\.[ ]*(?=.)/g, '.</li><li>') + '</li></ul>');
+	if (plant['research_notes']) $('#characteristics>td').html(sentencesToList(plant['research_notes']));
+	if (plant['observations']) $('#notes>td').html(sentencesToList(plant['observations']));
 
 	// Specialists table
 	let list = '';
@@ -166,7 +166,7 @@ $bees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		let sp = creatureSpecies[i];
 		creatureSpecies[i] = {
 			'logs': countBadgePopover(sp['logs']),
-			'species': `${sp['common_name']}<br/>(<i><a href="view_plant?sp=${sp['latin_name']}">${sp['latin_name']}</a></i>)`,
+			'species': `${sp['common_name']}<br/>(<i><a href="view.php?sp=${sp['latin_name']}">${sp['latin_name']}</a></i>)`,
 			'family': sp['family_name'],
 			'stage': sp['stage'],
 			'notes': sp['notes'],

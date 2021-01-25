@@ -165,7 +165,6 @@ function logbook(logs) {
 
 /* Builds a list of months (e.g. months a plant is in bloom) with tooltips and returns as a string */
 function monthTooltips(months) {
-  console.log(months);
   if (months.length === 0) return 'n/a';
   let monthHTML = '';
   for (let i = 0; i < months.length; i++) {
@@ -180,4 +179,9 @@ function monthTooltips(months) {
     if (i != months.length - 1) monthHTML += ' – ';
   }
   return monthHTML;
+}
+
+/* Returns an HTML string containing the text as an unordered list separated by sentence */
+function sentencesToList(text) {
+  return '<ul><li>' + text.replace(/\.[ ]+/g, '.</li><li>') + '</li></ul>';
 }

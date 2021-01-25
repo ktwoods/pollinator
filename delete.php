@@ -22,7 +22,6 @@ if ($stmt->execute(array($_GET['sp']))) $rows_affected = $stmt->rowCount();
 			<h1>Deleting</h1>
 			<div>&nbsp;</div>
 			<div id="count" class="text-center"> species deleted.</div>
-			<div class="text-center"><a id="returnLink" href="#">[Return to main page]</a></div>
 			<div>&nbsp;</div><div>&nbsp;</div>
 		</div>
 	</div>
@@ -31,7 +30,6 @@ if ($stmt->execute(array($_GET['sp']))) $rows_affected = $stmt->rowCount();
 <script>
 	$('h1').first().append(' <i><?=$_GET['sp']?></i>');
 	$('#count').prepend(<?=$rows_affected?>);
-	$('#returnLink').attr('href', <?=json_encode($ret_url)?>);
 </script>
 
 <?php include_once 'footer.html' ?>

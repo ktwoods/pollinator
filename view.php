@@ -12,7 +12,7 @@ include_once 'header.html';
 // Handles submitting edits, if returning from edit.php
 if (isset($_POST['latin'])) {
 	$stmt = $conn->prepare("UPDATE Creature SET latin_name=?, common_name=?, family_name=?, identification=?, notes=?, img_url=? WHERE latin_name=?");
-	$changed = $stmt->execute(array($_POST['latin'], $_POST['common'], $_POST['fam'], $_POST['id'], $_POST['notes'], $_POST['img'], $name)) && $stmt->rowCount() != 0;
+	$changed = $stmt->execute(array(trim($_POST['latin']), trim($_POST['common']), trim($_POST['fam']), trim($_POST['id']), trim($_POST['notes']), trim($_POST['img']), $name)) && $stmt->rowCount() != 0;
 
 	if ($template['type'] == 'lep') {
 		$stmt = $conn->prepare("UPDATE Lepidopteran SET host_prefs=?, nect_prefs=? WHERE latin_name=?");
@@ -126,8 +126,6 @@ foreach ($adult_food_spp as $sp) {
 	adultPlants.forEach(sp => { sp.logs = logs.filter(log => log['stage'] === 'adult' && log['notes'].includes(sp['latin_name'])) });
 	const bloomMonths = <?=json_encode($blooms)?>;
 
-	console.log('full', bloomMonths);
-
 	if (<?=json_encode(isset($_POST['latin']))?>) {
 		$('#pageContainer').prepend(changeAlert(<?=json_encode($changed)?>, 'Species record updated!'));
 	}
@@ -137,15 +135,13 @@ foreach ($adult_food_spp as $sp) {
 	$('#editURL').attr('href', 'update_species.php?sp=' + creature['latin_name']);
 	if (creature['latin_name'].split(' ')[1] !== 'spp') {
 		let btn = $('#refURL');
-		// If this page is for a butterfly/moth and describes a species,
-		// not a genus, link to its BAMONA profile
+		// If this page is for a butterfly/moth and describes a species, not a genus, link to its BAMONA profile
 		if (pageType === 'lep') {
 			btn.attr('href', 'https://www.butterfliesandmoths.org/species/' + creature['latin_name'].replace(' ', '-'));
 			btn.append(' BAMONA');
 			btn.removeAttr('hidden');
 		}
-		// If this page is for a bee and describes a species, not a genus,
-		// link to its Discover Life profile
+		// If this page is for a bee and describes a species, not a genus, link to its Discover Life profile
 		else if (pageType === 'bee') {
 			btn.attr('href', 'http://www.discoverlife.org/20/q?search=' + creature['latin_name'].replace(' ', '+'));
 			btn.append(' Discover Life');
@@ -167,8 +163,8 @@ foreach ($adult_food_spp as $sp) {
 		$('#specialization').removeAttr('hidden');
 		$('#specialization>td').html((creature['specialization'] ? creature['specialization'] : 'Unknown'));
 	}
-	if (creature['notes']) $('#notes>td').html('<ul><li>' + creature['notes'].replace(/\.[ ]*(?=.)/g, '.</li><li>') + '</li></ul>');
-	if (creature['identification']) $('#identify>td').html('<ul><li>' + creature['identification'].replace(/\.[ ]*(?=.)/g, '.</li><li>') + '</li></ul>');
+	if (creature['notes']) $('#notes>td').html(sentencesToList(creature['notes']));
+	if (creature['identification']) $('#identify>td').html(sentencesToList(creature['identification']));
 
 	// Logbook
 	$('#logbook').append(logbook(logs));
@@ -180,7 +176,6 @@ foreach ($adult_food_spp as $sp) {
 			let row = $('<tr class="text-center"/>');
 			$.each(headerCells, (index, val) => {
 				let cell = '<td>&nbsp;</td>';
-				//console.log(i);
 				switch (val.textContent) {
 					case 'Logs': cell = $('<td/>').append(countBadgePopover(i['logs'])); break;
 					case 'Have': cell = '<td><span class="text-center">' + (+i['have'] ? '&#x2713' : '&mdash;') + '</span></td>'; break;

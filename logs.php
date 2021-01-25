@@ -117,7 +117,7 @@ $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 				let possibleNameOrig = noteWords[i] + ' ' + noteWords[i+1];
 				let possibleName = possibleNameOrig.replace(/^[^a-zA-Z ]+|[^a-zA-Z ]+$/g, '');
 
-				if (plantNamesStr.includes(possibleName)) {
+				if (plantNamesStr.includes(possibleName + ' ; ')) {
 					// append both words enclosed in a hyperlink
 					possibleNameOrig = possibleNameOrig.replace(possibleName, `<a href="view_plant.php?sp=${possibleName}"><i>${possibleName}</i></a>`);
 					noteHTML += possibleNameOrig + ' ';

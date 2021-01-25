@@ -11,7 +11,7 @@ if (isset($_POST['latin'])) {
 	$action = 'submit';
 	// If coming back after submitting new species data, attempt to update
 	$stmt = $conn->prepare("INSERT INTO Plant (latin_name, family, common_name, have, want, bloom_length, tags, research_notes, observations, img_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-	$exec = $stmt->execute(array($_POST['latin'], $_POST['fam'], $_POST['common'], $_POST['have'], $_POST['want'], $_POST['blen'], $_POST['tags'], $_POST['notes'], $_POST['obs'], $_POST['img']));
+	$exec = $stmt->execute(array(trim($_POST['latin']), trim($_POST['fam']), trim($_POST['common']), $_POST['have'], $_POST['want'], trim($_POST['blen']), trim($_POST['tags']), trim($_POST['notes']), trim($_POST['obs']), trim($_POST['img'])));
 
 	$submit_successful = $exec && $stmt->rowCount() != 0;
 }
@@ -35,15 +35,15 @@ else if (isset($_GET['name'])) {
 				<div>&nbsp;</div>
 				<!-- Basic fields: common name, Latin name, family -->
 				<div class="form-group">
-					<label for="latin">Latin name</label>
+					<label for="latin">Latin name (*)</label>
 					<input required type="text" class="form-control" id="latinName" name="latin">
 				</div>
 				<div class="form-group">
-					<label for="common">Common name</label>
+					<label for="common">Common name (*)</label>
 					<input required type="text" class="form-control" id="commonName" name="common">
 				</div>
 				<div class="form-group">
-					<label for="fam">Family</label>
+					<label for="fam">Family (*)</label>
 					<input required type="text" class="form-control" id="family" name="fam">
 				</div>
 				<!-- Radio toggle for haves/wants -->

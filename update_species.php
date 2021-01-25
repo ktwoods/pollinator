@@ -2,23 +2,31 @@
 include_once 'header.html';
 include_once 'funcs_general.php';
 // Determine what kind of species template is needed for this page (lepid, bee, or the general template)
-if (isset($_GET['sp'])) {
+if (isset($_GET['sp'])) { // editing an existing species
     $template = template_vals(get_type($_GET['sp']));
     $cur_page = $template['type'];
     $spp_type = $template['type'];
 }
-else {
+else { // creating a new species
     $cur_page = $_GET['type'];
     $spp_type = $_GET['type'];
 }
+// Load relevant family names for that type
+if ($spp_type == 'lep') $table = 'Lep_full';
+else if ($spp_type == 'bee') $table = 'Bee_full';
+else $table = 'Creature_full';
+$query = "SELECT family_name, family_desc, subtype FROM Family WHERE EXISTS (SELECT latin_name FROM $table WHERE $table.family_name = Family.family_name".($spp_type == 'misc' ? " AND subtype NOT IN ('moth', 'butterfly') AND subtype NOT LIKE 'bee%'" : "").") ORDER BY type, subtype, family_name";
+$stmt = $conn->prepare($query);
+$stmt->execute();
+$fam_names = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $action = 'new';
 $submit_successful = false;
 // If coming back after submitting new species data, attempt to update
 if (isset($_POST['latin'])) {
 	$action = 'submit';
-	$latin = $_POST['latin'];
-	$common = $_POST['common'];
+	$latin = trim($_POST['latin']);
+	$common = trim($_POST['common']);
 
 	$query = "START TRANSACTION; INSERT INTO Creature (latin_name, common_name, family_name, identification, notes, img_url) VALUES (:latin, :common, :fam, :id, :notes, :img);";
 
@@ -70,16 +78,17 @@ else if (isset($_GET['sp'])) {
 				<div>&nbsp;</div>
 				<!-- Basic fields: common name, Latin name, family -->
 				<div class="form-group">
-					<label for="latin">Latin name</label>
+					<label for="latin">Latin name (*)</label>
 					<input required type="text" class="form-control" id="latin" name="latin">
 				</div>
 				<div class="form-group">
-					<label for="common">Common name</label>
+					<label for="common">Common name (*)</label>
 					<input required type="text" class="form-control" id="common" name="common">
 				</div>
 				<div class="form-group">
-					<label for="fam">Family</label>
-					<input required type="text" class="form-control" id="fam" name="fam">
+					<label for="fam">Family (*)</label>
+					<select required class="form-control" id="fam" name="fam">
+					</select>
 				</div>
 				<!-- Optional field: bee specialization -->
 				<div id="beeFields" hidden>
@@ -131,9 +140,11 @@ else if (isset($_GET['sp'])) {
 	const latinName = <?=isset($_POST['latin']) ? json_encode($_POST['latin']) : 'undefined'?>;
 	const commonName = <?=isset($_POST['common']) ? json_encode($_POST['common']) : 'undefined'?>;
 	const speciesData = <?=isset($species_data) ? json_encode($species_data) : 'undefined'?>;
+	const famNames = <?=isset($fam_names) ? json_encode($fam_names) : 'undefined'?>;
 
 	form.action = 'update_species.php?type=' + creatureType;
 
+	// Enable relevant fields
 	if (creatureType === 'lep') {
 	    $('#lepFields').removeAttr('hidden');
 	}
@@ -141,6 +152,22 @@ else if (isset($_GET['sp'])) {
         $('#beeFields').removeAttr('hidden');
 	}
 
+	// Populate family select list
+	const famDropdown = $('#fam');
+	let currentGroupName = famNames[0]['subtype'];
+	let currentOptgroup = $('<optgroup>', {label: currentGroupName});
+	currentOptgroup.append('<option hidden disabled selected>Select a family</option>');
+	for (let fam of famNames) {
+		if (fam['subtype'] != currentGroupName) {
+			famDropdown.append(currentOptgroup);
+			currentGroupName = fam['subtype'];
+			currentOptgroup = $('<optgroup>', {label: currentGroupName});
+		}
+		currentOptgroup.append(`<option value="${fam['family_name']}" ${(speciesData && fam['family_name'] === speciesData['family_name'] ? 'selected' : '')}>${fam['family_name']} (${fam['family_desc']})</option>`);
+	}
+	famDropdown.append(currentOptgroup);
+
+	// Submitted new species
 	if (action === 'submit') {
 		form.setAttribute('hidden', '');
 		let messageDiv = $('#submitMessage');
@@ -149,6 +176,7 @@ else if (isset($_GET['sp'])) {
 		if (submitSuccessful) messageDiv.append(`Species <i>${latinName}</i> (${commonName}) was added! <a href="view.php?sp=${latinName}">[View species profile]</a>`);
 		else messageDiv.append(`Error: unable to add species <i>${latinName}</i> (${commonName}) to the database.`);
 	}
+	// Currently editing existing species
 	else if (action === 'edit') {
 		$('h1').first().html('Edit species: <i>' + speciesData['latin_name'] + '</i>');
 		$('.btn[type=Submit]').text('Update');
@@ -158,18 +186,18 @@ else if (isset($_GET['sp'])) {
 			form.elements.nect.value = speciesData['nect_prefs'] || '';
 		}
 		else if (creatureType === 'bee') {
-			form.elements.specialization.value = speciesData['specialization'];
+			form.elements.spec.value = speciesData['specialization'];
 		}
 
 		form.action = 'view.php?sp=' + speciesData['latin_name'];
 		// populate fields
 		form.elements.latin.value = speciesData['latin_name'];
 		form.elements.common.value = speciesData['common_name'];
-		form.elements.fam.value = speciesData['family_name'];
 		form.elements.id.value = speciesData['identification'] || '';
 		form.elements.notes.value = speciesData['notes'] || '';
 		form.elements.img.value = speciesData['img_url'] || '';
 	}
+	// Currently creating new species
 	else {
 		if (creatureType === 'lep') {
 			$('h1').text('New butterfly or moth species');

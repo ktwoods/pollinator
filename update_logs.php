@@ -29,12 +29,12 @@ $all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			<div class="col-sm-6">
         <!-- Date -->
 				<div class="form-group" style="margin-top: 10px">
-					<label for="date">Date</label>
+					<label for="date">Date (*)</label>
 					<input type="date" class="form-control" name="date" pattern="(?:19|20)\d{2}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])" required>
 				</div>
 				<!-- Species name -->
 				<div class="form-group">
-					<label for="latinName">Species</label>
+					<label for="latinName">Species (*)</label>
 					<input class="form-control" name="latin" id="latinName" type="text" list="nameList" autocomplete="off" required>
           <datalist id="nameList"></datalist>
 				</div>
@@ -68,9 +68,9 @@ $all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <script>
   const isNewLog = <?=json_encode($is_new_log)?>;
-  const previousLogDate = <?=json_encode($_POST['date'])?>;
-  const log = <?=json_encode($cur_log)?>;
-  let type = <?=json_encode(get_type($cur_log['latin_name']))?>;
+  const previousLogDate = <?=isset($_POST['date']) ? json_encode($_POST['date']) : 'undefined'?>;
+  const log = <?=isset($cur_log) ? json_encode($cur_log) : 'undefined'?>;
+  let type = <?=isset($cur_log) ? json_encode(get_type($cur_log['latin_name'])) : 'undefined'?>;
   if (type == 'Lepidopteran') type = 'lep';
   else if (type != 'Bee') type = 'other';
   const allCreatures = <?=json_encode($all_creatures)?>;
@@ -96,8 +96,9 @@ $all_creatures = $stmt->fetchAll(PDO::FETCH_ASSOC);
   logDate.setAttribute('max', today);
 
   // Print results if a new log has just been submitted
-  if (<?=json_encode($success)?>) {
-  		title.before(changeAlert(true, `New log added for ${<?=json_encode($_POST['stage'])?>} <em>${<?=json_encode($_POST['latin'])?>}</em>, ${<?=json_encode($_POST['date'])?>}!`));
+  if (<?=isset($success) ? json_encode($success) : 'false'?>) {
+      const err = '[unknown]';
+  		title.before(changeAlert(true, `New log added for ${<?=isset($_POST['stage']) ? json_encode($_POST['stage']) : 'err'?>} <em>${<?=isset($_POST['latin']) ? json_encode($_POST['latin']) : 'err'?>}</em>, ${<?=isset($_POST['date']) ? json_encode($_POST['date']) : 'err'?>}!`));
   }
 
   // Set up for a new log, or prefill with existing log
